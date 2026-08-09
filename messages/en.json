@@ -583,5 +583,28 @@
       "model": "Model #{modelId}",
       "modeLabel": "Mode: {mode}"
     }
+  },
+  "Auth": {
+    "loginTitle": "Sign In",
+    "loginSubtitle": "Welcome back! Enter your details to access your account",
+    "registerTitle": "Create New Account",
+    "registerSubtitle": "Join Barosec to protect your home and business with smart cameras",
+    "name": "Full Name",
+    "namePlaceholder": "Enter your full name",
+    "email": "Email Address",
+    "emailPlaceholder": "example@mail.com",
+    "password": "Password",
+    "passwordPlaceholder": "••••••••",
+    "passwordConfirm": "Confirm Password",
+    "passwordConfirmPlaceholder": "••••••••",
+    "passwordsDoNotMatch": "Passwords do not match",
+    "loginButton": "Sign In",
+    "registerButton": "Create Account",
+    "noAccount": "Don't have an account?",
+    "createAccountNow": "Create an account now",
+    "hasAccount": "Already have an account?",
+    "backToHome": "Back to Home",
+    "loginFailed": "Login failed. Please check your credentials.",
+    "registerFailed": "Registration failed. Please try again."
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthModal } from "@/components/auth/auth-modal";
+import { useRouter } from "@/i18n/navigation";
 import { DashboardHeader } from "@/components/dashboard/header";
 import { NAV_ITEMS, NavLink, Sidebar } from "@/components/dashboard/sidebar";
 import { listCamerasApi } from "@/lib/api";
@@ -23,6 +23,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { token, isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
@@ -33,6 +34,12 @@ export default function DashboardLayout({
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && !token) {
+      router.push("/login");
+    }
+  }, [isLoading, isAuthenticated, token, router]);
 
   useEffect(() => {
     if (token) {
@@ -60,14 +67,6 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen overflow-hidden bg-[--db-bg] text-foreground relative">
-      {/* Auth Protection Overlay Modal when no token */}
-      {!isLoading && !isAuthenticated && !token && (
-        <AuthModal
-          isOpen={true}
-          onClose={() => {}}
-          defaultMode="login"
-        />
-      )}
 
       {/* ── Sidebar (desktop) ───────────────────────────── */}
       <div className="hidden lg:block h-full shrink-0">

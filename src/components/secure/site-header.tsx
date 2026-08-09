@@ -16,14 +16,11 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 import { Logo } from "./logo";
 import { useAuth } from "@/lib/auth-context";
-import { AuthModal } from "@/components/auth/auth-modal";
-
 export function SiteHeader() {
   const t = useTranslations("Nav");
   const locale = useLocale();
   const pathname = usePathname();
   const { user, isAuthenticated, logout } = useAuth();
-  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/90 backdrop-blur-md">
@@ -148,15 +145,15 @@ export function SiteHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <button
-              onClick={() => setAuthModalOpen(true)}
+            <Link
+              href="/login"
               className={cn(
                 buttonVariants({ variant: "default", size: "sm" }),
                 "rounded-full px-4"
               )}
             >
-              تسجيل الدخول
-            </button>
+              {t("subscribe")}
+            </Link>
           )}
 
           <Link
@@ -167,8 +164,6 @@ export function SiteHeader() {
           </Link>
         </div>
       </div>
-
-      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
     </header>
   );
 }

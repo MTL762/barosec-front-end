@@ -583,5 +583,28 @@
       "model": "موديل #{modelId}",
       "modeLabel": "وضع: {mode}"
     }
+  },
+  "Auth": {
+    "loginTitle": "تسجيل الدخول",
+    "loginSubtitle": "مرحباً بعودتك! أدخل بياناتك للوصول إلى حسابك",
+    "registerTitle": "إنشاء حساب جديد",
+    "registerSubtitle": "انضم إلى باروسك لحماية منزلك وأعمالك بأحدث الكاميرات",
+    "name": "الاسم الكامل",
+    "namePlaceholder": "أدخل اسمك الكامل",
+    "email": "البريد الإلكتروني",
+    "emailPlaceholder": "example@mail.com",
+    "password": "كلمة السر",
+    "passwordPlaceholder": "••••••••",
+    "passwordConfirm": "تأكيد كلمة السر",
+    "passwordConfirmPlaceholder": "••••••••",
+    "passwordsDoNotMatch": "كلمتا السر غير متطابقتين",
+    "loginButton": "تسجيل الدخول",
+    "registerButton": "إنشاء الحساب",
+    "noAccount": "ليس لديك حساب؟",
+    "createAccountNow": "أنشئ حساباً الآن",
+    "hasAccount": "لديك حساب بالفعل؟",
+    "backToHome": "العودة للرئيسية",
+    "loginFailed": "فشل تسجيل الدخول. يرجى التحقق من البيانات.",
+    "registerFailed": "فشل إنشاء الحساب. يرجى المحاولة مرة أخرى."
   }
 }
