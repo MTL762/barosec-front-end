@@ -34,7 +34,14 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -T 15 "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+          # Pre-seed the host key, but never let this kill the job silently:
+          # a bare `ssh-keyscan ... 2>/dev/null` under `set -e` exits with no
+          # output at all, which is impossible to debug from the Actions log.
+          if ! ssh-keyscan -T 15 "$VPS_HOST" >> ~/.ssh/known_hosts 2>/tmp/keyscan.err; then
+            echo "::warning::ssh-keyscan failed; falling back to accept-new"
+            sed 's/^/  keyscan: /' /tmp/keyscan.err || true
+          fi
 
           # The server pins this key to a forced command, so the argument below is
           # ignored: it can only ever run /var/www/barosec-front-end/deploy.sh.
@@ -42,9 +49,10 @@ jobs:
           # moves nginx over. If anything fails it exits non-zero having touched
           # nothing, leaving the last good release serving.
           ssh -i ~/.ssh/deploy_key \
-              -o StrictHostKeyChecking=yes \
+              -o StrictHostKeyChecking=accept-new \
               -o ConnectTimeout=20 \
               -o ServerAliveInterval=30 \
+              -o ServerAliveCountMax=60 \
               "$VPS_USER@$VPS_HOST" deploy
 
       - name: Report failure
