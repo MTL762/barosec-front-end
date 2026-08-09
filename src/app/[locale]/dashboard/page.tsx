@@ -21,55 +21,6 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { listCamerasApi, listRecordingsApi } from "@/lib/api";
 
-const CAMERAS = [
-  { id: "cam-1", name: "المدخل الرئيسي", status: "live" as const, signal: 92, model: "Pro 4K", lastEvent: "قبل 5 دقائق" },
-  { id: "cam-2", name: "الكراج", status: "live" as const, signal: 85, model: "PTZ 360°", lastEvent: "قبل ساعة" },
-  { id: "cam-3", name: "غرفة المعيشة", status: "privacy" as const, signal: 98, model: "Interior 4K", lastEvent: "مُقَفلة" },
-];
-
-const ACTIVITY = [
-  { id: 1, type: "motion", title: "رُصد شخص عند المدخل", time: "09:42 ص", cam: "المدخل الرئيسي", severity: "medium" as const },
-  { id: 2, type: "delivery", title: "تسليم شحنة بريدية", time: "07:15 ص", cam: "المدخل الرئيسي", severity: "low" as const },
-  { id: 3, type: "car", title: "وصول سيارة العائلة", time: "06:55 ص", cam: "الكراج", severity: "low" as const },
-  { id: 4, type: "alert", title: "إنذار صوتي خفيف", time: "02:30 ص", cam: "المدخل الرئيسي", severity: "high" as const },
-  { id: 5, type: "motion", title: "حركة في الحديقة", time: "البارحة 11:12 م", cam: "الكراج", severity: "medium" as const },
-];
-
-const STAT_CARDS = [
-  {
-    label: "كاميرات متصلة",
-    value: "3",
-    sub: "من أصل 3",
-    icon: Camera,
-    color: "emerald",
-    trend: "+0",
-  },
-  {
-    label: "تسجيلات اليوم",
-    value: "14",
-    sub: "مقطع محفوظ",
-    icon: Video,
-    color: "blue",
-    trend: "+3",
-  },
-  {
-    label: "آخر حدث",
-    value: "09:42 ص",
-    sub: "رصد حركة",
-    icon: Activity,
-    color: "amber",
-    trend: null,
-  },
-  {
-    label: "التخزين السحابي",
-    value: "68%",
-    sub: "34GB من 50GB",
-    icon: HardDrive,
-    color: "violet",
-    trend: null,
-  },
-];
-
 const colorMap = {
   emerald: {
     bg: "bg-emerald-500/10",
@@ -147,10 +98,36 @@ function SignalBar({ value }: { value: number }) {
 }
 
 export default function DashboardOverviewPage() {
+  /*
+  // Static data references (commented out):
+  //
+  // const CAMERAS = [
+  //   { id: "cam-1", name: "المدخل الرئيسي", status: "live" as const, signal: 92, model: "Pro 4K", lastEvent: "قبل 5 دقائق" },
+  //   { id: "cam-2", name: "الكراج", status: "live" as const, signal: 85, model: "PTZ 360°", lastEvent: "قبل ساعة" },
+  //   { id: "cam-3", name: "غرفة المعيشة", status: "privacy" as const, signal: 98, model: "Interior 4K", lastEvent: "مُقَفلة" },
+  // ];
+  //
+  // const ACTIVITY = [
+  //   { id: 1, type: "motion", title: "رُصد شخص عند المدخل", time: "09:42 ص", cam: "المدخل الرئيسي", severity: "medium" as const },
+  //   { id: 2, type: "delivery", title: "تسليم شحنة بريدية", time: "07:15 ص", cam: "المدخل الرئيسي", severity: "low" as const },
+  //   { id: 3, type: "car", title: "وصول سيارة العائلة", time: "06:55 ص", cam: "الكراج", severity: "low" as const },
+  //   { id: 4, type: "alert", title: "إنذار صوتي خفيف", time: "02:30 ص", cam: "المدخل الرئيسي", severity: "high" as const },
+  //   { id: 5, type: "motion", title: "حركة في الحديقة", time: "البارحة 11:12 م", cam: "الكراج", severity: "medium" as const },
+  // ];
+  //
+  // const STAT_CARDS = [
+  //   { label: "كاميرات متصلة", value: "3", sub: "من أصل 3", icon: Camera, color: "emerald", trend: "+0" },
+  //   { label: "تسجيلات اليوم", value: "14", sub: "مقطع محفوظ", icon: Video, color: "blue", trend: "+3" },
+  //   { label: "آخر حدث", value: "09:42 ص", sub: "رصد حركة", icon: Activity, color: "amber", trend: null },
+  //   { label: "التخزين السحابي", value: "68%", sub: "34GB من 50GB", icon: HardDrive, color: "violet", trend: null },
+  // ];
+  */
+
   const { user } = useAuth();
   const [time, setTime] = useState<string>("");
-  const [liveCameras, setLiveCameras] = useState<any[]>(CAMERAS);
-  const [recordingsCount, setRecordingsCount] = useState<number>(14);
+  const [liveCameras, setLiveCameras] = useState<any[]>([]);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [recordingsCount, setRecordingsCount] = useState<number>(0);
 
   useEffect(() => {
     const tick = () =>
@@ -181,6 +158,18 @@ export default function DashboardOverviewPage() {
       }
       if (rRes.data && Array.isArray(rRes.data)) {
         setRecordingsCount(rRes.data.length);
+        setActivities(
+          rRes.data.map((r: any, i: number) => ({
+            id: r.id || i + 1,
+            type: r.type || "motion",
+            title: r.title || r.name || "تسجيل فيديو",
+            time: r.created_at
+              ? new Date(r.created_at).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })
+              : "الآن",
+            cam: r.camera_name || "كاميرا",
+            severity: (r.severity as any) || "low",
+          }))
+        );
       }
     });
   }, []);
@@ -353,53 +342,59 @@ export default function DashboardOverviewPage() {
           <div className="flex items-center justify-between px-5 py-4 border-b border-[--db-border] shrink-0">
             <h3 className="text-sm font-bold text-foreground">سجل الأحداث</h3>
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
-              {ACTIVITY.length} حدث اليوم
+              {activities.length} حدث اليوم
             </span>
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            {ACTIVITY.map((event, i) => {
-              const s = severityMap[event.severity];
-              return (
-                <div
-                  key={event.id}
-                  className={cn(
-                    "flex items-start gap-3 px-5 py-3.5 hover:bg-[--db-hover] transition-colors",
-                    i < ACTIVITY.length - 1 && "border-b border-[--db-border]"
-                  )}
-                >
-                  {/* Timeline dot */}
-                  <div className="flex flex-col items-center shrink-0 pt-1">
-                    <span className={cn("size-2 rounded-full", s.dot)} />
-                    {i < ACTIVITY.length - 1 && (
-                      <span className="w-px flex-1 bg-[--db-border] mt-1.5 min-h-[20px]" />
+            {activities.length === 0 ? (
+              <div className="p-8 text-center text-xs text-muted-foreground">
+                لا توجد أحداث حالية
+              </div>
+            ) : (
+              activities.map((event, i) => {
+                const s = severityMap[event.severity as keyof typeof severityMap] || severityMap.low;
+                return (
+                  <div
+                    key={event.id}
+                    className={cn(
+                      "flex items-start gap-3 px-5 py-3.5 hover:bg-[--db-hover] transition-colors",
+                      i < activities.length - 1 && "border-b border-[--db-border]"
                     )}
-                  </div>
+                  >
+                    {/* Timeline dot */}
+                    <div className="flex flex-col items-center shrink-0 pt-1">
+                      <span className={cn("size-2 rounded-full", s.dot)} />
+                      {i < activities.length - 1 && (
+                        <span className="w-px flex-1 bg-[--db-border] mt-1.5 min-h-[20px]" />
+                      )}
+                    </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="text-xs font-semibold text-foreground leading-snug">
-                        {event.title}
-                      </span>
-                      <span
-                        className={cn(
-                          "shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-md",
-                          s.bg,
-                          s.text
-                        )}
-                      >
-                        {s.label}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-[10px] text-muted-foreground font-mono">{event.time}</span>
-                      <span className="size-0.5 rounded-full bg-muted-foreground/40" />
-                      <span className="text-[10px] text-muted-foreground">{event.cam}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-xs font-semibold text-foreground leading-snug">
+                          {event.title}
+                        </span>
+                        <span
+                          className={cn(
+                            "shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded-md",
+                            s.bg,
+                            s.text
+                          )}
+                        >
+                          {s.label}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] text-muted-foreground font-mono">{event.time}</span>
+                        <span className="size-0.5 rounded-full bg-muted-foreground/40" />
+                        <span className="text-[10px] text-muted-foreground">{event.cam}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
       </div>

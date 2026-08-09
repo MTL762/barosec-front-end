@@ -21,6 +21,7 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SupportTicketsSection } from "@/components/support/support-tickets-section";
+import { getPublicArticlesApi, getPublicFaqsApi } from "@/lib/api";
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -39,6 +40,14 @@ export default async function SupportPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("Support");
+
+  // Server Side Data Fetching
+  const [articlesRes, faqsRes] = await Promise.all([
+    getPublicArticlesApi(),
+    getPublicFaqsApi(),
+  ]);
+  const initialArticles = (articlesRes.data && Array.isArray(articlesRes.data)) ? articlesRes.data : [];
+  const initialFaqs = (faqsRes.data && Array.isArray(faqsRes.data)) ? faqsRes.data : [];
 
   return (
     <>
@@ -391,7 +400,7 @@ export default async function SupportPage({ params }: Props) {
 
         {/* API-driven Support Tickets & FAQs */}
         <section className="bg-background border-t border-border">
-          <SupportTicketsSection />
+          <SupportTicketsSection initialArticles={initialArticles} initialFaqs={initialFaqs} />
         </section>
       </main>
       <SiteFooter />

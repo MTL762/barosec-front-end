@@ -1,3 +1,4 @@
+'use server'
 import { endpointName, endpoints, endpointType } from "./endpoints";
 import { extractSearchParams } from "./extractSearchParams";
 
@@ -18,48 +19,44 @@ async function getServiceToken(): Promise<string | null> {
   if (globalApiToken) return globalApiToken;
 
   try {
-    const baseUrl = getBaseUrl();
-    const params = new URLSearchParams({
-      username: authUserName || "",
-      password: "B@$eer@2026",
-    });
-    const loginUrl = `${baseUrl}${endpoints.loginAuth}?${params.toString()}`;
-    const res = await fetch(loginUrl, {
+    const res = await fetchHelper({
+      endPoint: endpoints.loginAuth,
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+      params: {
+        username: authUserName || "",
+        password: "B@$eer@2026",
       },
+      refreshToken: false,
     });
-    if (res.ok) {
-      const text = await res.text();
-      let data: any = null;
-      if (text) {
-        try {
-          data = JSON.parse(text);
-        } catch (e) {
-          console.error("[getServiceToken] Error parsing login JSON:", e);
-        }
-      }
 
-      if (data?.token) {
-        globalApiToken = data.token;
-        return globalApiToken;
-      }
-    } else {
-      console.error("[getServiceToken] Failed to authenticate:", res.status, await res.text());
+    const tokenVal =
+      (res.data as Record<string, unknown>)?.token ||
+      (res.result as Record<string, unknown>)?.token ||
+      ((res.data as Record<string, unknown>)?.data as Record<string, unknown>)?.token ||
+      ((res.result as Record<string, unknown>)?.data as Record<string, unknown>)?.token;
+
+    if (tokenVal && typeof tokenVal === "string") {
+      globalApiToken = tokenVal;
+      return globalApiToken;
     }
   } catch (error) {
-    console.error("[getServiceToken] Network error:", error);
+    console.error("[getServiceToken] Error:", error);
   }
 
   return null;
 }
 
-function getStoredToken(): string | null {
+async function getStoredToken(): Promise<string | null> {
   if (typeof window !== "undefined") {
     return localStorage.getItem("token");
   }
-  return null;
+  try {
+    const { cookies } = await import("next/headers");
+    const cookieStore = await cookies();
+    return cookieStore.get("token")?.value || null;
+  } catch (e) {
+    return null;
+  }
 }
 
 export interface FetchHelperParams {
@@ -101,9 +98,14 @@ export async function fetchHelper<T = any>({
   try {
     const url = handleUrl(endPoint, params);
 
-    // Get auth token (Explicit param -> LocalStorage -> Service Token)
-    let apiToken = token || getStoredToken();
-    if (!apiToken && typeof window === "undefined") {
+    // Get auth token (Explicit param -> LocalStorage / Cookie -> Service Token)
+    let apiToken = token || (await getStoredToken());
+    const isLoginEndpoint =
+      endPoint === endpoints.loginAuth ||
+      endPoint === "loginAuth" ||
+      (Array.isArray(endPoint) && endPoint.some((e) => String(e).includes("login")));
+
+    if (!apiToken && typeof window === "undefined" && !isLoginEndpoint) {
       apiToken = await getServiceToken();
     }
 
@@ -287,7 +289,7 @@ function buildFetchInit({
   return init;
 }
 
-export function handleUrl(
+function handleUrl(
   endPoint: endpointName | string | endpointType,
   params?: any
 ): string {

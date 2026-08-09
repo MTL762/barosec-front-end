@@ -4,9 +4,15 @@ import { useState, useEffect } from "react";
 import { Send, MessageSquare, CheckCircle2, AlertCircle, Loader2, BookOpen, HelpCircle } from "lucide-react";
 import { getPublicArticlesApi, getPublicFaqsApi, createSupportTicketApi, listSupportTicketsApi } from "@/lib/api";
 
-export function SupportTicketsSection() {
-  const [articles, setArticles] = useState<any[]>([]);
-  const [faqs, setFaqs] = useState<any[]>([]);
+export function SupportTicketsSection({
+  initialArticles = [],
+  initialFaqs = [],
+}: {
+  initialArticles?: any[];
+  initialFaqs?: any[];
+}) {
+  const [articles, setArticles] = useState<any[]>(initialArticles);
+  const [faqs, setFaqs] = useState<any[]>(initialFaqs);
   const [tickets, setTickets] = useState<any[]>([]);
   
   // Ticket Form
@@ -25,8 +31,8 @@ export function SupportTicketsSection() {
 
   const fetchSupportData = async () => {
     const [aRes, fRes, tRes] = await Promise.all([
-      getPublicArticlesApi(),
-      getPublicFaqsApi(),
+      articles.length === 0 ? getPublicArticlesApi() : Promise.resolve({ data: null }),
+      faqs.length === 0 ? getPublicFaqsApi() : Promise.resolve({ data: null }),
       listSupportTicketsApi(),
     ]);
 

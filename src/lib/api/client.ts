@@ -1,5 +1,5 @@
-import { fetchHelper } from "../fetch";
 import type { endpointName, endpointType } from "../endpoints";
+import { fetchHelper } from "../fetch";
 
 export function getBaseUrl(): string {
   const envUrl = process.env.API_BASE_URL || process.env.NEXT_PUBLIC_BASE_URL;
@@ -20,8 +20,10 @@ export function setStoredToken(token: string | null): void {
   if (typeof window !== "undefined") {
     if (token) {
       localStorage.setItem("token", token);
+      document.cookie = `token=${encodeURIComponent(token)}; path=/; max-age=2592000; SameSite=Lax`;
     } else {
       localStorage.removeItem("token");
+      document.cookie = "token=; path=/; max-age=0; SameSite=Lax";
     }
   }
 }

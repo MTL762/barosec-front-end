@@ -90,22 +90,24 @@ function hasFeature(plan: PlanDefinition, featureKey: string): boolean {
   );
 }
 
-export function PricingSection() {
+export function PricingSection({ initialPlans = [] }: { initialPlans?: any[] }) {
   const t = useTranslations("Pricing");
   const tPlans = useTranslations("Plans");
   const tFeatures = useTranslations("Features");
 
   const [billing, setBilling] = useState<BillingPeriod>("annual");
   const [cameraOption, setCameraOption] = useState<CameraTier>("single");
-  const [apiPlans, setApiPlans] = useState<any[]>([]);
+  const [apiPlans, setApiPlans] = useState<any[]>(initialPlans);
 
   useEffect(() => {
-    getSubscriptionPlansApi().then((res) => {
-      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-        setApiPlans(res.data);
-      }
-    });
-  }, []);
+    if (initialPlans.length === 0) {
+      getSubscriptionPlansApi().then((res) => {
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          setApiPlans(res.data);
+        }
+      });
+    }
+  }, [initialPlans]);
 
   // Get active pricing tier for each plan
   const getActivePrice = (plan: PlanDefinition) => {
