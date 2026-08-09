@@ -1,1241 +1,1241 @@
 {
-    "info": {
-        "_postman_id": "103de4fc-c146-4910-80f2-fd69e5543267",
-        "name": "Barosec",
-        "description": "Complete Postman collection for Baro Sec platform API endpoints including Auth, Camera, Media, Emergency, Billing, Support, Marketing, Users, and Roles.",
-        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-        "_exporter_id": "42783539"
-    },
-    "item": [
+  "info": {
+    "_postman_id": "103de4fc-c146-4910-80f2-fd69e5543267",
+    "name": "Barosec",
+    "description": "Complete Postman collection for Baro Sec platform API endpoints including Auth, Camera, Media, Emergency, Billing, Support, Marketing, Users, and Roles.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "42783539"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
         {
-            "name": "Auth",
-            "item": [
-                {
-                    "name": "Register",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"client\",\n  \"email\": \"bolaphilip3@gmail.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/auth/register",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "register"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Login",
-                    "event": [
-                        {
-                            "listen": "test",
-                            "script": {
-                                "exec": [
-                                    "var jsonData = pm.response.json();",
-                                    "if (jsonData.data && jsonData.data.token) {",
-                                    "    pm.environment.set('token', jsonData.data.token);",
-                                    "    pm.collectionVariables.set('token', jsonData.data.token);",
-                                    "}"
-                                ],
-                                "type": "text/javascript",
-                                "packages": {},
-                                "requests": {}
-                            }
-                        }
-                    ],
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  //\"email\": \"super-admin@admin.com\",\n  //\"password\": \"super-admin\",\n  \"email\": \"bolaphilip3@gmail.com\",\n  \"password\": \"password123\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/auth/login",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "login"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Logout",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/auth/logout",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "logout"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Get Profile",
-                    "request": {
-                        "method": "GET",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "url": {
-                            "raw": "{{base_url}}/auth/profile",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "profile"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Update Profile",
-                    "request": {
-                        "method": "POST",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"name\": \"John Updated\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/auth/profile",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "profile"
-                            ]
-                        }
-                    },
-                    "response": []
-                },
-                {
-                    "name": "Change Password",
-                    "request": {
-                        "method": "PUT",
-                        "header": [
-                            {
-                                "key": "Accept",
-                                "value": "application/json"
-                            }
-                        ],
-                        "body": {
-                            "mode": "raw",
-                            "raw": "{\n  \"current_password\": \"password123\",\n  \"password\": \"newpassword123\",\n  \"password_confirmation\": \"newpassword123\"\n}",
-                            "options": {
-                                "raw": {
-                                    "language": "json"
-                                }
-                            }
-                        },
-                        "url": {
-                            "raw": "{{base_url}}/auth/change_password",
-                            "host": [
-                                "{{base_url}}"
-                            ],
-                            "path": [
-                                "auth",
-                                "change_password"
-                            ]
-                        }
-                    },
-                    "response": []
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"client\",\n  \"email\": \"bolaphilip3@gmail.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
                 }
-            ]
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
         },
         {
-            "name": "Client",
-            "item": [
-                {
-                    "name": "Camera Module",
-                    "item": [
-                        {
-                            "name": "List User Cameras",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/cameras?per_page=15&search=&mode=",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "cameras"
-                                    ],
-                                    "query": [
-                                        {
-                                            "key": "per_page",
-                                            "value": "15"
-                                        },
-                                        {
-                                            "key": "search",
-                                            "value": ""
-                                        },
-                                        {
-                                            "key": "mode",
-                                            "value": ""
-                                        }
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Pair & Add Camera",
-                            "request": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"camera_model_id\": 1,\n  \"name\": \"Front Door Security Camera\",\n  \"serial_number\": \"CAM-987654321\",\n  \"mac_address\": \"00:1B:44:11:3A:B7\",\n  \"mode\": \"security\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/cameras",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "cameras"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Get Camera Details",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/cameras/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "cameras",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Update Camera Settings",
-                            "request": {
-                                "method": "PUT",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"name\": \"Updated Front Door Camera\",\n  \"mode\": \"sleep\",\n  \"is_locked\": true\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/cameras/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "cameras",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Delete Camera",
-                            "request": {
-                                "method": "DELETE",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/cameras/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "cameras",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        }
-                    ]
-                },
-                {
-                    "name": "Media Module",
-                    "item": [
-                        {
-                            "name": "List Recordings",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/recordings?per_page=15&recording_type=motion&search=",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "recordings"
-                                    ],
-                                    "query": [
-                                        {
-                                            "key": "per_page",
-                                            "value": "15"
-                                        },
-                                        {
-                                            "key": "recording_type",
-                                            "value": "motion"
-                                        },
-                                        {
-                                            "key": "search",
-                                            "value": ""
-                                        }
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Get Recording Details",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/recordings/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "recordings",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Delete Recording",
-                            "request": {
-                                "method": "DELETE",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/recordings/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "recordings",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        }
-                    ]
-                },
-                {
-                    "name": "Emergency Module",
-                    "item": [
-                        {
-                            "name": "Trigger SOS Emergency",
-                            "request": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"camera_id\": 1,\n  \"police_station_id\": 1,\n  \"notes\": \"Suspicious intruder detected at entrance!\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/emergency/sos",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "emergency",
-                                        "sos"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "List Emergency Logs",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/emergency/logs",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "emergency",
-                                        "logs"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "List Police Stations Directory",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/emergency/police-stations?city=Cairo",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "emergency",
-                                        "police-stations"
-                                    ],
-                                    "query": [
-                                        {
-                                            "key": "city",
-                                            "value": "Cairo"
-                                        }
-                                    ]
-                                }
-                            },
-                            "response": []
-                        }
-                    ]
-                },
-                {
-                    "name": "Billing Module",
-                    "item": [
-                        {
-                            "name": "Get Subscription Plans (Public)",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/plans",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "plans"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Get Active Subscription",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/billing/subscription",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "billing",
-                                        "subscription"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Subscribe to Plan",
-                            "request": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"plan_id\": 2,\n  \"payment_method\": \"credit_card\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/billing/subscribe",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "billing",
-                                        "subscribe"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "List User Invoices",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/billing/invoices",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "billing",
-                                        "invoices"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        }
-                    ]
-                },
-                {
-                    "name": "Support Module",
-                    "item": [
-                        {
-                            "name": "Get Public Articles",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/support/articles",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "support",
-                                        "articles"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Get Public FAQs",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/support/faqs",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "support",
-                                        "faqs"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "List Support Tickets",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/support/tickets",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "support",
-                                        "tickets"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Create Support Ticket",
-                            "request": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"subject\": \"Cannot connect camera to Wi-Fi\",\n  \"message\": \"My camera fails to pair during setup.\",\n  \"priority\": \"high\",\n  \"channel\": \"chat\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/support/tickets",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "support",
-                                        "tickets"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Get Ticket Details",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/support/tickets/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "support",
-                                        "tickets",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Reply to Ticket",
-                            "request": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"message\": \"Here is an updated screenshot of the error.\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/support/tickets/1/reply",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "support",
-                                        "tickets",
-                                        "1",
-                                        "reply"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Delete Support Ticket",
-                            "request": {
-                                "method": "DELETE",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/support/tickets/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "support",
-                                        "tickets",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "Admin",
-            "item": [
-                {
-                    "name": "Marketing Module",
-                    "item": [
-                        {
-                            "name": "List Campaigns",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/marketing/campaigns",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "marketing",
-                                        "campaigns"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Create Campaign",
-                            "request": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"campaign_name\": \"Summer Subscription Discount\",\n  \"channel\": \"whatsapp\",\n  \"target_country\": \"Egypt\",\n  \"target_city\": \"Cairo\",\n  \"message_body\": \"Get 20% off on yearly camera storage plans!\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/marketing/campaigns",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "marketing",
-                                        "campaigns"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Get Campaign Details",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/marketing/campaigns/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "marketing",
-                                        "campaigns",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        }
-                    ]
-                },
-                {
-                    "name": "User Management Module",
-                    "item": [
-                        {
-                            "name": "List Users (Admin)",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/admin/users",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "admin",
-                                        "users"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Create User",
-                            "request": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"name\": \"New User\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/admin/users",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "admin",
-                                        "users"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Get User Details",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/admin/users/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "admin",
-                                        "users",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Update User",
-                            "request": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"name\": \"Updated Name\"\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/admin/users/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "admin",
-                                        "users",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Delete User",
-                            "request": {
-                                "method": "DELETE",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/admin/users/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "admin",
-                                        "users",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        }
-                    ]
-                },
-                {
-                    "name": "Role Management Module",
-                    "item": [
-                        {
-                            "name": "List Roles",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/roles",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "roles"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Create Role",
-                            "request": {
-                                "method": "POST",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"name\": \"supervisor\",\n  \"permission_ids\": [1, 2, 3]\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/roles",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "roles"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Get Role Details",
-                            "request": {
-                                "method": "GET",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/roles/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "roles",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Update Role",
-                            "request": {
-                                "method": "PUT",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "body": {
-                                    "mode": "raw",
-                                    "raw": "{\n  \"name\": \"supervisor\",\n  \"permission_ids\": [1, 2, 3, 4]\n}",
-                                    "options": {
-                                        "raw": {
-                                            "language": "json"
-                                        }
-                                    }
-                                },
-                                "url": {
-                                    "raw": "{{base_url}}/roles/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "roles",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        },
-                        {
-                            "name": "Delete Role",
-                            "request": {
-                                "method": "DELETE",
-                                "header": [
-                                    {
-                                        "key": "Accept",
-                                        "value": "application/json"
-                                    }
-                                ],
-                                "url": {
-                                    "raw": "{{base_url}}/roles/1",
-                                    "host": [
-                                        "{{base_url}}"
-                                    ],
-                                    "path": [
-                                        "roles",
-                                        "1"
-                                    ]
-                                }
-                            },
-                            "response": []
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "auth": {
-        "type": "bearer",
-        "bearer": [
+          "name": "Login",
+          "event": [
             {
-                "key": "token",
-                "value": "{{token}}",
-                "type": "string"
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.environment.set('token', jsonData.data.token);",
+                  "    pm.collectionVariables.set('token', jsonData.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
             }
-        ]
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  //\"email\": \"super-admin@admin.com\",\n  //\"password\": \"super-admin\",\n  \"email\": \"bolaphilip3@gmail.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Updated\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/profile",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"password123\",\n  \"password\": \"newpassword123\",\n  \"password_confirmation\": \"newpassword123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/change_password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "change_password"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     },
-    "event": [
+    {
+      "name": "Client",
+      "item": [
         {
-            "listen": "prerequest",
-            "script": {
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {},
-                "exec": [
-                    ""
-                ]
+          "name": "Camera",
+          "item": [
+            {
+              "name": "List User Cameras",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/cameras?per_page=15&search=&mode=",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "cameras"
+                  ],
+                  "query": [
+                    {
+                      "key": "per_page",
+                      "value": "15"
+                    },
+                    {
+                      "key": "search",
+                      "value": ""
+                    },
+                    {
+                      "key": "mode",
+                      "value": ""
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Pair & Add Camera",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"camera_model_id\": 1,\n  \"name\": \"Front Door Security Camera\",\n  \"serial_number\": \"CAM-987654321\",\n  \"mac_address\": \"00:1B:44:11:3A:B7\",\n  \"mode\": \"security\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/cameras",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "cameras"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Camera Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/cameras/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "cameras",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Camera Settings",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Front Door Camera\",\n  \"mode\": \"sleep\",\n  \"is_locked\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/cameras/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "cameras",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Camera",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/cameras/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "cameras",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
             }
+          ]
         },
         {
-            "listen": "test",
-            "script": {
-                "type": "text/javascript",
-                "packages": {},
-                "requests": {},
-                "exec": [
-                    ""
-                ]
+          "name": "Media",
+          "item": [
+            {
+              "name": "List Recordings",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/recordings?per_page=15&recording_type=motion&search=",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "recordings"
+                  ],
+                  "query": [
+                    {
+                      "key": "per_page",
+                      "value": "15"
+                    },
+                    {
+                      "key": "recording_type",
+                      "value": "motion"
+                    },
+                    {
+                      "key": "search",
+                      "value": ""
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Recording Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/recordings/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "recordings",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Recording",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/recordings/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "recordings",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
             }
-        }
-    ],
-    "variable": [
-        {
-            "key": "base_url",
-            "value": "http://localhost:8000/api"
+          ]
         },
         {
-            "key": "token",
-            "value": ""
+          "name": "Billing",
+          "item": [
+            {
+              "name": "Get Subscription Plans (Public)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/plans",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "plans"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Active Subscription",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/billing/subscription",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "billing",
+                    "subscription"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Subscribe to Plan",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"plan_id\": 2,\n  \"payment_method\": \"credit_card\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/billing/subscribe",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "billing",
+                    "subscribe"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List User Invoices",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/billing/invoices",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "billing",
+                    "invoices"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Support",
+          "item": [
+            {
+              "name": "Get Public Articles",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/support/articles",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "support",
+                    "articles"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Public FAQs",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/support/faqs",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "support",
+                    "faqs"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List Support Tickets",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/support/tickets",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "support",
+                    "tickets"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Support Ticket",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"subject\": \"Cannot connect camera to Wi-Fi\",\n  \"message\": \"My camera fails to pair during setup.\",\n  \"priority\": \"high\",\n  \"channel\": \"chat\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/support/tickets",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "support",
+                    "tickets"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Ticket Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/support/tickets/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "support",
+                    "tickets",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reply to Ticket",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"message\": \"Here is an updated screenshot of the error.\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/support/tickets/1/reply",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "support",
+                    "tickets",
+                    "1",
+                    "reply"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Support Ticket",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/support/tickets/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "support",
+                    "tickets",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Emergency",
+          "item": [
+            {
+              "name": "Trigger SOS Emergency",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"camera_id\": 1,\n  \"police_station_id\": 1,\n  \"notes\": \"Suspicious intruder detected at entrance!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/emergency/sos",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "emergency",
+                    "sos"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List Emergency Logs",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/emergency/logs",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "emergency",
+                    "logs"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List Police Stations Directory",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/emergency/police-stations?city=Cairo",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "emergency",
+                    "police-stations"
+                  ],
+                  "query": [
+                    {
+                      "key": "city",
+                      "value": "Cairo"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "Marketing Module",
+          "item": [
+            {
+              "name": "List Campaigns",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/marketing/campaigns",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Campaign",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"campaign_name\": \"Summer Subscription Discount\",\n  \"channel\": \"whatsapp\",\n  \"target_country\": \"Egypt\",\n  \"target_city\": \"Cairo\",\n  \"message_body\": \"Get 20% off on yearly camera storage plans!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/marketing/campaigns",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Campaign Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/marketing/campaigns/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "marketing",
+                    "campaigns",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "User Management Module",
+          "item": [
+            {
+              "name": "List Users (Admin)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/admin/users",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create User",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"New User\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/admin/users",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get User Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/admin/users/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update User",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Updated Name\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/admin/users/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete User",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/admin/users/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "admin",
+                    "users",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Role Management Module",
+          "item": [
+            {
+              "name": "List Roles",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/roles",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "roles"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Create Role",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"supervisor\",\n  \"permission_ids\": [1, 2, 3]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/roles",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "roles"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get Role Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/roles/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "roles",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Role",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"supervisor\",\n  \"permission_ids\": [1, 2, 3, 4]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/roles/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "roles",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Role",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{base_url}}/roles/1",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "roles",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
     ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
 }

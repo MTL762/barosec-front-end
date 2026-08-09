@@ -65,6 +65,9 @@ export async function updateProfileApi(data: UpdateProfileParams) {
 export async function changePasswordApi(data: ChangePasswordParams) {
   return apiFetch<ApiResponse>("/auth/change_password", {
     method: "PUT",
-    body: data,
+    body: {
+      ...data,
+      old_password: data.old_password || data.current_password,
+    },
   });
 }

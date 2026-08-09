@@ -17,8 +17,14 @@ import {
   Wifi,
   Menu,
   X,
+  LogOut,
+  Loader2,
+  Lock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
+import { AuthModal } from "@/components/auth/auth-modal";
+import { listCamerasApi } from "@/lib/api";
 
 const NAV_ITEMS = [
   {
@@ -161,15 +167,36 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { user, token, isAuthenticated, isLoading, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const [cameraCount, setCameraCount] = useState<number>(0);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const pathname = usePathname();
   const title = getPageTitle(pathname);
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && !token) {
+      setShowAuthModal(true);
+    } else {
+      setShowAuthModal(false);
+    }
+  }, [isLoading, isAuthenticated, token]);
+
+  useEffect(() => {
+    if (token) {
+      listCamerasApi({ per_page: 50 }).then((res) => {
+        if (res.data && Array.isArray(res.data)) {
+          setCameraCount(res.data.length);
+        }
+      });
+    }
+  }, [token]);
 
   const toggleTheme = () => {
     const next = !isDark;
@@ -185,8 +212,23 @@ export default function DashboardLayout({
 
   const isEmergency = pathname.includes("/emergency");
 
+  const userInitials = user?.name
+    ? user.name.slice(0, 2).toUpperCase()
+    : user?.email
+    ? user.email.slice(0, 2).toUpperCase()
+    : "??";
+
   return (
-    <div className="flex h-screen overflow-hidden bg-[--db-bg] text-foreground">
+    <div className="flex h-screen overflow-hidden bg-[--db-bg] text-foreground relative">
+      {/* Auth Protection Overlay Modal when no token */}
+      {!isLoading && !isAuthenticated && !token && (
+        <AuthModal
+          isOpen={true}
+          onClose={() => {}}
+          defaultMode="login"
+        />
+      )}
+
       {/* ── Sidebar (desktop) ───────────────────────────── */}
       <aside
         className={cn(
@@ -224,7 +266,9 @@ export default function DashboardLayout({
           {!collapsed && (
             <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/8 text-emerald-600 dark:text-emerald-400">
               <Wifi className="size-3.5 shrink-0" />
-              <span className="text-[10px] font-bold">3 كاميرات متصلة</span>
+              <span className="text-[10px] font-bold">
+                {cameraCount > 0 ? `${cameraCount} كاميرات متصلة` : "لا كاميرات مسجلة"}
+              </span>
             </div>
           )}
 
@@ -333,13 +377,29 @@ export default function DashboardLayout({
             <button
               onClick={toggleTheme}
               className="p-2 rounded-xl text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              title="تغيير الثيم"
             >
               {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </button>
 
-            <div className="ms-1 size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-xs font-bold cursor-pointer hover:bg-primary/20 transition-colors">
-              م.ب
-            </div>
+            {user && (
+              <div
+                title={user.name || user.email}
+                className="ms-1 size-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-xs font-bold cursor-pointer hover:bg-primary/20 transition-colors"
+              >
+                {userInitials}
+              </div>
+            )}
+
+            {token && (
+              <button
+                onClick={() => logout()}
+                title="تسجيل الخروج (Logout)"
+                className="p-2 rounded-xl text-muted-foreground hover:text-red-600 hover:bg-red-500/10 transition-colors"
+              >
+                <LogOut className="size-4" />
+              </button>
+            )}
           </div>
         </header>
 

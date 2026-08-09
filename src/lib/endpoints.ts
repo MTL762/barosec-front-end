@@ -28,8 +28,15 @@ export const endpoints = {
   supportFaqs: "/support/faqs",
   supportTickets: "/support/tickets",
 
+  // Verification
+  sendEmailCode: "/verification/send-email-code",
+  verifyEmail: "/verification/verify-email",
+  sendPhoneCode: "/verification/send-phone-code",
+  verifyPhone: "/verification/verify-phone",
+
   // Admin Marketing
   marketingCampaigns: "/marketing/campaigns",
+  sendWhatsappMail: "/marketing/send-whatsapp-mail",
 
   // Admin Users
   adminUsers: "/admin/users",

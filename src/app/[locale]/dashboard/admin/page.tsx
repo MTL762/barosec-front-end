@@ -19,6 +19,7 @@ import {
   getStoredToken,
   listCampaignsApi,
   createCampaignApi,
+  sendBulkMarketingApi,
   listUsersAdminApi,
   createUserAdminApi,
   deleteUserAdminApi,
@@ -39,56 +40,63 @@ const ALL_POSTMAN_REQUESTS = [
   { id: 5, group: "Auth", name: "Update Profile", method: "POST", endpoint: "/auth/profile", body: { name: "John Updated" } },
   { id: 6, group: "Auth", name: "Change Password", method: "PUT", endpoint: "/auth/change_password", body: { current_password: "password123", password: "newpassword123", password_confirmation: "newpassword123" } },
 
+  // Verification
+  { id: 7, group: "Verification", name: "Send Email Code", method: "POST", endpoint: "/verification/send-email-code" },
+  { id: 8, group: "Verification", name: "Verify Email", method: "POST", endpoint: "/verification/verify-email", body: { code: "1234" } },
+  { id: 9, group: "Verification", name: "Send Phone Code", method: "POST", endpoint: "/verification/send-phone-code" },
+  { id: 10, group: "Verification", name: "Verify Phone", method: "POST", endpoint: "/verification/verify-phone", body: { code: "1234" } },
+
   // Camera Module
-  { id: 7, group: "Client - Cameras", name: "List User Cameras", method: "GET", endpoint: "/cameras?per_page=15&search=&mode=" },
-  { id: 8, group: "Client - Cameras", name: "Pair & Add Camera", method: "POST", endpoint: "/cameras", body: { camera_model_id: 1, name: "Front Door Security Camera", serial_number: "CAM-987654321", mac_address: "00:1B:44:11:3A:B7", mode: "security" } },
-  { id: 9, group: "Client - Cameras", name: "Get Camera Details", method: "GET", endpoint: "/cameras/1" },
-  { id: 10, group: "Client - Cameras", name: "Update Camera Settings", method: "PUT", endpoint: "/cameras/1", body: { name: "Updated Front Door Camera", mode: "sleep", is_locked: true } },
-  { id: 11, group: "Client - Cameras", name: "Delete Camera", method: "DELETE", endpoint: "/cameras/1" },
+  { id: 11, group: "Client - Cameras", name: "List User Cameras", method: "GET", endpoint: "/cameras?per_page=15&search=&mode=" },
+  { id: 12, group: "Client - Cameras", name: "Pair & Add Camera", method: "POST", endpoint: "/cameras", body: { camera_model_id: 1, name: "Front Door Security Camera", serial_number: "CAM-987654321", mac_address: "00:1B:44:11:3A:B7", mode: "security" } },
+  { id: 13, group: "Client - Cameras", name: "Get Camera Details", method: "GET", endpoint: "/cameras/1" },
+  { id: 14, group: "Client - Cameras", name: "Update Camera Settings", method: "PUT", endpoint: "/cameras/1", body: { name: "Updated Front Door Camera", mode: "sleep", is_locked: true } },
+  { id: 15, group: "Client - Cameras", name: "Delete Camera", method: "DELETE", endpoint: "/cameras/1" },
 
   // Media Module
-  { id: 12, group: "Client - Media", name: "List Recordings", method: "GET", endpoint: "/recordings?per_page=15&recording_type=motion&search=" },
-  { id: 13, group: "Client - Media", name: "Get Recording Details", method: "GET", endpoint: "/recordings/1" },
-  { id: 14, group: "Client - Media", name: "Delete Recording", method: "DELETE", endpoint: "/recordings/1" },
+  { id: 16, group: "Client - Media", name: "List Recordings", method: "GET", endpoint: "/recordings?per_page=15&recording_type=motion&search=" },
+  { id: 17, group: "Client - Media", name: "Get Recording Details", method: "GET", endpoint: "/recordings/1" },
+  { id: 18, group: "Client - Media", name: "Delete Recording", method: "DELETE", endpoint: "/recordings/1" },
 
   // Emergency Module
-  { id: 15, group: "Client - Emergency", name: "Trigger SOS Emergency", method: "POST", endpoint: "/emergency/sos", body: { camera_id: 1, police_station_id: 1, notes: "Suspicious intruder detected at entrance!" } },
-  { id: 16, group: "Client - Emergency", name: "List Emergency Logs", method: "GET", endpoint: "/emergency/logs" },
-  { id: 17, group: "Client - Emergency", name: "List Police Stations Directory", method: "GET", endpoint: "/emergency/police-stations?city=Cairo" },
+  { id: 19, group: "Client - Emergency", name: "Trigger SOS Emergency", method: "POST", endpoint: "/emergency/sos", body: { camera_id: 1, police_station_id: 1, notes: "Suspicious intruder detected at entrance!" } },
+  { id: 20, group: "Client - Emergency", name: "List Emergency Logs", method: "GET", endpoint: "/emergency/logs" },
+  { id: 21, group: "Client - Emergency", name: "List Police Stations Directory", method: "GET", endpoint: "/emergency/police-stations?city=Cairo" },
 
   // Billing Module
-  { id: 18, group: "Client - Billing", name: "Get Subscription Plans (Public)", method: "GET", endpoint: "/plans" },
-  { id: 19, group: "Client - Billing", name: "Get Active Subscription", method: "GET", endpoint: "/billing/subscription" },
-  { id: 20, group: "Client - Billing", name: "Subscribe to Plan", method: "POST", endpoint: "/billing/subscribe", body: { plan_id: 2, payment_method: "credit_card" } },
-  { id: 21, group: "Client - Billing", name: "List User Invoices", method: "GET", endpoint: "/billing/invoices" },
+  { id: 22, group: "Client - Billing", name: "Get Subscription Plans (Public)", method: "GET", endpoint: "/plans" },
+  { id: 23, group: "Client - Billing", name: "Get Active Subscription", method: "GET", endpoint: "/billing/subscription" },
+  { id: 24, group: "Client - Billing", name: "Subscribe to Plan", method: "POST", endpoint: "/billing/subscribe", body: { plan_id: 2, payment_method: "credit_card" } },
+  { id: 25, group: "Client - Billing", name: "List User Invoices", method: "GET", endpoint: "/billing/invoices" },
 
   // Support Module
-  { id: 22, group: "Client - Support", name: "Get Public Articles", method: "GET", endpoint: "/support/articles" },
-  { id: 23, group: "Client - Support", name: "Get Public FAQs", method: "GET", endpoint: "/support/faqs" },
-  { id: 24, group: "Client - Support", name: "List Support Tickets", method: "GET", endpoint: "/support/tickets" },
-  { id: 25, group: "Client - Support", name: "Create Support Ticket", method: "POST", endpoint: "/support/tickets", body: { subject: "Cannot connect camera to Wi-Fi", message: "My camera fails to pair during setup.", priority: "high", channel: "chat" } },
-  { id: 26, group: "Client - Support", name: "Get Ticket Details", method: "GET", endpoint: "/support/tickets/1" },
-  { id: 27, group: "Client - Support", name: "Reply to Ticket", method: "POST", endpoint: "/support/tickets/1/reply", body: { message: "Here is an updated screenshot of the error." } },
-  { id: 28, group: "Client - Support", name: "Delete Support Ticket", method: "DELETE", endpoint: "/support/tickets/1" },
+  { id: 26, group: "Client - Support", name: "Get Public Articles", method: "GET", endpoint: "/support/articles" },
+  { id: 27, group: "Client - Support", name: "Get Public FAQs", method: "GET", endpoint: "/support/faqs" },
+  { id: 28, group: "Client - Support", name: "List Support Tickets", method: "GET", endpoint: "/support/tickets" },
+  { id: 29, group: "Client - Support", name: "Create Support Ticket", method: "POST", endpoint: "/support/tickets", body: { subject: "Cannot connect camera to Wi-Fi", message: "My camera fails to pair during setup.", priority: "high", channel: "chat" } },
+  { id: 30, group: "Client - Support", name: "Get Ticket Details", method: "GET", endpoint: "/support/tickets/1" },
+  { id: 31, group: "Client - Support", name: "Reply to Ticket", method: "POST", endpoint: "/support/tickets/1/reply", body: { message: "Here is an updated screenshot of the error." } },
+  { id: 32, group: "Client - Support", name: "Delete Support Ticket", method: "DELETE", endpoint: "/support/tickets/1" },
 
   // Admin Marketing
-  { id: 29, group: "Admin - Marketing", name: "List Campaigns", method: "GET", endpoint: "/marketing/campaigns" },
-  { id: 30, group: "Admin - Marketing", name: "Create Campaign", method: "POST", endpoint: "/marketing/campaigns", body: { campaign_name: "Summer Subscription Discount", channel: "whatsapp", target_country: "Egypt", target_city: "Cairo", message_body: "Get 20% off on yearly camera storage plans!" } },
-  { id: 31, group: "Admin - Marketing", name: "Get Campaign Details", method: "GET", endpoint: "/marketing/campaigns/1" },
+  { id: 33, group: "Admin - Marketing", name: "List Campaigns", method: "GET", endpoint: "/marketing/campaigns" },
+  { id: 34, group: "Admin - Marketing", name: "Create Campaign", method: "POST", endpoint: "/marketing/campaigns", body: { campaign_name: "Summer Subscription Discount", channel: "whatsapp", target_country: "Egypt", target_city: "Cairo", message_body: "Get 20% off on yearly camera storage plans!" } },
+  { id: 35, group: "Admin - Marketing", name: "Get Campaign Details", method: "GET", endpoint: "/marketing/campaigns/1" },
+  { id: 36, group: "Admin - Marketing", name: "Send Bulk WhatsApp & Mail", method: "POST", endpoint: "/marketing/send-whatsapp-mail", body: { send_to_all: 1, subject: "Special Offer", message: "Get 20% off on all security plans!" } },
 
   // Admin Users
-  { id: 32, group: "Admin - Users", name: "List Users (Admin)", method: "GET", endpoint: "/admin/users" },
-  { id: 33, group: "Admin - Users", name: "Create User", method: "POST", endpoint: "/admin/users", body: { name: "New User", email: "newuser@example.com", password: "password123" } },
-  { id: 34, group: "Admin - Users", name: "Get User Details", method: "GET", endpoint: "/admin/users/1" },
-  { id: 35, group: "Admin - Users", name: "Update User", method: "POST", endpoint: "/admin/users/1", body: { name: "Updated Name" } },
-  { id: 36, group: "Admin - Users", name: "Delete User", method: "DELETE", endpoint: "/admin/users/1" },
+  { id: 37, group: "Admin - Users", name: "List Users (Admin)", method: "GET", endpoint: "/admin/users" },
+  { id: 38, group: "Admin - Users", name: "Create User", method: "POST", endpoint: "/admin/users", body: { name: "New User", email: "newuser@example.com", password: "password123" } },
+  { id: 39, group: "Admin - Users", name: "Get User Details", method: "GET", endpoint: "/admin/users/1" },
+  { id: 40, group: "Admin - Users", name: "Update User", method: "POST", endpoint: "/admin/users/1", body: { name: "Updated Name" } },
+  { id: 41, group: "Admin - Users", name: "Delete User", method: "DELETE", endpoint: "/admin/users/1" },
 
   // Admin Roles
-  { id: 37, group: "Admin - Roles", name: "List Roles", method: "GET", endpoint: "/roles" },
-  { id: 38, group: "Admin - Roles", name: "Create Role", method: "POST", endpoint: "/roles", body: { name: "supervisor", permission_ids: [1, 2, 3] } },
-  { id: 39, group: "Admin - Roles", name: "Get Role Details", method: "GET", endpoint: "/roles/1" },
-  { id: 40, group: "Admin - Roles", name: "Update Role", method: "PUT", endpoint: "/roles/1", body: { name: "supervisor", permission_ids: [1, 2, 3, 4] } },
-  { id: 41, group: "Admin - Roles", name: "Delete Role", method: "DELETE", endpoint: "/roles/1" },
+  { id: 42, group: "Admin - Roles", name: "List Roles", method: "GET", endpoint: "/roles" },
+  { id: 43, group: "Admin - Roles", name: "Create Role", method: "POST", endpoint: "/roles", body: { name: "supervisor", permission_ids: [1, 2, 3] } },
+  { id: 44, group: "Admin - Roles", name: "Get Role Details", method: "GET", endpoint: "/roles/1" },
+  { id: 45, group: "Admin - Roles", name: "Update Role", method: "PUT", endpoint: "/roles/1", body: { name: "supervisor", permission_ids: [1, 2, 3, 4] } },
+  { id: 46, group: "Admin - Roles", name: "Delete Role", method: "DELETE", endpoint: "/roles/1" },
 ];
 
 export default function AdminDashboardPage() {
@@ -112,6 +120,17 @@ export default function AdminDashboardPage() {
     target_city: "Cairo",
     message_body: "Get 20% off on yearly camera storage plans!",
   });
+
+  // Bulk WhatsApp & Email Marketing state
+  const [bulkSubject, setBulkSubject] = useState("العرض الصيفي الخاص — خصم 20% على باقات التخزين");
+  const [bulkMessage, setBulkMessage] = useState("احصل على خصم 20% عند الاشتراك في باقة التخزين السحابي السنوية للكاميرات!");
+  const [sendToAll, setSendToAll] = useState(true);
+  const [bulkCountry, setBulkCountry] = useState("Egypt");
+  const [bulkCity, setBulkCity] = useState("Cairo");
+  const [bulkClientIds, setBulkClientIds] = useState("1, 2, 3");
+  const [bulkImage, setBulkImage] = useState<File | null>(null);
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkResult, setBulkResult] = useState<string | null>(null);
 
   // Admin Users state
   const [adminUsers, setAdminUsers] = useState<AdminUserApiItem[]>([]);
@@ -179,6 +198,36 @@ export default function AdminDashboardPage() {
     e.preventDefault();
     await createCampaignApi(newCampaign);
     fetchAdminData();
+  };
+
+  const handleSendBulkMarketing = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBulkLoading(true);
+    setBulkResult(null);
+
+    const clientIdsArray = sendToAll
+      ? undefined
+      : bulkClientIds
+          .split(",")
+          .map((n) => Number(n.trim()))
+          .filter((n) => !isNaN(n) && n > 0);
+
+    const res = await sendBulkMarketingApi({
+      send_to_all: sendToAll ? 1 : 0,
+      subject: bulkSubject,
+      message: bulkMessage,
+      country: bulkCountry || undefined,
+      city: bulkCity || undefined,
+      client_ids: clientIdsArray,
+      image: bulkImage,
+    });
+
+    if (res.data || res.status === 200) {
+      setBulkResult("تم إرسال الحملة الجماعية عبر الواتساب والبريد الإلكتروني بنجاح! (POST /marketing/send-whatsapp-mail)");
+    } else {
+      setBulkResult(`نتيجة الإرسال: ${res.error || "تمت العملية (أو يتطلب صلاحية أدمن / Token)"}`);
+    }
+    setBulkLoading(false);
   };
 
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -391,6 +440,116 @@ export default function AdminDashboardPage() {
       {/* TAB 2: Marketing Module */}
       {activeTab === "marketing" && (
         <div className="space-y-6">
+          {/* Bulk WhatsApp & Email Marketing Console */}
+          <div className="bg-background border border-primary/30 rounded-2xl p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div>
+                <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <Megaphone className="size-5 text-primary" />
+                  <span>إرسال حملة جماعية عبر الواتساب والبريد الإلكتروني (POST /marketing/send-whatsapp-mail)</span>
+                </h2>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  إرسال رسائل جماعية للعملاء مع دعم تصفية الدولة/المدينة وإرفاق صورة (Form-Data / Multipart).
+                </p>
+              </div>
+            </div>
+
+            {bulkResult && (
+              <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 text-primary font-mono text-xs">
+                {bulkResult}
+              </div>
+            )}
+
+            <form onSubmit={handleSendBulkMarketing} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-foreground">عنوان البريد الإلكتروني (subject *)</label>
+                <input
+                  type="text"
+                  required
+                  value={bulkSubject}
+                  onChange={(e) => setBulkSubject(e.target.value)}
+                  className="w-full px-4 py-2 rounded-xl border border-input text-xs"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-foreground">إرسال لجميع العملاء (send_to_all)</label>
+                <select
+                  value={sendToAll ? "1" : "0"}
+                  onChange={(e) => setSendToAll(e.target.value === "1")}
+                  className="w-full px-4 py-2 rounded-xl border border-input text-xs"
+                >
+                  <option value="1">جميع العملاء (send_to_all = 1)</option>
+                  <option value="0">عملاء محددين حسب IDs (send_to_all = 0)</option>
+                </select>
+              </div>
+
+              {!sendToAll && (
+                <div className="sm:col-span-2 space-y-1">
+                  <label className="text-xs font-bold text-foreground">معرفات العملاء المستهدفين (client_ids[])</label>
+                  <input
+                    type="text"
+                    placeholder="1, 2, 3"
+                    value={bulkClientIds}
+                    onChange={(e) => setBulkClientIds(e.target.value)}
+                    className="w-full px-4 py-2 rounded-xl border border-input text-xs font-mono"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-foreground">تصفية حسب الدولة (country)</label>
+                <input
+                  type="text"
+                  placeholder="Egypt"
+                  value={bulkCountry}
+                  onChange={(e) => setBulkCountry(e.target.value)}
+                  className="w-full px-4 py-2 rounded-xl border border-input text-xs"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-foreground">تصفية حسب المدينة (city)</label>
+                <input
+                  type="text"
+                  placeholder="Cairo"
+                  value={bulkCity}
+                  onChange={(e) => setBulkCity(e.target.value)}
+                  className="w-full px-4 py-2 rounded-xl border border-input text-xs"
+                />
+              </div>
+
+              <div className="sm:col-span-2 space-y-1">
+                <label className="text-xs font-bold text-foreground">محتوى الرسالة للواتساب والبريد (message *)</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={bulkMessage}
+                  onChange={(e) => setBulkMessage(e.target.value)}
+                  className="w-full px-4 py-2 rounded-xl border border-input text-xs"
+                />
+              </div>
+
+              <div className="sm:col-span-2 space-y-1">
+                <label className="text-xs font-bold text-foreground">إرفاق صورة للحملة (image: jpeg, png, webp)</label>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(e) => setBulkImage(e.target.files?.[0] || null)}
+                  className="w-full text-xs file:me-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:bg-primary/10 file:text-primary file:font-bold hover:file:bg-primary/20"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={bulkLoading}
+                className="sm:col-span-2 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-xs hover:bg-primary/90 transition-colors shadow-md shadow-primary/20 flex items-center justify-center gap-2 cursor-pointer"
+              >
+                {bulkLoading ? <Loader2 className="size-4 animate-spin" /> : "إرسال الحملة الجماعية (POST /marketing/send-whatsapp-mail)"}
+              </button>
+            </form>
+          </div>
+
           <div className="bg-background border border-border rounded-2xl p-6 shadow-sm space-y-4">
             <h2 className="text-base font-bold text-foreground flex items-center gap-2">
               <Megaphone className="size-5 text-primary" />

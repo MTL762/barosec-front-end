@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth-context";
 import { updateProfileApi, changePasswordApi } from "@/lib/api";
+import { VerificationCard } from "@/components/auth/verification-card";
 
 export default function ProfileDashboardPage() {
   const { user, refreshProfile, isAuthenticated } = useAuth();
@@ -61,6 +62,7 @@ export default function ProfileDashboardPage() {
 
     const { error } = await changePasswordApi({
       current_password: currentPassword,
+      old_password: currentPassword,
       password: newPassword,
       password_confirmation: confirmPassword,
     });
@@ -79,9 +81,12 @@ export default function ProfileDashboardPage() {
       <div className="bg-background border border-border rounded-2xl p-6 shadow-sm">
         <h1 className="text-2xl font-bold text-foreground">الملف الشخصي وإعدادات الأمان (Profile & Security)</h1>
         <p className="text-xs text-muted-foreground mt-1">
-          إدارة بيانات الحساب الشخصي وتغيير كلمة السر عبر API.
+          إدارة بيانات الحساب الشخصي وتغيير كلمة السر وتوثيق الحساب عبر API.
         </p>
       </div>
+
+      {/* Verification Card (Email & Phone OTP) */}
+      <VerificationCard />
 
       {/* Profile Form */}
       <div className="bg-background border border-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">

@@ -27,6 +27,7 @@ export interface UpdateProfileParams {
 
 export interface ChangePasswordParams {
   current_password: string;
+  old_password?: string;
   password: string;
   password_confirmation: string;
 }
@@ -35,6 +36,11 @@ export interface UserProfile {
   id: number | string;
   name: string;
   email: string;
+  phone?: string | null;
+  email_verified_at?: string | null;
+  phone_verified_at?: string | null;
+  email_verified?: boolean;
+  phone_verified?: boolean;
   role?: string;
   created_at?: string;
   updated_at?: string;
@@ -259,3 +265,25 @@ export interface RoleApiItem {
   created_at?: string;
   [key: string]: unknown;
 }
+
+// ── Verification Module Types ────────────────────────────
+export interface VerifyCodeParams {
+  code: string;
+}
+
+export interface VerificationStatusData {
+  email_verified?: boolean;
+  phone_verified?: boolean;
+  [key: string]: unknown;
+}
+
+export interface SendBulkMarketingParams {
+  send_to_all?: boolean | number;
+  subject: string;
+  message: string;
+  country?: string;
+  city?: string;
+  client_ids?: number[];
+  image?: File | Blob | null;
+}
+

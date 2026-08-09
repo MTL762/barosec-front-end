@@ -18,6 +18,8 @@ import {
   Cloud,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
+import { listCamerasApi, listRecordingsApi } from "@/lib/api";
 
 const CAMERAS = [
   { id: "cam-1", name: "المدخل الرئيسي", status: "live" as const, signal: 92, model: "Pro 4K", lastEvent: "قبل 5 دقائق" },
@@ -145,7 +147,11 @@ function SignalBar({ value }: { value: number }) {
 }
 
 export default function DashboardOverviewPage() {
+  const { user } = useAuth();
   const [time, setTime] = useState<string>("");
+  const [liveCameras, setLiveCameras] = useState<any[]>(CAMERAS);
+  const [recordingsCount, setRecordingsCount] = useState<number>(14);
+
   useEffect(() => {
     const tick = () =>
       setTime(
@@ -156,25 +162,85 @@ export default function DashboardOverviewPage() {
     return () => clearInterval(id);
   }, []);
 
+  useEffect(() => {
+    Promise.all([
+      listCamerasApi({ per_page: 15 }),
+      listRecordingsApi({ per_page: 15 }),
+    ]).then(([cRes, rRes]) => {
+      if (cRes.data && Array.isArray(cRes.data) && cRes.data.length > 0) {
+        setLiveCameras(
+          cRes.data.map((c: any) => ({
+            id: String(c.id),
+            name: c.name || "كاميرا",
+            status: c.is_locked ? "privacy" : "live",
+            signal: c.wifi_signal || 90,
+            model: c.model || `موديل #${c.camera_model_id || 1}`,
+            lastEvent: c.last_event || "متصلة",
+          }))
+        );
+      }
+      if (rRes.data && Array.isArray(rRes.data)) {
+        setRecordingsCount(rRes.data.length);
+      }
+    });
+  }, []);
+
+  const dynamicStatCards = [
+    {
+      label: "كاميرات متصلة",
+      value: String(liveCameras.length),
+      sub: `من أصل ${liveCameras.length}`,
+      icon: Camera,
+      color: "emerald",
+      trend: liveCameras.length > 0 ? "+100%" : "0",
+    },
+    {
+      label: "تسجيلات اليوم",
+      value: String(recordingsCount),
+      sub: "مقطع محفوظ",
+      icon: Video,
+      color: "blue",
+      trend: recordingsCount > 0 ? `+${recordingsCount}` : "0",
+    },
+    {
+      label: "آخر حدث",
+      value: time || "الآن",
+      sub: "مراقبة مستمرة",
+      icon: Activity,
+      color: "amber",
+      trend: null,
+    },
+    {
+      label: "التخزين السحابي",
+      value: "68%",
+      sub: "34GB من 50GB",
+      icon: HardDrive,
+      color: "violet",
+      trend: null,
+    },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Greeting row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <h2 className="text-xl font-bold text-foreground">مرحباً، المدير 👋</h2>
+          <h2 className="text-xl font-bold text-foreground">
+            مرحباً، {user?.name || user?.email || "العميل"} 👋
+          </h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            جميع الكاميرات تعمل بشكل سليم — لا تنبيهات نشطة
+            جميع الكاميرات والتسجيلات تعمل بشكل مباشر عبر backend API
           </p>
         </div>
         <div className="flex items-center gap-2 text-sm font-mono text-muted-foreground">
           <Clock className="size-3.5" />
-          <span>{time} — الإثنين، 21 يوليو 2026</span>
+          <span>{time} — تحديث مباشر</span>
         </div>
       </div>
 
       {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {STAT_CARDS.map((s) => {
+        {dynamicStatCards.map((s) => {
           const Icon = s.icon;
           const c = colorMap[s.color as keyof typeof colorMap];
           return (
@@ -215,7 +281,7 @@ export default function DashboardOverviewPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[--db-border]">
-            {CAMERAS.map((cam) => (
+            {liveCameras.map((cam) => (
               <div
                 key={cam.id}
                 className="relative bg-slate-950 aspect-video flex flex-col justify-between p-3 overflow-hidden group"

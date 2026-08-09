@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
+import { getSubscriptionPlansApi } from "@/lib/api";
 import { useTranslations } from "next-intl";
 import {
   Check,
@@ -96,6 +97,15 @@ export function PricingSection() {
 
   const [billing, setBilling] = useState<BillingPeriod>("annual");
   const [cameraOption, setCameraOption] = useState<CameraTier>("single");
+  const [apiPlans, setApiPlans] = useState<any[]>([]);
+
+  useEffect(() => {
+    getSubscriptionPlansApi().then((res) => {
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        setApiPlans(res.data);
+      }
+    });
+  }, []);
 
   // Get active pricing tier for each plan
   const getActivePrice = (plan: PlanDefinition) => {
