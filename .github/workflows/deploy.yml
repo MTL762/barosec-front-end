@@ -1,0 +1,62 @@
+name: Deploy to production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Never let two deploys race for the blue/green slots. Queue instead of cancel:
+# a half-applied deploy is worse than a slightly late one.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Blue/green deploy to VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Trigger zero-downtime deploy over SSH
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${VPS_SSH_KEY:-}" ] || [ -z "${VPS_HOST:-}" ] || [ -z "${VPS_USER:-}" ]; then
+            echo "::error::Missing VPS_SSH_KEY / VPS_HOST / VPS_USER repository secrets."
+            exit 1
+          fi
+
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Pre-seed the host key, but never let this kill the job silently:
+          # a bare `ssh-keyscan ... 2>/dev/null` under `set -e` exits with no
+          # output at all, which is impossible to debug from the Actions log.
+          if ! ssh-keyscan -T 15 "$VPS_HOST" >> ~/.ssh/known_hosts 2>/tmp/keyscan.err; then
+            echo "::warning::ssh-keyscan failed; falling back to accept-new"
+            sed 's/^/  keyscan: /' /tmp/keyscan.err || true
+          fi
+
+          # The server pins this key to a forced command, so the argument below is
+          # ignored: it can only ever run /var/www/barosec-front-end/deploy.sh.
+          # That script builds into the idle slot, health-checks it, and only then
+          # moves nginx over. If anything fails it exits non-zero having touched
+          # nothing, leaving the last good release serving.
+          ssh -i ~/.ssh/deploy_key \
+              -o StrictHostKeyChecking=accept-new \
+              -o ConnectTimeout=20 \
+              -o ServerAliveInterval=30 \
+              -o ServerAliveCountMax=60 \
+              "$VPS_USER@$VPS_HOST" deploy
+
+      - name: Report failure
+        if: failure()
+        run: |
+          echo "::error::Deploy failed. Production is untouched and still serving the last good release."
+          echo "Roll back further with: ssh root@<host> /var/www/barosec-front-end/rollback.sh --list"
