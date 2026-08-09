@@ -10,6 +10,7 @@
     "source.organizeImports": "always",
     "source.addMissingImports.ts": "always",
     "source.removeUnusedImports": "always",
+    "source.removeUnusedImports.ts": "always",
     "source.sortImports": "always",
     "source.fixAll.ts": "always"
   },
@@ -27,5 +28,5 @@
     "statusBar.debuggingForeground": "#EEFDF1",
     "statusBar.noFolderBackground": "#053610",
     "statusBar.noFolderForeground": "#EEFDF1"
-  },
+  }
 }

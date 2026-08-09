@@ -1,25 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import {
-  Camera,
-  ShieldAlert,
-  Wifi,
-  Video,
-  Activity,
-  Clock,
-  CheckCircle2,
-  AlertTriangle,
-  TrendingUp,
-  HardDrive,
-  Zap,
-  Eye,
-  Battery,
-  Cloud,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/lib/auth-context";
 import { listCamerasApi, listRecordingsApi } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
+import { cn } from "@/lib/utils";
+import {
+  Activity,
+  Battery,
+  Camera,
+  Clock,
+  Cloud,
+  Eye,
+  HardDrive,
+  TrendingUp,
+  Video,
+  Wifi
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 const colorMap = {
   emerald: {
