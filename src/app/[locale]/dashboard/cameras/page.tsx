@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   Camera,
   Plus,
@@ -26,6 +27,8 @@ import {
   updateCameraSettingsApi,
   deleteCameraApi,
   listRecordingsApi,
+  CameraApiItem,
+  RecordingApiItem,
 } from "@/lib/api";
 
 interface CameraItem {
@@ -40,47 +43,14 @@ interface CameraItem {
   lastEvent: string;
 }
 
-const DEFAULT_CAMERAS: CameraItem[] = [
-  {
-    id: "cam-1",
-    name: "كاميرا المدخل الرئيسي",
-    location: "المدخل الأمامي",
-    status: "live",
-    isLocked: false,
-    wifiName: "Home_WiFi_5G",
-    wifiSignal: 92,
-    model: "باروسك Outdoor Pro 4K",
-    lastEvent: "رُصد شخص · قبل 5 دقائق",
-  },
-  {
-    id: "cam-2",
-    name: "كاميرا الكراج",
-    location: "الكراج",
-    status: "live",
-    isLocked: false,
-    wifiName: "Home_WiFi_2.4G",
-    wifiSignal: 85,
-    model: "باروسك PTZ 360°",
-    lastEvent: "وصول سيارة · قبل ساعة",
-  },
-  {
-    id: "cam-3",
-    name: "كاميرا غرفة المعيشة",
-    location: "الصالون الداخلي",
-    status: "privacy",
-    isLocked: true,
-    wifiName: "Home_WiFi_5G",
-    wifiSignal: 98,
-    model: "باروسك Interior 4K",
-    lastEvent: "وضع الخصوصية",
-  },
-];
-
-const DEFAULT_RECORDINGS = [
-  { time: "09:42 ص", title: "رصد حركة شخص عند الباب", duration: "0:45", type: "motion" },
-  { time: "07:15 ص", title: "تسليم شحنة من ساعي التوصيل", duration: "1:12", type: "motion" },
-  { time: "02:30 ص", title: "إنذار صوتي خفيف", duration: "0:20", type: "audio" },
-];
+interface RecordingItem {
+  id: string;
+  time: string;
+  title: string;
+  duration: string;
+  type: string;
+  fileUrl?: string;
+}
 
 function SignalBars({ value }: { value: number }) {
   const bars = [value >= 25, value >= 50, value >= 75, value >= 90];
@@ -101,27 +71,34 @@ function SignalBars({ value }: { value: number }) {
 }
 
 export default function CamerasDashboardPage() {
-  const [cameras, setCameras] = useState<CameraItem[]>(DEFAULT_CAMERAS);
-  const [recordings, setRecordings] = useState(DEFAULT_RECORDINGS);
-  const [loading, setLoading] = useState(false);
-  const [apiNotice, setApiNotice] = useState<string | null>(null);
+  const t = useTranslations("Dashboard.Cameras");
+  const locale = useLocale();
+
+  const [cameras, setCameras] = useState<CameraItem[]>([]);
+  const [recordings, setRecordings] = useState<RecordingItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [addModalOpen, setAddModalOpen] = useState(false);
-  const [selectedCamera, setSelectedCamera] = useState<CameraItem | null>(DEFAULT_CAMERAS[0]);
-  const [filterDate, setFilterDate] = useState("2026-07-21");
+  const [selectedCamera, setSelectedCamera] = useState<CameraItem | null>(null);
+  const [filterDate, setFilterDate] = useState<string>("");
   const [filterType, setFilterType] = useState("all");
-  
+
   // New camera form fields
   const [newCamName, setNewCamName] = useState("");
   const [newCamModelId, setNewCamModelId] = useState(1);
-  const [newCamSerial, setNewCamSerial] = useState("CAM-987654321");
-  const [newCamMac, setNewCamMac] = useState("00:1B:44:11:3A:B7");
+  const [newCamSerial, setNewCamSerial] = useState("");
+  const [newCamMac, setNewCamMac] = useState("");
   const [newCamMode, setNewCamMode] = useState("security");
   const [newCamWifi, setNewCamWifi] = useState("Home_WiFi_5G");
   const [qrScanned, setQrScanned] = useState(false);
   const [submittingAdd, setSubmittingAdd] = useState(false);
 
+  const timeLocale = locale === "ar" ? "ar-SA" : "en-US";
+
   useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+    setFilterDate(today);
+
     fetchCamerasAndRecordings();
   }, []);
 
@@ -129,41 +106,72 @@ export default function CamerasDashboardPage() {
     setLoading(true);
     const [cRes, rRes] = await Promise.all([
       listCamerasApi({ per_page: 15 }),
-      listRecordingsApi({ per_page: 15, recording_type: "motion" }),
+      listRecordingsApi({ per_page: 15 }),
     ]);
 
-    if (cRes.data && Array.isArray(cRes.data)) {
-      const fetched: CameraItem[] = cRes.data.map((c: any) => ({
-        id: String(c.id),
-        name: c.name || "كاميرا",
-        location: c.location || "الموقع الرئيسي",
-        status: c.is_locked ? "privacy" : (c.status || "live"),
-        isLocked: !!c.is_locked,
-        wifiName: c.wifi_name || "Home_WiFi_5G",
-        wifiSignal: c.wifi_signal || 90,
-        model: c.model || `كاميرا موديل #${c.camera_model_id || 1}`,
-        lastEvent: c.last_event || "متصلة",
-      }));
-      if (fetched.length > 0) {
-        setCameras(fetched);
-        setSelectedCamera(fetched[0]);
-      }
-      setApiNotice("تم التوصيل بنجاح بـ API الكاميرات (GET /cameras)");
+    const cameraData = Array.isArray(cRes.data)
+      ? cRes.data
+      : Array.isArray(cRes.data?.data)
+      ? (cRes.data.data as CameraApiItem[])
+      : [];
+
+    const fetchedCameras: CameraItem[] = cameraData.map((c: any) => ({
+      id: String(c.id),
+      name: String(c.name || `Cam #${c.id}`),
+      location: String(c.location || c.mode || t("mainLocation")),
+      status: c.is_locked ? "privacy" : (c.status || "live"),
+      isLocked: Boolean(c.is_locked),
+      wifiName: String(c.wifi_name || c.wifi || "Home_WiFi"),
+      wifiSignal: Number(c.wifi_signal || c.signal || 90),
+      model: String(
+        c.model ||
+          (c.camera_model_id
+            ? t("model", { modelId: c.camera_model_id })
+            : t("barosicCamera"))
+      ),
+      lastEvent: c.is_locked
+        ? t("privacyMode")
+        : c.updated_at
+        ? new Date(String(c.updated_at)).toLocaleTimeString(timeLocale, {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : t("connectedNow"),
+    }));
+
+    setCameras(fetchedCameras);
+
+    if (fetchedCameras.length > 0) {
+      setSelectedCamera((prev) => {
+        if (!prev) return fetchedCameras[0];
+        const exists = fetchedCameras.find((c) => c.id === prev.id);
+        return exists || fetchedCameras[0];
+      });
     } else {
-      setApiNotice(cRes.error ? `وضع المعاينة المحلي (API error: ${cRes.error})` : null);
+      setSelectedCamera(null);
     }
 
-    if (rRes.data && Array.isArray(rRes.data)) {
-      const fetchedRecs = rRes.data.map((r: any) => ({
-        time: r.created_at || "الآن",
-        title: r.title || `تسجيل #${r.id}`,
-        duration: String(r.duration || "1:00"),
-        type: r.recording_type || "motion",
-      }));
-      if (fetchedRecs.length > 0) {
-        setRecordings(fetchedRecs);
-      }
-    }
+    const recordingData = Array.isArray(rRes.data)
+      ? rRes.data
+      : Array.isArray(rRes.data?.data)
+      ? (rRes.data.data as RecordingApiItem[])
+      : [];
+
+    const fetchedRecs: RecordingItem[] = recordingData.map((r: any) => ({
+      id: String(r.id),
+      time: r.created_at
+        ? new Date(String(r.created_at)).toLocaleTimeString(timeLocale, {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "Now",
+      title: String(r.title || r.name || `Recording #${r.id}`),
+      duration: String(r.duration || "1:00"),
+      type: String(r.recording_type || r.type || "motion"),
+      fileUrl: r.file_url ? String(r.file_url) : undefined,
+    }));
+
+    setRecordings(fetchedRecs);
     setLoading(false);
   };
 
@@ -172,7 +180,6 @@ export default function CamerasDashboardPage() {
     if (!target) return;
     const nextLock = !target.isLocked;
 
-    // Call API PUT /cameras/:id
     await updateCameraSettingsApi(camId, {
       name: target.name,
       mode: nextLock ? "sleep" : "security",
@@ -186,7 +193,7 @@ export default function CamerasDashboardPage() {
             ...c,
             isLocked: nextLock,
             status: nextLock ? "privacy" : "live",
-            lastEvent: nextLock ? "وضع الخصوصية" : "بث مباشر نشط",
+            lastEvent: nextLock ? t("privacyMode") : t("liveStreamActive"),
           };
         }
         return c;
@@ -203,12 +210,12 @@ export default function CamerasDashboardPage() {
   };
 
   const deleteCamera = async (camId: string) => {
-    // Call API DELETE /cameras/:id
     await deleteCameraApi(camId);
 
-    setCameras((prev) => prev.filter((c) => c.id !== camId));
+    const remaining = cameras.filter((c) => c.id !== camId);
+    setCameras(remaining);
     if (selectedCamera?.id === camId) {
-      setSelectedCamera(cameras.find((c) => c.id !== camId) || null);
+      setSelectedCamera(remaining.length > 0 ? remaining[0] : null);
     }
   };
 
@@ -217,30 +224,33 @@ export default function CamerasDashboardPage() {
     if (!newCamName.trim()) return;
     setSubmittingAdd(true);
 
-    // Call API POST /cameras
     const res = await pairAddCameraApi({
       camera_model_id: newCamModelId,
       name: newCamName,
-      serial_number: newCamSerial,
-      mac_address: newCamMac,
+      serial_number: newCamSerial || `CAM-${Date.now()}`,
+      mac_address: newCamMac || "00:1B:44:11:3A:B7",
       mode: newCamMode,
     });
 
+    const addedData: any = res.data?.data || res.data;
+
     const newCam: CameraItem = {
-      id: res.data?.id ? String(res.data.id) : `cam-${Date.now()}`,
+      id: addedData?.id ? String(addedData.id) : `cam-${Date.now()}`,
       name: newCamName,
-      location: "موقع جديد",
+      location: t("mainLocation"),
       status: "live",
       isLocked: false,
       wifiName: newCamWifi,
-      wifiSignal: 88,
-      model: `موديل #${newCamModelId}`,
-      lastEvent: "تم الإقران عبر API · الآن",
+      wifiSignal: 90,
+      model: t("model", { modelId: newCamModelId }),
+      lastEvent: t("connectedNow"),
     };
 
     setCameras((prev) => [...prev, newCam]);
     setSelectedCamera(newCam);
     setNewCamName("");
+    setNewCamSerial("");
+    setNewCamMac("");
     setQrScanned(false);
     setAddModalOpen(false);
     setSubmittingAdd(false);
@@ -257,30 +267,36 @@ export default function CamerasDashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[--db-border]">
           <div>
-            <h2 className="text-sm font-bold text-foreground">الكاميرات المتصلة (GET /cameras)</h2>
-            <p className="text-[10px] text-muted-foreground mt-0.5">{cameras.length} كاميرات نشطة</p>
+            <h2 className="text-sm font-bold text-foreground">{t("connectedCameras")}</h2>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {t("activeCamerasCount", { count: cameras.length })}
+            </p>
           </div>
           <button
             onClick={() => setAddModalOpen(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20"
           >
             <Plus className="size-3.5" />
-            <span>إضافة</span>
+            <span>{t("add")}</span>
           </button>
         </div>
-
-        {apiNotice && (
-          <div className="px-5 py-2 bg-primary/10 text-primary text-[10px] font-mono border-b border-[--db-border]">
-            {apiNotice}
-          </div>
-        )}
 
         {/* Camera list */}
         <div className="flex-1 overflow-y-auto divide-y divide-[--db-border]">
           {loading ? (
             <div className="p-8 text-center text-muted-foreground text-xs flex flex-col items-center gap-2">
               <Loader2 className="size-5 animate-spin text-primary" />
-              <span>جاري التحميل من API...</span>
+              <span>{t("loadingCameras")}</span>
+            </div>
+          ) : cameras.length === 0 ? (
+            <div className="p-8 text-center text-xs text-muted-foreground space-y-2">
+              <p>{t("noCameras")}</p>
+              <button
+                onClick={() => setAddModalOpen(true)}
+                className="text-primary font-bold hover:underline text-xs"
+              >
+                {t("addNewCamera")}
+              </button>
             </div>
           ) : (
             cameras.map((cam) => {
@@ -329,7 +345,11 @@ export default function CamerasDashboardPage() {
                         {!cam.isLocked && cam.status === "live" && (
                           <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         )}
-                        {cam.isLocked ? "مُقَفلة" : cam.status === "offline" ? "غير متصلة" : "مباشر"}
+                        {cam.isLocked
+                          ? t("privacyLocked")
+                          : cam.status === "offline"
+                          ? t("offline")
+                          : t("live")}
                       </span>
                     </div>
                     <div className="text-[10px] text-muted-foreground">{cam.model}</div>
@@ -373,11 +393,11 @@ export default function CamerasDashboardPage() {
                   )}
                 >
                   {selectedCamera.isLocked ? <Lock className="size-3.5" /> : <Unlock className="size-3.5" />}
-                  <span>{selectedCamera.isLocked ? "إلغاء القفل (PUT)" : "قفل الخصوصية (PUT)"}</span>
+                  <span>{selectedCamera.isLocked ? t("unlock") : t("lockPrivacy")}</span>
                 </button>
                 <button
                   onClick={() => deleteCamera(selectedCamera.id)}
-                  title="حذف الكاميرا (DELETE /cameras/:id)"
+                  title={t("deleteCamera")}
                   className="p-1.5 rounded-xl text-muted-foreground hover:text-red-600 hover:bg-red-500/10 transition-colors"
                 >
                   <Trash2 className="size-4" />
@@ -395,10 +415,8 @@ export default function CamerasDashboardPage() {
                     <div className="size-14 rounded-2xl bg-amber-500/20 flex items-center justify-center">
                       <Lock className="size-7 text-amber-400" />
                     </div>
-                    <div className="text-sm font-bold text-slate-200">وضع الخصوصية مفعّل</div>
-                    <p className="text-xs text-slate-400 max-w-xs">
-                      تم إيقاف تشغيل مستشعر الكاميرا بالكامل لحماية خصوصيتك.
-                    </p>
+                    <div className="text-sm font-bold text-slate-200">{t("privacyEnabled")}</div>
+                    <p className="text-xs text-slate-400 max-w-xs">{t("privacyDesc")}</p>
                   </div>
                 ) : (
                   <>
@@ -406,10 +424,10 @@ export default function CamerasDashboardPage() {
                     <div className="absolute top-0 inset-x-0 flex items-center justify-between p-3 z-10">
                       <span className="flex items-center gap-1.5 bg-red-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
                         <span className="size-1.5 rounded-full bg-white animate-pulse" />
-                        بث مباشر HD
+                        {t("liveHD")}
                       </span>
                       <span className="text-[10px] font-mono text-slate-400 bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-md">
-                        30fps · 4.2Mbps
+                        30fps · {selectedCamera.wifiSignal > 50 ? "4.2Mbps" : "2.1Mbps"}
                       </span>
                     </div>
 
@@ -439,7 +457,7 @@ export default function CamerasDashboardPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <Calendar className="size-4 text-primary" />
-                    <h3 className="text-sm font-bold text-foreground">التسجيلات والأرشيف (GET /recordings)</h3>
+                    <h3 className="text-sm font-bold text-foreground">{t("recordingsArchive")}</h3>
                   </div>
                   <input
                     type="date"
@@ -451,10 +469,10 @@ export default function CamerasDashboardPage() {
 
                 <div className="flex items-center gap-2">
                   {[
-                    { id: "all", label: "الكل" },
-                    { id: "motion", label: "حركة" },
-                    { id: "audio", label: "صوت" },
-                    { id: "emergency", label: "طوارئ" },
+                    { id: "all", label: t("filterAll") },
+                    { id: "motion", label: t("filterMotion") },
+                    { id: "audio", label: t("filterAudio") },
+                    { id: "emergency", label: t("filterEmergency") },
                   ].map((btn) => (
                     <button
                       key={btn.id}
@@ -473,14 +491,19 @@ export default function CamerasDashboardPage() {
 
                 {/* Recording list */}
                 <div className="space-y-2">
-                  {filtered.length === 0 ? (
+                  {loading ? (
+                    <div className="p-8 text-center text-xs text-muted-foreground flex flex-col items-center gap-2">
+                      <Loader2 className="size-5 animate-spin text-primary" />
+                      <span>{t("loadingRecordings")}</span>
+                    </div>
+                  ) : filtered.length === 0 ? (
                     <div className="py-8 text-center text-xs text-muted-foreground">
-                      لا توجد تسجيلات لهذا الفلتر
+                      {t("noRecordings")}
                     </div>
                   ) : (
-                    filtered.map((item, i) => (
+                    filtered.map((item) => (
                       <div
-                        key={i}
+                        key={item.id}
                         className="flex items-center gap-3 p-3 rounded-xl bg-[--db-card] border border-[--db-border] hover:border-primary/30 transition-colors group"
                       >
                         <div className="size-9 rounded-xl bg-primary/8 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors">
@@ -489,11 +512,11 @@ export default function CamerasDashboardPage() {
                         <div className="flex-1 min-w-0">
                           <div className="text-xs font-bold text-foreground truncate">{item.title}</div>
                           <div className="text-[10px] text-muted-foreground font-mono mt-0.5">
-                            {item.time} · {item.duration} دقيقة
+                            {item.time} · {item.duration} {t("min")}
                           </div>
                         </div>
                         <button className="px-3 py-1.5 rounded-lg bg-[--db-sidebar] border border-[--db-border] text-xs font-bold text-foreground hover:border-primary/30 transition-colors shrink-0">
-                          تشغيل
+                          {t("play")}
                         </button>
                       </div>
                     ))
@@ -507,9 +530,11 @@ export default function CamerasDashboardPage() {
             <div className="size-14 rounded-2xl bg-muted flex items-center justify-center">
               <Camera className="size-7 text-muted-foreground" />
             </div>
-            <div className="text-sm font-bold text-foreground">اختر كاميرا من القائمة</div>
+            <div className="text-sm font-bold text-foreground">
+              {cameras.length === 0 ? t("noConnectedCameras") : t("selectCamera")}
+            </div>
             <p className="text-xs text-muted-foreground max-w-xs">
-              انقر على أي كاميرا في القائمة لعرض البث المباشر والتسجيلات.
+              {cameras.length === 0 ? t("addCameraPrompt") : t("clickCameraPrompt")}
             </p>
           </div>
         )}
@@ -522,7 +547,7 @@ export default function CamerasDashboardPage() {
             <div className="flex items-center justify-between px-6 py-4 border-b border-[--db-border]">
               <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                 <QrCode className="size-4 text-primary" />
-                إقران وإضافة كاميرا (POST /cameras)
+                {t("pairAndAddCamera")}
               </h3>
               <button
                 onClick={() => setAddModalOpen(false)}
@@ -534,11 +559,11 @@ export default function CamerasDashboardPage() {
 
             <form onSubmit={handleAddCamera} className="px-6 py-5 space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground">اسم الكاميرا</label>
+                <label className="text-xs font-bold text-foreground">{t("cameraName")}</label>
                 <input
                   type="text"
                   required
-                  placeholder="Front Door Security Camera"
+                  placeholder={t("cameraNamePlaceholder")}
                   value={newCamName}
                   onChange={(e) => setNewCamName(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-[--db-border] bg-[--db-card] text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -547,18 +572,20 @@ export default function CamerasDashboardPage() {
 
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-foreground">رقم السيريال</label>
+                  <label className="text-[10px] font-bold text-foreground">{t("serialNumber")}</label>
                   <input
                     type="text"
+                    placeholder="CAM-123456"
                     value={newCamSerial}
                     onChange={(e) => setNewCamSerial(e.target.value)}
                     className="w-full px-3 py-1.5 rounded-lg border border-[--db-border] bg-[--db-card] text-xs font-mono text-foreground"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-foreground">عنوان MAC</label>
+                  <label className="text-[10px] font-bold text-foreground">{t("macAddress")}</label>
                   <input
                     type="text"
+                    placeholder="00:1B:44:11:3A:B7"
                     value={newCamMac}
                     onChange={(e) => setNewCamMac(e.target.value)}
                     className="w-full px-3 py-1.5 rounded-lg border border-[--db-border] bg-[--db-card] text-xs font-mono text-foreground"
@@ -567,7 +594,7 @@ export default function CamerasDashboardPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground">شبكة الإنترنت</label>
+                <label className="text-xs font-bold text-foreground">{t("wifiNetwork")}</label>
                 <select
                   value={newCamWifi}
                   onChange={(e) => setNewCamWifi(e.target.value)}
@@ -583,19 +610,19 @@ export default function CamerasDashboardPage() {
                 {qrScanned ? (
                   <div className="space-y-1 text-emerald-600 dark:text-emerald-400">
                     <CheckCircle2 className="size-8 mx-auto" />
-                    <div className="text-xs font-bold">تم مسح رمز QR بنجاح!</div>
-                    <div className="text-[10px] text-muted-foreground">جاهز للإرسال لـ POST /cameras</div>
+                    <div className="text-xs font-bold">{t("qrScannedSuccess")}</div>
+                    <div className="text-[10px] text-muted-foreground">{t("readyToAdd")}</div>
                   </div>
                 ) : (
                   <>
                     <QrCode className="size-10 mx-auto text-primary" />
-                    <div className="text-xs font-bold text-foreground">اقرأ رمز QR من ظهر الكاميرا</div>
+                    <div className="text-xs font-bold text-foreground">{t("scanQrPrompt")}</div>
                     <button
                       type="button"
                       onClick={() => setQrScanned(true)}
                       className="px-4 py-1.5 bg-primary text-primary-foreground text-xs font-bold rounded-xl"
                     >
-                      محاكاة مسح QR
+                      {t("simulateQrScan")}
                     </button>
                   </>
                 )}
@@ -607,14 +634,14 @@ export default function CamerasDashboardPage() {
                   onClick={() => setAddModalOpen(false)}
                   className="flex-1 px-4 py-2.5 rounded-xl border border-[--db-border] text-sm font-bold text-foreground hover:bg-accent transition-colors"
                 >
-                  إلغاء
+                  {t("cancel")}
                 </button>
                 <button
                   type="submit"
                   disabled={submittingAdd || !qrScanned || !newCamName.trim()}
                   className="flex-1 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold disabled:opacity-40 hover:bg-primary/90 transition-colors flex items-center justify-center gap-1"
                 >
-                  {submittingAdd ? <Loader2 className="size-4 animate-spin" /> : "إضافة الكاميرا"}
+                  {submittingAdd ? <Loader2 className="size-4 animate-spin" /> : t("addCameraSubmit")}
                 </button>
               </div>
             </form>
@@ -624,3 +651,5 @@ export default function CamerasDashboardPage() {
     </div>
   );
 }
+
+
