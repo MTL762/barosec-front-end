@@ -1,0 +1,536 @@
+{
+  "Meta": {
+    "title": "Barosec Secure Subscription Plans | Barosec",
+    "description": "Stay ahead of potential threats with Barosec Secure. Smarter. Safer. Trusted by millions."
+  },
+  "Nav": {
+    "logo": "Barosec",
+    "secure": "Secure Plans",
+    "subscribe": "Subscribe Now",
+    "language": "Language",
+    "arabic": "العربية",
+    "english": "English",
+    "dashboard": "Dashboard",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "gallery": "gallary",
+    "bundles": "Bundles",
+    "blog": "Blog",
+    "support": "Support"
+  },
+  "Hero": {
+    "badge": "NEW",
+    "title": "Stay ahead of potential threats.",
+    "subtitle": "Smarter. Safer. Trusted by millions.",
+    "ctaSubscribe": "Subscribe Now",
+    "ctaLearn": "Learn More",
+    "simulator": {
+      "live": "LIVE",
+      "dayMode": "Day Mode",
+      "nightVision": "Night Vision",
+      "pills": {
+        "person": "Person",
+        "vehicle": "Vehicle",
+        "package": "Package",
+        "animal": "Animal"
+      },
+      "alerts": {
+        "title": "Early Warning",
+        "person": {
+          "event": "Motion · Person detected",
+          "location": "Front driveway · Just now"
+        },
+        "vehicle": {
+          "event": "Motion · Vehicle detected",
+          "location": "Driveway · Just now"
+        },
+        "package": {
+          "event": "Motion · Package delivered",
+          "location": "Front door · Just now"
+        },
+        "animal": {
+          "event": "Motion · Animal detected",
+          "location": "Backyard · Just now"
+        }
+      }
+    }
+  },
+  "Pricing": {
+    "title": "Choose a plan that's right for you.",
+    "annual": "Annually",
+    "monthly": "Monthly",
+    "popular": "Most popular",
+    "earlyWarning": "Early Warning System",
+    "emergencyTag": "+Emergency Response",
+    "recordingTag": "+ 24/7 Video Recording",
+    "getPlan": "Get Plan",
+    "viewAll": "View all features",
+    "hideFeatures": "Hide features",
+    "billedAnnually": "/ mo billed annually",
+    "billedMonthly": "billed monthly",
+    "singleCamera": "Single Camera",
+    "unlimitedCameras": "Unlimited Cameras",
+    "core": "Core",
+    "earlyWarningGroup": "Early Warning",
+    "emergencyGroup": "Emergency Response",
+    "recordingGroup": "Continuous Recording"
+  },
+  "Plans": {
+    "plus": {
+      "name": "Plus"
+    },
+    "premium": {
+      "name": "Premium"
+    },
+    "premiumRecording": {
+      "name": "Premium"
+    }
+  },
+  "Features": {
+    "videoHistory": "60-Day Video History",
+    "activityZones": "Smart Activity Zones",
+    "priorityCare": "Priority Care",
+    "theftReplacement": "Theft Replacement",
+    "discounts": "Discounts on Barosec.com¹",
+    "earlyWarning": "Early Warning System",
+    "basicDetection": "Basic Person, Animal, Vehicle, & Package Detection",
+    "personRecognition": "Person Recognition²",
+    "vehicleRecognition": "Vehicle Recognition",
+    "customDetection": "Custom Detection",
+    "fireDetection": "Fire Detection³",
+    "audioDetection": "Bark, Scream, Glass Break & Gunshot Detection",
+    "eventCaptions": "Event Captions",
+    "videoSearch": "Video Search",
+    "emergencyResponse": "Emergency Response",
+    "professionalMonitoring": "24/7 Professional Monitoring⁴",
+    "emergencyResponse247": "24/7 Emergency Response⁵",
+    "barosecSafe": "Barosec Safe Plan",
+    "homeInsurance": "Home Insurance Discount",
+    "continuousRecording": "24/7 Continuous Video Recording⁶ (up to 3 cameras)"
+  },
+  "FeatureDetails": {
+    "title": "What's included",
+    "videoHistory": {
+      "title": "60-Day Video History",
+      "body": "Access videos anytime, anywhere. View and save important moments, or share them with friends, family, and neighbors.",
+      "bullets": [
+        "60-Day Video History stored on the Barosec Secure Cloud.",
+        "Access videos via smartphone, tablet, and web from anywhere.",
+        "Filter recordings by day or event type."
+      ]
+    },
+    "activityZones": {
+      "title": "Smart Activity Zones",
+      "body": "Highlight specific areas in your camera's view to only get alerts for events that matter most. Exclude high traffic areas or tree branches to reduce unwanted alerts.",
+      "bullets": [
+        "Create multiple custom zones for each compatible device.",
+        "Edit zones at any time."
+      ]
+    },
+    "priorityCare": {
+      "title": "Priority Care",
+      "body": "Connect with Barosec technical experts through the Barosec Secure App's Support Center. Subscribers receive priority agent routing, live chat, and phone support.",
+      "bullets": []
+    },
+    "theftReplacement": {
+      "title": "Theft Replacement",
+      "body": "If your Barosec device is stolen, we've got you covered. Eligible device owners can receive a replacement through the Barosec Theft Replacement program.",
+      "bullets": [
+        "See eligible devices for details."
+      ]
+    },
+    "discounts": {
+      "title": "Discount on Barosec.com",
+      "body": "As an Barosec Secure subscriber, unlock an extra 15% discount on your purchases from barosec.com. Terms apply.",
+      "bullets": []
+    },
+    "smartMotion": {
+      "title": "Smart Motion Detection",
+      "body": "Object Detection sends alerts when a person, package, vehicle, or animal is detected — so you control the alerts you receive.",
+      "bullets": []
+    },
+    "personRecognition": {
+      "title": "Person Recognition",
+      "body": "Get alerts when your camera detects a familiar person you have previously named. Feel safer knowing family and friends have arrived home safely.",
+      "bullets": [
+        "Easily set up this feature through the Barosec Secure App.",
+        "Simply name people that appear in the unrecognized people category."
+      ]
+    },
+    "vehicleRecognition": {
+      "title": "Vehicle Recognition",
+      "body": "Get alerts when your camera detects a familiar vehicle — whether it's Dad's car, a courier, or an unknown vehicle.",
+      "bullets": [
+        "Easily set up this feature through the Barosec Secure App.",
+        "Simply name vehicles that appear in the unrecognized vehicles category."
+      ]
+    },
+    "customDetection": {
+      "title": "Custom Detection (Beta)",
+      "body": "Teach your camera to recognize certain objects or changes so you get specific notifications like \"garage open\" or \"sprinklers on.\"",
+      "bullets": [
+        "Get started with two snapshots, select a few settings, and let Barosec do the rest.",
+        "This feature is in beta — be the first to try it out."
+      ]
+    },
+    "fireDetection": {
+      "title": "Fire Detection (Beta)",
+      "body": "Life-saving notifications can help you protect more than your home. With an Barosec Plus or Premium plan, you'll be alerted to potential fire so you can take action immediately.",
+      "bullets": []
+    },
+    "audioDetection": {
+      "title": "Advanced Audio Detection (Beta)",
+      "body": "Not every threat can be seen. Some Barosec devices can listen for critical sounds so you can take action in real time.",
+      "bullets": [
+        "Smoke / CO Alarm",
+        "Gunshot",
+        "Scream",
+        "Glass Break",
+        "Dog Bark"
+      ]
+    },
+    "eventCaptions": {
+      "title": "Event Captions",
+      "body": "AI-powered, concise descriptions give you a quick understanding of your camera's footage without watching every video.",
+      "bullets": []
+    },
+    "videoSearch": {
+      "title": "Video Search (Beta)",
+      "body": "Quickly locate events by searching with keywords, descriptions, or time ranges — without manually sifting through your library.",
+      "bullets": [
+        "This feature is in beta — be the first to try it out."
+      ]
+    },
+    "professionalMonitoring": {
+      "title": "24/7 Professional Monitoring",
+      "body": "In an emergency, every second counts. With 24/7 Professional Monitoring, Barosec Home Security System owners receive advanced protection from Live Safety Agents around the clock.",
+      "bullets": [
+        "Certified experts can send police, fire, or medical responders when sensors are triggered.",
+        "Enable Video Verification to reduce false alarms and expedite first responders.",
+        "Powered by RapidSOS technology.",
+        "Requires setup in the Barosec Secure App.",
+        "Save up to 20% on your home insurance premium (discount may vary by provider)."
+      ]
+    },
+    "emergencyResponse247": {
+      "title": "24/7 Emergency Response",
+      "body": "Get help from 24/7 Live Safety Agents with one tap who will immediately send first responders to your camera's location.",
+      "bullets": [
+        "Reduce response time with pre-filled location profile information.",
+        "Get a response from security experts within seconds.",
+        "Powered by RapidSOS technology.",
+        "Requires setup in the Barosec Secure App."
+      ]
+    },
+    "barosecSafe": {
+      "title": "Barosec Safe App Family Subscription",
+      "body": "Barosec Safe offers personal and family safety with immediate access to 24/7 Live Security Experts — anytime, anywhere.",
+      "bullets": [
+        "One-Tap Protection connects you to a live, medically trained security expert.",
+        "Guardian Mode lets you hold the safety button if you feel in danger.",
+        "Family Check-ins let you see the location of family members."
+      ]
+    },
+    "homeInsurance": {
+      "title": "Home Insurance Discounts",
+      "body": "Barosec Home Security System owners can save up to 20% on their insurance premiums (discounts may vary by provider).",
+      "bullets": [
+        "Download the Professional Monitoring Certificate and present it to your provider.",
+        "Requires an Barosec Home Security System."
+      ]
+    },
+    "continuousRecording": {
+      "title": "24/7 Recording",
+      "body": "Continuous video recording for up to 3 cameras. Your recordings are kept for 30 days.",
+      "bullets": []
+    }
+  },
+  "Benefits": {
+    "eyebrow": "Barosec Secure",
+    "title": "Millions of customers trust Barosec to protect what matters most.",
+    "subtitle": "Instantly know what's happening and take action in seconds.",
+    "cta": "Subscribe Now",
+    "spotDanger": {
+      "title": "Spot Danger Before it Spreads",
+      "body": "Detect fire, people, vehicles, animals and packages. Plus set custom detections that matter most to you.",
+      "badge": "Live Detection"
+    },
+    "storeShare": {
+      "title": "Store & Share Important Moments",
+      "body": "Access videos anytime, anywhere. View and save important moments, or share them with friends, family, and neighbors."
+    },
+    "emergency": {
+      "title": "24/7 Emergency Response",
+      "body": "When every second counts, turn alerts into action. With one tap, connect to live security experts who can quickly send police, fire, or medical help.",
+      "badge": "Critical"
+    },
+    "quickerAction": {
+      "title": "Take Quicker Action",
+      "body": "See and act on potential threats and other activity in seconds, straight from your lock screen with interactive notifications."
+    },
+    "personalized": {
+      "title": "Personalized Alerts Created By You, For You",
+      "body": "Create custom detections for the things that matter to you, like when the garage door is left open."
+    },
+    "smartZones": {
+      "title": "Smart Activity Zones",
+      "body": "Exclude high traffic areas or tree branches. Highlight specific areas to only get alerts for events that matter most."
+    }
+  },
+  "Faq": {
+    "title": "Frequently Asked Questions",
+    "general": "General",
+    "trial": "Secure Trial",
+    "generalItems": [
+      {
+        "q": "What is Barosec Secure and how can I benefit from it?",
+        "a": "Barosec Secure plans help you maximize your security experience with alerts powered by Barosec Intelligence and tools to help you act quickly during an emergency from anywhere. You can record up to 4K resolution video (requires devices with 4K capability), get detailed alerts that tell you who's at your door, whose vehicle is in the driveway, or when an animal or package has been detected by your camera."
+      },
+      {
+        "q": "How do I subscribe to an Barosec Secure plan?",
+        "a": "The best way to subscribe is by logging in to your account at my.barosec.com, tap or click Settings > Subscriptions, and then selecting a plan that best fits your needs."
+      },
+      {
+        "q": "Is an Barosec Secure plan required to use my Barosec gallary?",
+        "a": "No. You can still use your Barosec product with certain features, but a plan helps you get the most out of your devices with smart features like Interactive Notifications and emergency response tools."
+      },
+      {
+        "q": "Can I share my camera access with family or friends?",
+        "a": "Yes. You can grant access to family or friends."
+      },
+      {
+        "q": "I have an Barosec Home Security System, which plan is right for me?",
+        "a": "The best plan for Barosec Home Security System owners is the Premium with Professional Monitoring."
+      },
+      {
+        "q": "I have Barosec gallary at more than one address. Can one Barosec Secure subscription cover them all?",
+        "a": "No. You'll need to subscribe to a separate Barosec Secure plan for each address you want to protect."
+      }
+    ],
+    "trialItems": [
+      {
+        "q": "Is there a trial of an Barosec Secure Plan?",
+        "a": "Yes! A free 30-day trial of Barosec Secure is included for each new Barosec Camera, Video Doorbell, Floodlight, or Home Security System product. Some gallary sold by authorized retailers may include a promotion for a longer duration."
+      },
+      {
+        "q": "When does my Barosec Secure trial start?",
+        "a": "Your Barosec Secure trial begins as soon as you complete onboarding the product in the Barosec Secure App."
+      },
+      {
+        "q": "What happens when my Barosec Secure Trial ends?",
+        "a": "After trial, you can subscribe to an Barosec Secure plan at my.barosec.com to keep premium features like 60-Day Video History, Activity Zones, Interactive Alerts, 24/7 Emergency Response, and more."
+      }
+    ]
+  },
+  "Footnotes": {
+    "1": "¹ Discount may vary by provider.",
+    "2": "² Person recognition is unavailable on Barosec devices in certain regions. You are responsible for complying with any local laws or regulations that relate to your use of the Person Recognition feature.",
+    "3": "³ Barosec's video-based fire detection feature is a supplementary tool and should not replace standard fire detection systems such as smoke detectors, conventional alarms, or proper safety measures.",
+    "4": "⁴ Requires an Barosec Home Security System.",
+    "5": "⁵ 24/7 Emergency Response feature available for select service plans and countries.",
+    "6": "⁶ 24/7 Recording gives 30 days of continuous video history on up to three cameras per paid subscription. Recordings cannot be downloaded. Requires compatible Barosec gallary plugged into AC power and sufficient Internet bandwidth."
+  },
+  "Footer": {
+    "tagline": "Smarter home security for every family.",
+    "shop": "Shop",
+    "company": "Company",
+    "support": "Support",
+    "partners": "Partners",
+    "shopLinks": [
+      "Barosec Secure Plans",
+      "Security Cameras",
+      "Indoor Security Cameras",
+      "Doorbells",
+      "Floodlight Cameras",
+      "Security System",
+      "Accessories"
+    ],
+    "companyLinks": [
+      "About",
+      "Careers",
+      "Press",
+      "Investors",
+      "Barosec Blog",
+      "Our Commitment to Privacy"
+    ],
+    "supportLinks": [
+      "Support",
+      "Contact Us",
+      "Community",
+      "Returns",
+      "Product Warranty"
+    ],
+    "partnerLinks": [
+      "RapidSOS",
+      "Barosec MAP Policy"
+    ],
+    "copyright": "Copyright © {year} Barosec. All Rights Reserved.",
+    "privacy": "Privacy Notice",
+    "terms": "Terms & Conditions",
+    "legal": "Legal",
+    "accessibility": "Accessibility"
+  },
+  "Gallery": {
+    "title": "Innovative Security Cameras & Systems",
+    "subtitle": "Discover our award-winning range of smart home security devices built to protect your world.",
+    "filterAll": "All gallary",
+    "filterCameras": "Cameras",
+    "filterDoorbells": "Doorbells",
+    "filterFloodlights": "Floodlights",
+    "specs": "Specifications",
+    "resolution": "Resolution",
+    "fov": "Field of View",
+    "power": "Power Type",
+    "connection": "Connectivity",
+    "buyNow": "Buy Now",
+    "features": "Features",
+    "gallaryList": {
+      "ultra2": {
+        "name": "Barosec Ultra 2",
+        "tag": "Flagship 4K",
+        "description": "Our most advanced security camera with 4K HDR video, color night vision, and ultra-wide view.",
+        "resolution": "4K HDR",
+        "fov": "180° diagonal",
+        "power": "Rechargeable Battery / Solar Panel",
+        "connection": "Wi-Fi (SmartHub required)"
+      },
+      "pro5s": {
+        "name": "Barosec Pro 5S",
+        "tag": "Advanced 2K",
+        "description": "Powerful 2K HDR security camera featuring dual-band Wi-Fi and exceptional color night vision.",
+        "resolution": "2K HDR",
+        "fov": "160° diagonal",
+        "power": "Rechargeable Battery / Solar Panel",
+        "connection": "Direct to Wi-Fi"
+      },
+      "essential": {
+        "name": "Barosec Essential",
+        "tag": "Smart Value",
+        "description": "Essential protection for every home. 1080p video, integrated spotlight, and direct Wi-Fi setup.",
+        "resolution": "1080p HD",
+        "fov": "130° diagonal",
+        "power": "Rechargeable Battery",
+        "connection": "Direct to Wi-Fi"
+      },
+      "doorbell": {
+        "name": "Barosec Video Doorbell",
+        "tag": "Front Door",
+        "description": "See more at your front door. HD video, head-to-toe viewing, and direct audio responses.",
+        "resolution": "1:1 Aspect Ratio HD",
+        "fov": "180° circular",
+        "power": "Hardwired or Rechargeable Battery",
+        "connection": "Direct to Wi-Fi"
+      },
+      "floodlight": {
+        "name": "Barosec Pro 3 Floodlight",
+        "tag": "Max Protection",
+        "description": "Illuminate and protect dark corners. Ultra-bright LED floodlight with 2K camera integration.",
+        "resolution": "2K HDR",
+        "fov": "160° diagonal",
+        "power": "Rechargeable Battery / Hardwired",
+        "connection": "Direct to Wi-Fi"
+      }
+    }
+  },
+  "Bundles": {
+    "title": "Curated Security Bundles",
+    "subtitle": "Save more and protect your home comprehensively with our specially designed packages.",
+    "starterKit": {
+      "name": "Starter Protection Kit",
+      "description": "Ideal for apartments and small homes. Essential security where it matters most."
+    },
+    "proKit": {
+      "name": "Pro Protection Kit",
+      "description": "Our most popular multi-camera system for comprehensive home surveillance."
+    },
+    "ultimateShield": {
+      "name": "Ultimate Shield System",
+      "description": "Maximum protection for large properties. 4K coverage, floodlights, and smart sensors."
+    },
+    "save": "Save {amount}",
+    "originalPrice": "Original Price:",
+    "includes": "What's Included",
+    "buyBundle": "Choose Bundle",
+    "faqTitle": "Bundles & Setup FAQ",
+    "faqItems": [
+      {
+        "q": "Can I customize a bundle?",
+        "a": "Yes, you can contact our sales or support team to customize a package specifically for your home's layout and requirements."
+      },
+      {
+        "q": "Do bundles include Barosec Secure subscriptions?",
+        "a": "Bundles come with a free 30-day trial of Barosec Secure. You can choose to subscribe to a paid plan afterwards to keep advanced features."
+      },
+      {
+        "q": "Are the cameras easy to self-install?",
+        "a": "Absolutely. All Barosec cameras are designed for simple DIY installation. The Barosec Secure app provides step-by-step visual instructions."
+      },
+      {
+        "q": "Is there a warranty on bundle equipment?",
+        "a": "Yes, all hardware in our bundles includes a 1-year limited product warranty and a 30-day money-back guarantee."
+      }
+    ],
+    "supportTitle": "Need help choosing?",
+    "supportText": "Speak to our security experts to find the perfect configuration for your property.",
+    "contactExpert": "Contact a Security Expert"
+  },
+  "Blog": {
+    "title": "Barosec Security Blog",
+    "subtitle": "Expert insights, tips, and articles to help you keep your home, business, and family safe.",
+    "featured": "Featured Article",
+    "readTime": "{minutes} min read",
+    "readMore": "Read Article",
+    "articles": {
+      "a1": {
+        "title": "How to Secure Your Smart Home for Summer Vacation",
+        "summary": "Going away for the holidays? Learn the essential steps to prepare your security system, set active zones, and grant access to trusted neighbors."
+      },
+      "a2": {
+        "title": "Smart Activity Zones: How to Reduce False Alerts",
+        "summary": "Excluding tree branches or passing cars from your notifications helps you focus on what's real. Discover how to build precise custom zones."
+      },
+      "a3": {
+        "title": "Choosing the Right Video Doorbell for Your Front Door",
+        "summary": "Compare battery-powered and wired video doorbells to find the perfect match for your entryway layout and wiring options."
+      },
+      "a4": {
+        "title": "AI in Home Security: How Object Detection Works",
+        "summary": "An in-depth look at how cloud-based computer vision distinguishes people, vehicles, and animals to send you smarter alerts."
+      }
+    }
+  },
+  "Support": {
+    "title": "How can we help you?",
+    "subtitle": "Find setup guides, search documentation, or get in touch with our customer care team.",
+    "searchPlaceholder": "Search support articles...",
+    "categories": {
+      "setup": "Setup & Install",
+      "billing": "Billing & Subscriptions",
+      "trouble": "Troubleshooting",
+      "warranty": "Warranty & Returns"
+    },
+    "contactTitle": "Still need help?",
+    "contactSubtitle": "Our Support Team is available 24/7 to assist you.",
+    "chat": "Live Chat Online",
+    "chatDesc": "Chat with a support representative instantly.",
+    "call": "Call Us directly",
+    "callDesc": "Speak directly to a security expert over the phone.",
+    "callNumber": "+1 (800) 275-6276",
+    "ticket": "Open a Support Ticket",
+    "ticketDesc": "Submit a detailed request and we will get back to you via email."
+  },
+  "Errors": {
+    "loading": "Securing your connection...",
+    "loadingSubtitle": "Initializing camera feeds and active zone simulators.",
+    "notFoundTitle": "Out of Range",
+    "notFoundSubtitle": "The page you are looking for has been moved or is outside the secure boundary.",
+    "goHome": "Back to Home",
+    "goSupport": "Visit Support Center",
+    "errorTitle": "Security Intercepted",
+    "errorSubtitle": "An unexpected system exception occurred inside the application layer.",
+    "tryAgain": "Restart System Connection",
+    "digest": "System Error ID: {digest}"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "editor.defaultFormatter": "oxc.oxc-vscode",
+  "editor.formatOnSave": true,
+  "editor.formatOnSaveMode": "file",
+  "i18n-ally.localesPaths": [
+    "messages"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "always",
+    "source.addMissingImports.ts": "always",
+    "source.removeUnusedImports": "always",
+    "source.sortImports": "always",
+    "source.fixAll.ts": "always"
+  },
+  "i18n-ally.keystyle": "nested",
+  "i18n-ally.sourceLanguage": "ar",
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#053610",
+    "titleBar.activeBackground": "#074B17",
+    "titleBar.activeForeground": "#EEFDF1",
+    "titleBar.inactiveBackground": "#053610",
+    "titleBar.inactiveForeground": "#EEFDF1",
+    "statusBar.background": "#053610",
+    "statusBar.foreground": "#EEFDF1",
+    "statusBar.debuggingBackground": "#053610",
+    "statusBar.debuggingForeground": "#EEFDF1",
+    "statusBar.noFolderBackground": "#053610",
+    "statusBar.noFolderForeground": "#EEFDF1"
+  },
+}

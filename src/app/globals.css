@@ -1,0 +1,505 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-plex);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-kufi);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* Calm protective security — pure white surface, deep navy ink, teal brand */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.22 0.03 250);
+  --ink: oklch(0.22 0.03 250);
+  --surface: oklch(0.97 0.01 230);
+  --brand: oklch(0.55 0.11 200);
+  --brand-foreground: oklch(0.99 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.03 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.03 250);
+  --primary: oklch(0.55 0.11 200);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.95 0.015 230);
+  --secondary-foreground: oklch(0.28 0.04 250);
+  --muted: oklch(0.95 0.01 230);
+  --muted-foreground: oklch(0.45 0.025 250);
+  --accent: oklch(0.93 0.03 200);
+  --accent-foreground: oklch(0.28 0.05 200);
+  --destructive: oklch(0.55 0.2 25);
+  --border: oklch(0.88 0.015 230);
+  --input: oklch(0.88 0.015 230);
+  --ring: oklch(0.55 0.11 200);
+  --chart-1: oklch(0.55 0.11 200);
+  --chart-2: oklch(0.35 0.05 250);
+  --chart-3: oklch(0.7 0.08 200);
+  --chart-4: oklch(0.5 0.08 160);
+  --chart-5: oklch(0.4 0.06 280);
+  --radius: 0.75rem;
+  --sidebar: oklch(0.98 0.008 230);
+  --sidebar-foreground: oklch(0.22 0.03 250);
+  --sidebar-primary: oklch(0.55 0.11 200);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.95 0.015 230);
+  --sidebar-accent-foreground: oklch(0.28 0.04 250);
+  --sidebar-border: oklch(0.88 0.015 230);
+  --sidebar-ring: oklch(0.55 0.11 200);
+  --hero-glow: oklch(0.55 0.11 200 / 0.18);
+  --hero-deep: oklch(0.2 0.04 250);
+  --hero-gradient-start: oklch(0.97 0.02 230);
+  --hero-gradient-end: oklch(0.96 0.025 200);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+
+  /* Dashboard surface tokens (light) */
+  --db-bg: oklch(0.965 0.008 230);
+  --db-sidebar: oklch(1 0 0);
+  --db-card: oklch(1 0 0);
+  --db-border: oklch(0.88 0.015 230);
+  --db-hover: oklch(0.96 0.012 230);
+}
+
+/* Calm protective security dark mode — deep brand-tinted navy surface, teal brand */
+.dark {
+  --background: oklch(0.12 0.02 250);
+  --foreground: oklch(0.92 0.015 250);
+  --ink: oklch(0.95 0.01 250);
+  --surface: oklch(0.16 0.02 250);
+  --brand: oklch(0.60 0.12 200);
+  --brand-foreground: oklch(0.08 0.02 200);
+  --card: oklch(0.16 0.02 250);
+  --card-foreground: oklch(0.92 0.015 250);
+  --popover: oklch(0.18 0.025 250);
+  --popover-foreground: oklch(0.95 0.01 250);
+  --primary: oklch(0.60 0.12 200);
+  --primary-foreground: oklch(0.08 0.02 200);
+  --secondary: oklch(0.18 0.02 250);
+  --secondary-foreground: oklch(0.90 0.015 250);
+  --muted: oklch(0.18 0.02 250);
+  --muted-foreground: oklch(0.65 0.02 250);
+  --accent: oklch(0.22 0.04 200);
+  --accent-foreground: oklch(0.95 0.02 200);
+  --destructive: oklch(0.55 0.2 25);
+  --border: oklch(0.22 0.02 250);
+  --input: oklch(0.22 0.02 250);
+  --ring: oklch(0.60 0.12 200);
+  --chart-1: oklch(0.60 0.12 200);
+  --chart-2: oklch(0.70 0.08 200);
+  --chart-3: oklch(0.80 0.06 200);
+  --chart-4: oklch(0.50 0.08 160);
+  --chart-5: oklch(0.40 0.06 280);
+  --sidebar: oklch(0.14 0.02 250);
+  --sidebar-foreground: oklch(0.92 0.015 250);
+  --sidebar-primary: oklch(0.60 0.12 200);
+  --sidebar-primary-foreground: oklch(0.08 0.02 200);
+  --sidebar-accent: oklch(0.18 0.02 250);
+  --sidebar-accent-foreground: oklch(0.92 0.015 250);
+  --sidebar-border: oklch(0.22 0.02 250);
+  --sidebar-ring: oklch(0.60 0.12 200);
+  --hero-glow: oklch(0.60 0.12 200 / 0.12);
+  --hero-deep: oklch(0.08 0.02 250);
+  --hero-gradient-start: oklch(0.14 0.02 250);
+  --hero-gradient-end: oklch(0.10 0.015 250);
+
+  /* Dashboard surface tokens (dark) */
+  --db-bg: oklch(0.10 0.02 250);
+  --db-sidebar: oklch(0.13 0.02 250);
+  --db-card: oklch(0.15 0.02 250);
+  --db-border: oklch(0.22 0.02 250);
+  --db-hover: oklch(0.17 0.02 250);
+}
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  html {
+    @apply font-sans scroll-smooth;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading), var(--font-plex), sans-serif;
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+/* ─── Watchful scroll ───────────────────────────────────────────
+   Default: fully visible (no opacity gate).
+   Enhanced only when scroll timelines + motion are OK.
+*/
+@layer utilities {
+  .scroll-progress {
+    transform: scaleX(0);
+  }
+
+  [dir="rtl"] .scroll-progress {
+    transform-origin: right;
+  }
+
+  [dir="ltr"] .scroll-progress {
+    transform-origin: left;
+  }
+
+  .plan-card-surface {
+    transition:
+      transform 0.45s var(--ease-out-expo),
+      box-shadow 0.45s var(--ease-out-quart);
+  }
+
+  .plan-card-surface:hover {
+    transform: translateY(-3px);
+  }
+
+  .plan-card-surface.is-popular:hover {
+    box-shadow: 0 12px 28px oklch(0.55 0.11 200 / 0.16);
+  }
+
+  /* ─── Dashboard utilities ─────────────────────────── */
+  .db-card {
+    background-color: var(--db-card);
+    border: 1px solid var(--db-border);
+    border-radius: 0.875rem;
+  }
+
+  .ease-out-expo {
+    transition-timing-function: var(--ease-out-expo);
+  }
+}
+
+@keyframes scroll-progress-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes hero-copy-drift {
+  to {
+    transform: translateY(-18%);
+    opacity: 0.4;
+  }
+}
+
+@keyframes hero-glow-settle {
+  to {
+    opacity: 0.15;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes hero-visual-parallax {
+  to {
+    transform: translateY(14%) scale(1.08);
+  }
+}
+
+@keyframes hero-alert-rise {
+  from {
+    transform: translateY(8px);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes watch-lift {
+  from {
+    transform: translateY(1.25rem);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes watch-lift-soft {
+  from {
+    transform: translateY(0.9rem);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes perimeter-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes benefit-haze {
+  from {
+    transform: translateY(1.1rem);
+    background-color: oklch(1 0 0 / 0.02);
+  }
+  to {
+    transform: translateY(0);
+    background-color: oklch(1 0 0 / 0.05);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .scroll-progress {
+      animation: scroll-progress-grow linear;
+      animation-timeline: scroll(root block);
+      will-change: transform;
+    }
+
+    .hero-copy-scroll {
+      animation: hero-copy-drift linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 50vh;
+      will-change: transform, opacity;
+    }
+
+    .hero-glow-scroll {
+      animation: hero-glow-settle linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 45vh;
+      will-change: transform, opacity;
+    }
+
+    .hero-visual-scroll {
+      animation: hero-visual-parallax linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 65vh;
+      will-change: transform;
+    }
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .watch-section-head {
+      animation: watch-lift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 42%;
+      will-change: transform;
+    }
+
+    .watch-block {
+      animation: watch-lift-soft linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 38%;
+      will-change: transform;
+    }
+
+    .watch-item {
+      animation: watch-lift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 48%;
+      will-change: transform;
+    }
+
+    .watch-item:nth-child(2) {
+      animation-range: entry 8% entry 52%;
+    }
+
+    .watch-item:nth-child(3) {
+      animation-range: entry 16% entry 58%;
+    }
+
+    .watch-item:nth-child(4) {
+      animation-range: entry 10% entry 54%;
+    }
+
+    .watch-item:nth-child(5) {
+      animation-range: entry 18% entry 58%;
+    }
+
+    .watch-item:nth-child(6) {
+      animation-range: entry 24% entry 62%;
+    }
+
+    .perimeter-line {
+      transform-origin: center;
+      animation: perimeter-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 55%;
+      will-change: transform;
+    }
+
+    [dir="rtl"] .perimeter-line,
+    [dir="ltr"] .perimeter-line {
+      transform-origin: center;
+    }
+
+    .benefit-watch {
+      animation: benefit-haze linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 50%;
+      will-change: transform, background-color;
+    }
+
+    .benefit-watch:nth-child(2) {
+      animation-range: entry 8% entry 54%;
+    }
+
+    .benefit-watch:nth-child(3) {
+      animation-range: entry 16% entry 58%;
+    }
+
+    .benefit-watch:nth-child(4) {
+      animation-range: entry 6% entry 52%;
+    }
+
+    .benefit-watch:nth-child(5) {
+      animation-range: entry 14% entry 56%;
+    }
+
+    .benefit-watch:nth-child(6) {
+      animation-range: entry 22% entry 60%;
+    }
+
+    .hero-alert-live {
+      animation: hero-alert-rise 0.9s var(--ease-out-expo) both;
+      animation-delay: 0.35s;
+    }
+  }
+}
+
+/* Fallback hero entrance when view()/scroll() unsupported — still no opacity:0 */
+@media (prefers-reduced-motion: no-preference) {
+  @supports not (animation-timeline: scroll()) {
+    .hero-copy-scroll {
+      animation: watch-lift-soft 0.85s var(--ease-out-expo) both;
+    }
+
+    .hero-visual-scroll {
+      animation: watch-lift 0.95s var(--ease-out-expo) 0.12s both;
+    }
+
+    .hero-alert-live {
+      animation: hero-alert-rise 0.9s var(--ease-out-expo) 0.4s both;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-copy-scroll,
+  .hero-glow-scroll,
+  .hero-visual-scroll,
+  .hero-alert-live,
+  .watch-section-head,
+  .watch-block,
+  .watch-item,
+  .perimeter-line,
+  .benefit-watch,
+  .plan-card-surface,
+  .animate-scanline,
+  .animate-slide-up {
+    animation: none !important;
+    transition: none !important;
+    filter: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .plan-card-surface:hover {
+    transform: none;
+  }
+
+  /* Static chrome line — depth cue without motion */
+  .scroll-progress {
+    animation: none !important;
+    transform: scaleX(1) !important;
+    opacity: 0.35 !important;
+  }
+}
+
+/* Custom Overdrive Simulator Animations */
+@keyframes scanline-sweep {
+  0% {
+    top: 0%;
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.animate-scanline {
+  animation: scanline-sweep 0.8s ease-in-out forwards;
+}
+
+@keyframes slide-up-notification {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up-notification 0.45s var(--ease-out-expo) forwards;
+}
+
