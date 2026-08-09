@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { X, LogIn, UserPlus, AlertCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { AlertCircle, Loader2, LogIn, UserPlus, X } from "lucide-react";
+import { useState } from "react";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -15,12 +15,12 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login" }: AuthModalP
   const [mode, setMode] = useState<"login" | "register">(defaultMode);
   
   // Login fields
-  const [email, setEmail] = useState("bolaphilip3@gmail.com");
-  const [password, setPassword] = useState("password123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   // Register fields
   const [name, setName] = useState("client");
-  const [passwordConfirm, setPasswordConfirm] = useState("password123");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

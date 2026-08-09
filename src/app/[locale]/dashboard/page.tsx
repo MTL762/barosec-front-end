@@ -1,21 +1,31 @@
 "use client";
 
-import { listCamerasApi, listRecordingsApi } from "@/lib/api";
-import { useAuth } from "@/lib/auth-context";
-import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
 import {
   Activity,
-  Battery,
   Camera,
   Clock,
   Cloud,
   Eye,
   HardDrive,
+  Loader2,
+  ShieldCheck,
   TrendingUp,
   Video,
-  Wifi
+  Wifi,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  listCamerasApi,
+  listRecordingsApi,
+  getActiveSubscriptionApi,
+  listEmergencyLogsApi,
+  CameraApiItem,
+  RecordingApiItem,
+  SubscriptionApiItem,
+  EmergencyLogApiItem,
+} from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
+import { cn } from "@/lib/utils";
 
 const colorMap = {
   emerald: {
@@ -71,12 +81,7 @@ function LiveBadge() {
 }
 
 function SignalBar({ value }: { value: number }) {
-  const bars = [
-    value >= 25,
-    value >= 50,
-    value >= 75,
-    value >= 90,
-  ];
+  const bars = [value >= 25, value >= 50, value >= 75, value >= 90];
   return (
     <div className="flex items-end gap-0.5 h-3">
       {bars.map((active, i) => (
@@ -94,36 +99,13 @@ function SignalBar({ value }: { value: number }) {
 }
 
 export default function DashboardOverviewPage() {
-  /*
-  // Static data references (commented out):
-  //
-  // const CAMERAS = [
-  //   { id: "cam-1", name: "المدخل الرئيسي", status: "live" as const, signal: 92, model: "Pro 4K", lastEvent: "قبل 5 دقائق" },
-  //   { id: "cam-2", name: "الكراج", status: "live" as const, signal: 85, model: "PTZ 360°", lastEvent: "قبل ساعة" },
-  //   { id: "cam-3", name: "غرفة المعيشة", status: "privacy" as const, signal: 98, model: "Interior 4K", lastEvent: "مُقَفلة" },
-  // ];
-  //
-  // const ACTIVITY = [
-  //   { id: 1, type: "motion", title: "رُصد شخص عند المدخل", time: "09:42 ص", cam: "المدخل الرئيسي", severity: "medium" as const },
-  //   { id: 2, type: "delivery", title: "تسليم شحنة بريدية", time: "07:15 ص", cam: "المدخل الرئيسي", severity: "low" as const },
-  //   { id: 3, type: "car", title: "وصول سيارة العائلة", time: "06:55 ص", cam: "الكراج", severity: "low" as const },
-  //   { id: 4, type: "alert", title: "إنذار صوتي خفيف", time: "02:30 ص", cam: "المدخل الرئيسي", severity: "high" as const },
-  //   { id: 5, type: "motion", title: "حركة في الحديقة", time: "البارحة 11:12 م", cam: "الكراج", severity: "medium" as const },
-  // ];
-  //
-  // const STAT_CARDS = [
-  //   { label: "كاميرات متصلة", value: "3", sub: "من أصل 3", icon: Camera, color: "emerald", trend: "+0" },
-  //   { label: "تسجيلات اليوم", value: "14", sub: "مقطع محفوظ", icon: Video, color: "blue", trend: "+3" },
-  //   { label: "آخر حدث", value: "09:42 ص", sub: "رصد حركة", icon: Activity, color: "amber", trend: null },
-  //   { label: "التخزين السحابي", value: "68%", sub: "34GB من 50GB", icon: HardDrive, color: "violet", trend: null },
-  // ];
-  */
-
   const { user } = useAuth();
   const [time, setTime] = useState<string>("");
-  const [liveCameras, setLiveCameras] = useState<any[]>([]);
-  const [activities, setActivities] = useState<any[]>([]);
-  const [recordingsCount, setRecordingsCount] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [cameras, setCameras] = useState<CameraApiItem[]>([]);
+  const [recordings, setRecordings] = useState<RecordingApiItem[]>([]);
+  const [subscription, setSubscription] = useState<SubscriptionApiItem | null>(null);
+  const [emergencyLogs, setEmergencyLogs] = useState<EmergencyLogApiItem[]>([]);
 
   useEffect(() => {
     const tick = () =>
@@ -136,103 +118,135 @@ export default function DashboardOverviewPage() {
   }, []);
 
   useEffect(() => {
+    let isMounted = true;
+    setLoading(true);
+
     Promise.all([
       listCamerasApi({ per_page: 15 }),
       listRecordingsApi({ per_page: 15 }),
-    ]).then(([cRes, rRes]) => {
-      if (cRes.data && Array.isArray(cRes.data) && cRes.data.length > 0) {
-        setLiveCameras(
-          cRes.data.map((c: any) => ({
-            id: String(c.id),
-            name: c.name || "كاميرا",
-            status: c.is_locked ? "privacy" : "live",
-            signal: c.wifi_signal || 90,
-            model: c.model || `موديل #${c.camera_model_id || 1}`,
-            lastEvent: c.last_event || "متصلة",
-          }))
-        );
-      }
-      if (rRes.data && Array.isArray(rRes.data)) {
-        setRecordingsCount(rRes.data.length);
-        setActivities(
-          rRes.data.map((r: any, i: number) => ({
-            id: r.id || i + 1,
-            type: r.type || "motion",
-            title: r.title || r.name || "تسجيل فيديو",
-            time: r.created_at
-              ? new Date(r.created_at).toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })
-              : "الآن",
-            cam: r.camera_name || "كاميرا",
-            severity: (r.severity as any) || "low",
-          }))
-        );
-      }
-    });
+      getActiveSubscriptionApi(),
+      listEmergencyLogsApi(),
+    ])
+      .then(([cRes, rRes, sRes, eRes]) => {
+        if (!isMounted) return;
+
+        const cameraItems = Array.isArray(cRes.data)
+          ? cRes.data
+          : Array.isArray(cRes.data?.data)
+          ? (cRes.data.data as CameraApiItem[])
+          : [];
+        setCameras(cameraItems);
+
+        const recordingItems = Array.isArray(rRes.data)
+          ? rRes.data
+          : Array.isArray(rRes.data?.data)
+          ? (rRes.data.data as RecordingApiItem[])
+          : [];
+        setRecordings(recordingItems);
+
+        const subItem = (sRes.data?.data || sRes.data) as SubscriptionApiItem | null;
+        if (subItem && typeof subItem === "object" && ("plan" in subItem || "status" in subItem)) {
+          setSubscription(subItem);
+        }
+
+        const emergencyItems = Array.isArray(eRes.data)
+          ? eRes.data
+          : Array.isArray(eRes.data?.data)
+          ? (eRes.data.data as EmergencyLogApiItem[])
+          : [];
+        setEmergencyLogs(emergencyItems);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
+
+  const activeCamerasCount = cameras.filter((c) => !c.is_locked).length;
+  const latestRecording = recordings[0];
+  const latestRecordingTime = latestRecording?.created_at
+    ? new Date(String(latestRecording.created_at)).toLocaleTimeString("ar-SA", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : null;
 
   const dynamicStatCards = [
     {
       label: "كاميرات متصلة",
-      value: String(liveCameras.length),
-      sub: `من أصل ${liveCameras.length}`,
+      value: String(cameras.length),
+      sub: cameras.length > 0 ? `منها ${activeCamerasCount} نشطة` : "لا توجد كاميرات",
       icon: Camera,
       color: "emerald",
-      trend: liveCameras.length > 0 ? "+100%" : "0",
+      trend: cameras.length > 0 ? `+${cameras.length}` : null,
     },
     {
       label: "تسجيلات اليوم",
-      value: String(recordingsCount),
-      sub: "مقطع محفوظ",
+      value: String(recordings.length),
+      sub: recordings.length > 0 ? `${recordings.length} مقطع محفوظ` : "لا توجد تسجيلات",
       icon: Video,
       color: "blue",
-      trend: recordingsCount > 0 ? `+${recordingsCount}` : "0",
+      trend: recordings.length > 0 ? `+${recordings.length}` : null,
     },
     {
       label: "آخر حدث",
-      value: time || "الآن",
-      sub: "مراقبة مستمرة",
+      value: String(latestRecordingTime || time || "الآن"),
+      sub: String(latestRecording
+        ? (latestRecording.title || latestRecording.name || "رصد حركة")
+        : emergencyLogs.length > 0
+        ? "سجل طوارئ"
+        : "مراقبة مستمرة"),
       icon: Activity,
       color: "amber",
       trend: null,
     },
     {
-      label: "التخزين السحابي",
-      value: "68%",
-      sub: "34GB من 50GB",
+      label: "الاشتراك والتخزين",
+      value: String(
+        subscription?.plan?.name ||
+          (subscription?.status === "active" ? "اشتراك نشط" : "باقة اساسية")
+      ),
+      sub: `${recordings.length * 0.5 < 1 ? "أقل من 1" : (recordings.length * 0.5).toFixed(1)} GB مستخدمة`,
       icon: HardDrive,
       color: "violet",
       trend: null,
     },
   ];
 
+  const connectivityPercentage =
+    cameras.length > 0
+      ? Math.round((activeCamerasCount / cameras.length) * 100)
+      : 100;
+
+  const storageUsagePercentage = Math.min(100, Math.max(5, recordings.length * 5));
+
   return (
     <div className="space-y-6">
-      {/* Greeting row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h2 className="text-xl font-bold text-foreground">
             مرحباً، {user?.name || user?.email || "العميل"} 👋
           </h2>
           <p className="text-sm text-muted-foreground mt-0.5">
-            جميع الكاميرات والتسجيلات تعمل بشكل مباشر عبر backend API
+            نظرة عامة على حالة الكاميرات، التسجيلات، والأنشطة الأخيرة مباشرة من الخادم
           </p>
         </div>
         <div className="flex items-center gap-2 text-sm font-mono text-muted-foreground">
+          {loading && <Loader2 className="size-3.5 animate-spin text-primary" />}
           <Clock className="size-3.5" />
           <span>{time} — تحديث مباشر</span>
         </div>
       </div>
 
-      {/* Stats row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {dynamicStatCards.map((s) => {
           const Icon = s.icon;
           const c = colorMap[s.color as keyof typeof colorMap];
           return (
-            <div
-              key={s.label}
-              className="db-card p-4 space-y-3"
-            >
+            <div key={s.label} className="db-card p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <div className={cn("size-8 rounded-xl flex items-center justify-center", c.bg)}>
                   <Icon className={cn("size-4", c.text)} />
@@ -246,7 +260,7 @@ export default function DashboardOverviewPage() {
               </div>
               <div>
                 <div className="text-2xl font-bold text-foreground leading-none">{s.value}</div>
-                <div className="text-xs text-muted-foreground mt-1">{s.sub}</div>
+                <div className="text-xs text-muted-foreground mt-1 truncate">{s.sub}</div>
               </div>
               <div className="text-xs font-semibold text-muted-foreground">{s.label}</div>
             </div>
@@ -254,10 +268,8 @@ export default function DashboardOverviewPage() {
         })}
       </div>
 
-      {/* Main grid: cameras + activity */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        {/* Live camera tiles */}
-        <div className="xl:col-span-7 db-card overflow-hidden">
+        <div className="xl:col-span-7 db-card overflow-hidden flex flex-col">
           <div className="flex items-center justify-between px-5 py-4 border-b border-[--db-border]">
             <h3 className="text-sm font-bold text-foreground">بث مباشر للكاميرات</h3>
             <a href="/dashboard/cameras" className="text-xs font-bold text-primary hover:underline">
@@ -265,111 +277,174 @@ export default function DashboardOverviewPage() {
             </a>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[--db-border]">
-            {liveCameras.map((cam) => (
-              <div
-                key={cam.id}
-                className="relative bg-slate-950 aspect-video flex flex-col justify-between p-3 overflow-hidden group"
-              >
-                {/* Simulated feed background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-800" />
-                <div
-                  className="absolute inset-0 opacity-20"
-                  style={{
-                    backgroundImage:
-                      "radial-gradient(ellipse at 30% 40%, oklch(0.55 0.11 200 / 0.3) 0%, transparent 60%)",
-                  }}
-                />
+          {loading ? (
+            <div className="p-12 flex flex-col items-center justify-center gap-2 text-muted-foreground">
+              <Loader2 className="size-6 animate-spin text-primary" />
+              <span className="text-xs">جاري تحميل بيانات الكاميرات...</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[--db-border] flex-1">
+              {cameras.map((cam) => {
+                const isPrivacy = Boolean(cam.is_locked);
+                const signal = (cam.wifi_signal as number) || (cam.signal as number) || 90;
+                const camName = String(cam.name || `كاميرا #${cam.id}`);
+                const camModel = cam.mode
+                  ? `وضع: ${cam.mode}`
+                  : cam.serial_number
+                  ? `S/N: ${cam.serial_number}`
+                  : "باروسك 4K";
+                const lastEvent = isPrivacy
+                  ? "وضع الخصوصية"
+                  : cam.updated_at
+                  ? new Date(String(cam.updated_at)).toLocaleTimeString("ar-SA", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "متصلة الآن";
 
-                {/* Status row */}
-                <div className="relative flex items-center justify-between z-10">
-                  {cam.status === "live" ? (
-                    <LiveBadge />
-                  ) : (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold">
-                      🔒 خصوصية
-                    </span>
-                  )}
-                  <div className="flex items-center gap-1.5">
-                    <SignalBar value={cam.signal} />
-                    <span className="text-[10px] font-mono text-slate-400">{cam.signal}%</span>
-                  </div>
-                </div>
+                return (
+                  <div
+                    key={String(cam.id)}
+                    className="relative bg-slate-950 aspect-video flex flex-col justify-between p-3 overflow-hidden group"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-slate-800" />
+                    <div
+                      className="absolute inset-0 opacity-20"
+                      style={{
+                        backgroundImage:
+                          "radial-gradient(ellipse at 30% 40%, oklch(0.55 0.11 200 / 0.3) 0%, transparent 60%)",
+                      }}
+                    />
 
-                {/* Center icon */}
-                <div className="relative flex-1 flex items-center justify-center z-10">
-                  {cam.status === "privacy" ? (
-                    <div className="size-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 text-xl">
-                      🔒
+                    <div className="relative flex items-center justify-between z-10">
+                      {!isPrivacy ? (
+                        <LiveBadge />
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold">
+                          🔒 خصوصية
+                        </span>
+                      )}
+                      <div className="flex items-center gap-1.5">
+                        <SignalBar value={signal} />
+                        <span className="text-[10px] font-mono text-slate-400">{signal}%</span>
+                      </div>
                     </div>
-                  ) : (
-                    <Eye className="size-6 text-white/20 group-hover:text-white/60 transition-colors" />
-                  )}
-                </div>
 
-                {/* Bottom info */}
-                <div className="relative z-10 flex items-end justify-between">
-                  <div>
-                    <div className="text-white text-xs font-bold">{cam.name}</div>
-                    <div className="text-slate-400 text-[10px]">{cam.model}</div>
+                    <div className="relative flex-1 flex items-center justify-center z-10">
+                      {isPrivacy ? (
+                        <div className="size-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 text-xl">
+                          🔒
+                        </div>
+                      ) : (
+                        <Eye className="size-6 text-white/20 group-hover:text-white/60 transition-colors" />
+                      )}
+                    </div>
+
+                    <div className="relative z-10 flex items-end justify-between">
+                      <div>
+                        <div className="text-white text-xs font-bold truncate max-w-[120px]">
+                          {camName}
+                        </div>
+                        <div className="text-slate-400 text-[10px] truncate max-w-[120px]">
+                          {camModel}
+                        </div>
+                      </div>
+                      <div className="text-[10px] text-slate-400 font-mono">{lastEvent}</div>
+                    </div>
                   </div>
-                  <div className="text-[10px] text-slate-400 font-mono">{cam.lastEvent}</div>
-                </div>
-              </div>
-            ))}
+                );
+              })}
 
-            {/* Add camera tile */}
-            <a
-              href="/dashboard/cameras"
-              className="relative bg-[--db-card] aspect-video flex flex-col items-center justify-center gap-2 group hover:bg-[--db-hover] transition-colors cursor-pointer"
-            >
-              <div className="size-10 rounded-xl border-2 border-dashed border-[--db-border] flex items-center justify-center text-muted-foreground group-hover:border-primary group-hover:text-primary transition-colors">
-                <Camera className="size-4" />
-              </div>
-              <span className="text-xs font-bold text-muted-foreground group-hover:text-primary transition-colors">
-                إضافة كاميرا
-              </span>
-            </a>
-          </div>
+              <a
+                href="/dashboard/cameras"
+                className={cn(
+                  "relative bg-[--db-card] aspect-video flex flex-col items-center justify-center gap-2 group hover:bg-[--db-hover] transition-colors cursor-pointer",
+                  cameras.length === 0 && "col-span-full py-8 aspect-auto min-h-[180px]"
+                )}
+              >
+                <div className="size-10 rounded-xl border-2 border-dashed border-[--db-border] flex items-center justify-center text-muted-foreground group-hover:border-primary group-hover:text-primary transition-colors">
+                  <Camera className="size-4" />
+                </div>
+                <span className="text-xs font-bold text-muted-foreground group-hover:text-primary transition-colors">
+                  {cameras.length === 0 ? "لا توجد كاميرات مضافة — اضغط لإضافة كاميرا جديدة" : "إضافة كاميرا"}
+                </span>
+              </a>
+            </div>
+          )}
         </div>
 
-        {/* Activity feed */}
         <div className="xl:col-span-5 db-card flex flex-col">
           <div className="flex items-center justify-between px-5 py-4 border-b border-[--db-border] shrink-0">
-            <h3 className="text-sm font-bold text-foreground">سجل الأحداث</h3>
+            <h3 className="text-sm font-bold text-foreground">سجل الأحداث والتسجيلات</h3>
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
-              {activities.length} حدث اليوم
+              {recordings.length} حدث
             </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
-            {activities.length === 0 ? (
+          <div className="flex-1 overflow-y-auto max-h-[380px]">
+            {loading ? (
+              <div className="p-8 flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                <Loader2 className="size-5 animate-spin text-primary" />
+                <span className="text-xs">جاري تحميل سجل الأحداث...</span>
+              </div>
+            ) : recordings.length === 0 ? (
               <div className="p-8 text-center text-xs text-muted-foreground">
-                لا توجد أحداث حالية
+                لا توجد أحداث أو تسجيلات حالية
               </div>
             ) : (
-              activities.map((event, i) => {
-                const s = severityMap[event.severity as keyof typeof severityMap] || severityMap.low;
+              recordings.map((event, i) => {
+                const recType = String(
+                  event.recording_type || event.type || "motion"
+                ).toLowerCase();
+                const severityKey =
+                  recType === "sos" || recType === "alert"
+                    ? "high"
+                    : recType === "motion"
+                    ? "medium"
+                    : "low";
+                const s = severityMap[severityKey];
+
+                const title = String(
+                  event.title ||
+                    event.name ||
+                    (recType === "motion"
+                      ? "رصد حركة أمام الكاميرا"
+                      : recType === "sos"
+                      ? "تنبيه طوارئ SOS"
+                      : "تسجيل فيديو جديد")
+                );
+
+                const formattedTime = event.created_at
+                  ? new Date(String(event.created_at)).toLocaleTimeString("ar-SA", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "الآن";
+
+                const camName = String(
+                  event.camera_name ||
+                    (event.camera_id ? `كاميرا #${event.camera_id}` : "كاميرا عامة")
+                );
+
                 return (
                   <div
-                    key={event.id}
+                    key={String(event.id || i)}
                     className={cn(
                       "flex items-start gap-3 px-5 py-3.5 hover:bg-[--db-hover] transition-colors",
-                      i < activities.length - 1 && "border-b border-[--db-border]"
+                      i < recordings.length - 1 && "border-b border-[--db-border]"
                     )}
                   >
-                    {/* Timeline dot */}
                     <div className="flex flex-col items-center shrink-0 pt-1">
                       <span className={cn("size-2 rounded-full", s.dot)} />
-                      {i < activities.length - 1 && (
+                      {i < recordings.length - 1 && (
                         <span className="w-px flex-1 bg-[--db-border] mt-1.5 min-h-[20px]" />
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <span className="text-xs font-semibold text-foreground leading-snug">
-                          {event.title}
+                        <span className="text-xs font-semibold text-foreground leading-snug truncate">
+                          {title}
                         </span>
                         <span
                           className={cn(
@@ -382,9 +457,13 @@ export default function DashboardOverviewPage() {
                         </span>
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] text-muted-foreground font-mono">{event.time}</span>
+                        <span className="text-[10px] text-muted-foreground font-mono">
+                          {formattedTime}
+                        </span>
                         <span className="size-0.5 rounded-full bg-muted-foreground/40" />
-                        <span className="text-[10px] text-muted-foreground">{event.cam}</span>
+                        <span className="text-[10px] text-muted-foreground truncate max-w-[140px]">
+                          {camName}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -395,14 +474,31 @@ export default function DashboardOverviewPage() {
         </div>
       </div>
 
-      {/* System health strip */}
       <div className="db-card px-5 py-4">
-        <h3 className="text-sm font-bold text-foreground mb-4">صحة النظام</h3>
+        <h3 className="text-sm font-bold text-foreground mb-4">صحة النظام والاتصال</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            { label: "سرعة الإنترنت", value: 92, icon: Wifi, color: "emerald", unit: "Mbps" },
-            { label: "التخزين السحابي", value: 68, icon: Cloud, color: "blue", unit: "%" },
-            { label: "طاقة النسخ الاحتياطي", value: 100, icon: Battery, color: "emerald", unit: "%" },
+            {
+              label: "اتصال الكاميرات",
+              value: connectivityPercentage,
+              icon: Wifi,
+              color: "emerald",
+              unit: "%",
+            },
+            {
+              label: "استهلاك التخزين",
+              value: storageUsagePercentage,
+              icon: Cloud,
+              color: "blue",
+              unit: "%",
+            },
+            {
+              label: "جاهزية الاستجابة",
+              value: 100,
+              icon: ShieldCheck,
+              color: "emerald",
+              unit: "%",
+            },
           ].map((item) => {
             const Icon = item.icon;
             const c = colorMap[item.color as keyof typeof colorMap];
@@ -422,8 +518,7 @@ export default function DashboardOverviewPage() {
                     <div
                       className={cn(
                         "h-full rounded-full transition-all duration-700",
-                        item.color === "emerald" ? "bg-emerald-500" :
-                        item.color === "blue" ? "bg-blue-500" : "bg-violet-500"
+                        item.color === "emerald" ? "bg-emerald-500" : "bg-blue-500"
                       )}
                       style={{ width: `${item.value}%` }}
                     />
@@ -435,13 +530,12 @@ export default function DashboardOverviewPage() {
         </div>
       </div>
 
-      {/* Quick actions */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "تفعيل وضع الليل", icon: "🌙", href: "/dashboard/cameras", sub: "قفل جميع الكاميرات الداخلية" },
-          { label: "مراجعة التسجيلات", icon: "📹", href: "/dashboard/cameras", sub: "آخر 24 ساعة" },
-          { label: "حالة الطوارئ", icon: "🚨", href: "/dashboard/emergency", sub: "استجابة فورية" },
-          { label: "إدارة الاشتراك", icon: "💳", href: "/dashboard/billing", sub: "Premium سنوي" },
+          { label: "إدارة الكاميرات", icon: "📷", href: "/dashboard/cameras", sub: "عرض التحكم وضبط الأوضاع" },
+          { label: "مراجعة التسجيلات", icon: "📹", href: "/dashboard/cameras", sub: "عرض الوسائط المحفوظة" },
+          { label: "حالة الطوارئ SOS", icon: "🚨", href: "/dashboard/emergency", sub: "سجل الطوارئ والبلاغات" },
+          { label: "إدارة الاشتراك", icon: "💳", href: "/dashboard/billing", sub: "تفاصيل الباقة والفواتير" },
         ].map((action) => (
           <a
             key={action.label}
