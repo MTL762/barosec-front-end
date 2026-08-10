@@ -71,7 +71,7 @@ export default function AdminUsersClient({
         setMeta((res.result as any).meta as PaginationMeta);
       }
     } catch (err: any) {
-      showAlert("error", err?.message || "تعذر جلب بيانات المستخدمين");
+      showAlert("error", err?.message || t("errorFetchUsers"));
     } finally {
       setLoading(false);
     }

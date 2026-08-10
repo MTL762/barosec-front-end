@@ -780,6 +780,14 @@
     "pageInfo": "Page {current} of {total}",
     "userCreatedSuccess": "User created successfully!",
     "userUpdatedSuccess": "User updated successfully!",
-    "userDeletedSuccess": "User deleted successfully!"
+    "userDeletedSuccess": "User deleted successfully!",
+    "errorEnterName": "Please enter user name",
+    "errorEnterEmail": "Please enter email address",
+    "errorEnterPassword": "Please enter password",
+    "errorSaveUser": "An error occurred while saving user data",
+    "errorFetchUsers": "Failed to fetch users data",
+    "loadingUsers": "Fetching users data...",
+    "clearSearch": "Clear search filter",
+    "passwordEditPlaceholder": "Leave blank to keep existing password"
   }
 }

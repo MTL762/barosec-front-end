@@ -104,7 +104,7 @@ export function UsersTable({
       {loading ? (
         <div className="p-12 text-center text-xs text-muted-foreground space-y-2">
           <div className="inline-block size-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <div>جاري جلب بيانات المستخدمين...</div>
+          <div>{t("loadingUsers")}</div>
         </div>
       ) : users.length === 0 ? (
         <div className="p-12 text-center space-y-2">
@@ -120,7 +120,7 @@ export function UsersTable({
               onClick={() => onSearchChange("")}
               className="mt-2 px-3 py-1.5 rounded-lg bg-primary/10 text-primary font-semibold text-xs hover:bg-primary/20 transition-colors"
             >
-              مسح تصفية البحث
+              {t("clearSearch")}
             </button>
           )}
         </div>

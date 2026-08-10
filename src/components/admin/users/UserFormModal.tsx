@@ -67,17 +67,17 @@ export function UserFormModal({
     setErrorMsg(null);
 
     if (!name.trim()) {
-      setErrorMsg("الرجاء إدخال اسم المستخدم");
+      setErrorMsg(t("errorEnterName"));
       return;
     }
 
     if (!isEditing && !email.trim()) {
-      setErrorMsg("الرجاء إدخال البريد الإلكتروني");
+      setErrorMsg(t("errorEnterEmail"));
       return;
     }
 
     if (!isEditing && !password.trim()) {
-      setErrorMsg("الرجاء إدخال كلمة المرور");
+      setErrorMsg(t("errorEnterPassword"));
       return;
     }
 
@@ -104,7 +104,7 @@ export function UserFormModal({
       }
       onClose();
     } catch (err: any) {
-      setErrorMsg(err?.message || "حدث خطأ أثناء حفظ بيانات المستخدم");
+      setErrorMsg(err?.message || t("errorSaveUser"));
     } finally {
       setLoading(false);
     }
@@ -212,7 +212,7 @@ export function UserFormModal({
                 required={!isEditing}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={isEditing ? "اتركه فارغاً للإبقاء على كلمة المرور القديمة" : t("passwordPlaceholder")}
+                placeholder={isEditing ? t("passwordEditPlaceholder") : t("passwordPlaceholder")}
                 className="w-full px-3.5 py-2.5 pe-10 rounded-xl border border-input bg-background text-foreground text-xs font-mono focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
               />
               <button

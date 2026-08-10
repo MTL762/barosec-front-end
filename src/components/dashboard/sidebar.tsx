@@ -210,6 +210,24 @@ interface SidebarProps {
   onCloseMobile?: () => void;
 }
 
+export function checkIsAdmin(user: any): boolean {
+  if (!user) return false;
+  if (user.role) {
+    if (typeof user.role === "string") {
+      const r = user.role.toLowerCase();
+      if (r.includes("admin") || r.includes("مسؤول")) return true;
+    } else if (typeof user.role === "object" && user.role.name) {
+      const r = String(user.role.name).toLowerCase();
+      if (r.includes("admin") || r.includes("مسؤول")) return true;
+    }
+  }
+  if (typeof user.type === "string" && user.type.toLowerCase().includes("admin")) return true;
+  if (typeof user.account_type === "string" && user.account_type.toLowerCase().includes("admin")) return true;
+  if (user.is_admin === true || user.is_admin === 1 || user.is_admin === "1") return true;
+
+  return false;
+}
+
 export function Sidebar({
   collapsed,
   setCollapsed,
@@ -219,6 +237,8 @@ export function Sidebar({
 }: SidebarProps) {
   const { user, token, logout } = useAuth();
   const locale = useLocale();
+
+  const isAdmin = checkIsAdmin(user);
 
   const userInitials = user?.name
     ? user.name.slice(0, 2).toUpperCase()
@@ -249,7 +269,15 @@ export function Sidebar({
               <div className="text-sm font-bold text-foreground leading-none">
                 {locale === "en" ? "Barosec" : "باروسك"}
               </div>
-              <div className="text-[10px] text-muted-foreground mt-0.5">System Portal</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">
+                {isAdmin
+                  ? locale === "en"
+                    ? "Admin Console"
+                    : "بوابة المسؤول"
+                  : locale === "en"
+                  ? "Client Portal"
+                  : "بوابة العميل"}
+              </div>
             </div>
           )}
         </div>
@@ -285,24 +313,26 @@ export function Sidebar({
           </div>
         </div>
 
-        {/* Admin Section */}
-        <div className="pt-2 border-t border-[--db-border]">
-          {(!collapsed || mobile) && (
-            <div className="px-3 pb-1.5 text-[10px] font-bold tracking-wider text-primary uppercase flex items-center justify-between">
-              <span>{locale === "en" ? "Admin Console" : "بوابة الأدمن"}</span>
+        {/* Admin Section (Only rendered if user is Admin) */}
+        {isAdmin && (
+          <div className="pt-2 border-t border-[--db-border]">
+            {(!collapsed || mobile) && (
+              <div className="px-3 pb-1.5 text-[10px] font-bold tracking-wider text-primary uppercase flex items-center justify-between">
+                <span>{locale === "en" ? "Admin Console" : "بوابة الأدمن"}</span>
+              </div>
+            )}
+            <div className="space-y-1">
+              {ADMIN_NAV_ITEMS.map((item) => (
+                <NavLink
+                  key={item.href}
+                  item={item}
+                  collapsed={mobile ? false : collapsed}
+                  onClick={mobile ? onCloseMobile : undefined}
+                />
+              ))}
             </div>
-          )}
-          <div className="space-y-1">
-            {ADMIN_NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.href}
-                item={item}
-                collapsed={mobile ? false : collapsed}
-                onClick={mobile ? onCloseMobile : undefined}
-              />
-            ))}
           </div>
-        </div>
+        )}
       </nav>
 
       {/* Status + User Profile + Logout */}
@@ -332,9 +362,27 @@ export function Sidebar({
 
             {(!collapsed || mobile) && (
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-foreground truncate">
-                  {user.name || "مستخدم"}
-                </p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-xs font-bold text-foreground truncate">
+                    {user.name || "مستخدم"}
+                  </p>
+                  <span
+                    className={cn(
+                      "text-[9px] font-bold px-1.5 py-0.5 rounded border uppercase shrink-0",
+                      isAdmin
+                        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                        : "bg-primary/10 text-primary border-primary/20"
+                    )}
+                  >
+                    {isAdmin
+                      ? locale === "en"
+                        ? "Admin"
+                        : "أدمن"
+                      : locale === "en"
+                      ? "Client"
+                      : "عميل"}
+                  </span>
+                </div>
                 <p className="text-[10px] text-muted-foreground truncate">
                   {user.email}
                 </p>

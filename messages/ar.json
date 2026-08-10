@@ -780,6 +780,14 @@
     "pageInfo": "صفحة {current} من {total}",
     "userCreatedSuccess": "تم إنشاء المستخدم بنجاح!",
     "userUpdatedSuccess": "تم تحديث بيانات المستخدم بنجاح!",
-    "userDeletedSuccess": "تم حذف المستخدم بنجاح!"
+    "userDeletedSuccess": "تم حذف المستخدم بنجاح!",
+    "errorEnterName": "الرجاء إدخال اسم المستخدم",
+    "errorEnterEmail": "الرجاء إدخال البريد الإلكتروني",
+    "errorEnterPassword": "الرجاء إدخال كلمة المرور",
+    "errorSaveUser": "حدث خطأ أثناء حفظ بيانات المستخدم",
+    "errorFetchUsers": "تعذر جلب بيانات المستخدمين",
+    "loadingUsers": "جاري جلب بيانات المستخدمين...",
+    "clearSearch": "مسح تصفية البحث",
+    "passwordEditPlaceholder": "اتركه فارغاً للإبقاء على كلمة المرور القديمة"
   }
 }
