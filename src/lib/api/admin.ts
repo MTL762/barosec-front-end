@@ -1,6 +1,7 @@
 import { apiFetch } from "./client";
 import type {
   ApiResponse,
+  PaginatedApiResponse,
   CreateCampaignParams,
   SendBulkMarketingParams,
   MarketingCampaignApiItem,
@@ -16,9 +17,10 @@ import type {
 /**
  * GET /marketing/campaigns
  */
-export async function listCampaignsApi() {
+export async function listCampaignsApi(page?: number) {
+  const query = page ? `?page=${page}` : "";
   return apiFetch<ApiResponse<MarketingCampaignApiItem[]>>(
-    "/marketing/campaigns",
+    `/marketing/campaigns${query}`,
     { method: "GET" }
   );
 }
@@ -80,9 +82,14 @@ export async function sendBulkMarketingApi(params: SendBulkMarketingParams) {
 /**
  * GET /admin/users
  */
-export async function listUsersAdminApi() {
-  return apiFetch<ApiResponse<AdminUserApiItem[]>>("/admin/users", {
+export async function listUsersAdminApi(page?: number, search?: string) {
+  const queryParams: Record<string, string | number> = {};
+  if (page) queryParams.page = page;
+  if (search) queryParams.search = search;
+
+  return apiFetch<ApiResponse<AdminUserApiItem[]> | PaginatedApiResponse<AdminUserApiItem>>("/admin/users", {
     method: "GET",
+    queryParams,
   });
 }
 
@@ -131,9 +138,10 @@ export async function deleteUserAdminApi(id: string | number) {
 /**
  * GET /roles
  */
-export async function listRolesApi() {
-  return apiFetch<ApiResponse<RoleApiItem[]>>("/roles", {
+export async function listRolesApi(page: number = 1) {
+  return apiFetch<RoleApiItem[]>("/roles", {
     method: "GET",
+    queryParams: { page },
   });
 }
 

@@ -219,9 +219,12 @@ export interface MarketingCampaignApiItem {
   id: number | string;
   campaign_name: string;
   channel: string;
-  target_country?: string;
-  target_city?: string;
-  message_body?: string;
+  target_country?: string | null;
+  target_city?: string | null;
+  target_status?: string | null;
+  message_body?: string | null;
+  sent_count?: number;
+  scheduled_at?: string | null;
   status?: string;
   created_at?: string;
   [key: string]: unknown;
@@ -231,20 +234,35 @@ export interface CreateAdminUserParams {
   name: string;
   email: string;
   password: string;
+  phone?: string | null;
+  role_id?: number | string;
 }
 
 export interface UpdateAdminUserParams {
   name?: string;
   email?: string;
+  phone?: string | null;
+  role_id?: number | string;
+  password?: string;
   [key: string]: unknown;
+}
+
+export interface AdminUserRole {
+  id: number | string;
+  name: string;
 }
 
 export interface AdminUserApiItem {
   id: number | string;
   name: string;
   email: string;
-  role?: string;
+  phone?: string | null;
+  email_verified_at?: string | null;
+  phone_verified_at?: string | null;
+  role?: string | AdminUserRole | null;
+  avatar?: string | null;
   created_at?: string;
+  updated_at?: string;
   [key: string]: unknown;
 }
 
@@ -258,12 +276,48 @@ export interface UpdateRoleParams {
   permission_ids?: number[];
 }
 
+export interface PermissionApiItem {
+  id: number;
+  name: string;
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: unknown;
+}
+
 export interface RoleApiItem {
   id: number | string;
   name: string;
-  permissions?: unknown[];
+  permissions?: PermissionApiItem[];
+  permission_ids?: number[] | string;
   created_at?: string;
+  updated_at?: string;
   [key: string]: unknown;
+}
+
+export interface PaginationLinks {
+  first?: string | null;
+  last?: string | null;
+  prev?: string | null;
+  next?: string | null;
+}
+
+export interface PaginationMeta {
+  current_page: number;
+  from?: number | null;
+  to?: number | null;
+  last_page: number;
+  per_page: number;
+  total: number;
+}
+
+export interface PaginatedApiResponse<T> {
+  data: T[];
+  links?: PaginationLinks;
+  meta?: PaginationMeta;
+  message?: string;
+  code?: number;
+  type?: string;
+  status?: boolean;
 }
 
 // ── Verification Module Types ────────────────────────────

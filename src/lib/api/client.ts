@@ -39,7 +39,14 @@ export interface RequestOptions {
 export async function apiFetch<T = unknown>(
   endpoint: endpointName | string | endpointType,
   options: RequestOptions = {}
-): Promise<{ data: T | null; error: string | null; status: number }> {
+): Promise<{
+  data: T | null;
+  error: string | null;
+  status: number;
+  meta?: any;
+  links?: any;
+  result?: any;
+}> {
   const res = await fetchHelper<T>({
     endPoint: endpoint,
     method: options.method || "GET",
@@ -64,5 +71,8 @@ export async function apiFetch<T = unknown>(
     data: res.data,
     error: res.error,
     status: res.status,
+    meta: rawResult?.meta,
+    links: rawResult?.links,
+    result: rawResult,
   };
 }
