@@ -85,30 +85,39 @@ export default function AuthFormPage() {
           />
 
           {/* Footer toggle */}
-          <div className="text-center pt-2 text-xs text-muted-foreground">
-            {mode === "login" ? (
-              <span>
-                {t("noAccount")}{" "}
-                <button
-                  type="button"
-                  onClick={() => setMode("register")}
-                  className="font-bold text-primary hover:underline"
-                >
-                  {t("createAccountNow")}
-                </button>
-              </span>
-            ) : (
-              <span>
-                {t("hasAccount")}{" "}
-                <button
-                  type="button"
-                  onClick={() => setMode("login")}
-                  className="font-bold text-primary hover:underline"
-                >
-                  {t("loginButton")}
-                </button>
-              </span>
-            )}
+          <div className="text-center pt-2 text-xs text-muted-foreground space-y-2">
+            <div>
+              {mode === "login" ? (
+                <span>
+                  {t("noAccount")}{" "}
+                  <button
+                    type="button"
+                    onClick={() => setMode("register")}
+                    className="font-bold text-primary hover:underline"
+                  >
+                    {t("createAccountNow")}
+                  </button>
+                </span>
+              ) : (
+                <span>
+                  {t("hasAccount")}{" "}
+                  <button
+                    type="button"
+                    onClick={() => setMode("login")}
+                    className="font-bold text-primary hover:underline"
+                  >
+                    {t("loginButton")}
+                  </button>
+                </span>
+              )}
+            </div>
+
+            <div className="pt-2 border-t border-border/50 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+              <span>هل أنت أدمن بالنظام؟</span>
+              <Link href="/admin/login" className="font-bold text-primary hover:underline">
+                تسجيل دخول المسؤولين (Admin Portal)
+              </Link>
+            </div>
           </div>
         </div>
 

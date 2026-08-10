@@ -2,7 +2,7 @@
 
 import { useRouter } from "@/i18n/navigation";
 import { DashboardHeader } from "@/components/dashboard/header";
-import { NAV_ITEMS, NavLink, Sidebar } from "@/components/dashboard/sidebar";
+import { CLIENT_NAV_ITEMS, NavLink, Sidebar } from "@/components/dashboard/sidebar";
 import { listCamerasApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,13 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 function getPageTitle(pathname: string): { ar: string; en: string } {
+  if (pathname.includes("/dashboard/admin/marketing")) return { ar: "وحدة التسويق والإرسال", en: "Marketing" };
+  if (pathname.includes("/dashboard/admin/users")) return { ar: "إدارة المستخدمين", en: "User Management" };
+  if (pathname.includes("/dashboard/admin/roles")) return { ar: "الأدوار والصلاحيات", en: "Role Management" };
+  if (pathname.includes("/dashboard/admin/api-explorer")) return { ar: "مستكشف Postman APIs", en: "API Explorer" };
+  if (pathname.includes("/dashboard/admin")) return { ar: "لوحة الأدمن الرئيسية", en: "Admin Dashboard" };
+  if (pathname.includes("/recordings")) return { ar: "التسجيلات والوسائط", en: "Recordings" };
+  if (pathname.includes("/support")) return { ar: "مركز الدعم والتذاكر", en: "Support" };
   if (pathname.includes("/cameras")) return { ar: "إدارة الكاميرات", en: "Cameras" };
   if (pathname.includes("/emergency")) return { ar: "مركز الطوارئ", en: "Emergency" };
   if (pathname.includes("/billing")) return { ar: "الفواتير والاشتراكات", en: "Billing" };
@@ -121,7 +128,7 @@ export default function DashboardLayout({
 
       {/* ── Mobile bottom nav ───────────────────────────── */}
       <nav className="lg:hidden fixed inset-x-0 bottom-0 z-30 flex items-center justify-around bg-[--db-sidebar] border-t border-[--db-border] px-2 py-1.5 safe-area-bottom">
-        {NAV_ITEMS.map((item) => (
+        {CLIENT_NAV_ITEMS.map((item) => (
           <NavLink key={item.href} item={item} collapsed={false} mobile />
         ))}
       </nav>
