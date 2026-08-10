@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { User, ShieldCheck, KeyRound, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/lib/auth-context";
-import { updateProfileApi, changePasswordApi } from "@/lib/api";
 import { VerificationCard } from "@/components/auth/verification-card";
+import { buttonVariants } from "@/components/ui/button";
+import { changePasswordApi, updateProfileApi } from "@/lib/api";
+import { useAuth } from "@/lib/auth-context";
+import { cn } from "@/lib/utils";
+import { AlertCircle, CheckCircle2, KeyRound, Loader2, User } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function ProfileDashboardPage() {
   const { user, refreshProfile, isAuthenticated } = useAuth();
@@ -93,7 +93,7 @@ export default function ProfileDashboardPage() {
         <form onSubmit={handleUpdateProfile} className="space-y-6">
           <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
             <User className="size-5 text-primary" />
-            <span>البيانات الأساسية (POST /auth/profile)</span>
+            <span>البيانات الأساسية </span>
           </h2>
 
           {profileSuccess && (

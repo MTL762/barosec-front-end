@@ -1,28 +1,27 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useAuth } from "@/lib/auth-context";
+import { cn } from "@/lib/utils";
 import {
   Camera,
-  ShieldAlert,
-  CreditCard,
-  User,
-  LayoutDashboard,
   ChevronLeft,
   ChevronRight,
-  Shield,
-  Wifi,
-  LogOut,
-  X,
+  CreditCard,
   Film,
   HelpCircle,
-  Megaphone,
-  Users,
   Key,
+  LayoutDashboard,
+  LogOut,
+  Megaphone,
+  Shield,
+  ShieldAlert,
   Terminal,
+  User,
+  Users,
+  X
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/lib/auth-context";
 import { useLocale } from "next-intl";
+import { usePathname } from "next/navigation";
 
 export const CLIENT_NAV_ITEMS = [
   {
@@ -309,14 +308,14 @@ export function Sidebar({
       {/* Status + User Profile + Logout */}
       <div className="shrink-0 border-t border-[--db-border] p-2 space-y-2">
         {/* Connection status */}
-        {(!collapsed || mobile) && (
+        {/* {(!collapsed || mobile) && (
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/8 text-emerald-600 dark:text-emerald-400">
             <Wifi className="size-3.5 shrink-0" />
             <span className="text-[10px] font-bold">
               {cameraCount > 0 ? `${cameraCount} كاميرات متصلة` : "لا كاميرات مسجلة"}
             </span>
           </div>
-        )}
+        )} */}
 
         {/* User Data Card */}
         {user && (

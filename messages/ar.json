@@ -584,6 +584,25 @@
       "modeLabel": "وضع: {mode}"
     }
   },
+  "Profile": {
+    "title": "الملف الشخصي والأمان",
+    "subtitle": "إدارة بيانات حسابك الشخصي وتغيير كلمة المرور وتوثيق الحساب.",
+    "basicInfo": "البيانات الأساسية",
+    "fullName": "الاسم الكامل",
+    "emailAddress": "البريد الإلكتروني",
+    "saveProfile": "حفظ الملف الشخصي",
+    "saving": "جارٍ الحفظ...",
+    "profileUpdated": "تم تحديث الملف الشخصي بنجاح!",
+    "changePassword": "تغيير كلمة السر",
+    "currentPassword": "كلمة السر الحالية",
+    "newPassword": "كلمة السر الجديدة",
+    "confirmNewPassword": "تأكيد كلمة السر الجديدة",
+    "passwordsNoMatch": "كلمتا السر غير متطابقتين",
+    "changePasswordBtn": "تغيير كلمة السر",
+    "passwordChanged": "تم تغيير كلمة السر بنجاح!",
+    "accountVerification": "توثيق الحساب والبريد والهاتف",
+    "verificationSubtitle": "توثيق البريد الإلكتروني ورقم الواتساب للوصول لكافة الميزات."
+  },
   "Auth": {
     "loginTitle": "تسجيل الدخول",
     "loginSubtitle": "مرحباً بعودتك! أدخل بياناتك للوصول إلى حسابك",

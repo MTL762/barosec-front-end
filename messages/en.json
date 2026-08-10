@@ -584,6 +584,25 @@
       "modeLabel": "Mode: {mode}"
     }
   },
+  "Profile": {
+    "title": "Profile & Security",
+    "subtitle": "Manage your personal account data, change your password, and verify your account.",
+    "basicInfo": "Basic Information",
+    "fullName": "Full Name",
+    "emailAddress": "Email Address",
+    "saveProfile": "Save Profile",
+    "saving": "Saving...",
+    "profileUpdated": "Profile updated successfully!",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "passwordsNoMatch": "Passwords do not match",
+    "changePasswordBtn": "Change Password",
+    "passwordChanged": "Password changed successfully!",
+    "accountVerification": "Account & Email Verification",
+    "verificationSubtitle": "Verify your email and WhatsApp number to unlock all features."
+  },
   "Auth": {
     "loginTitle": "Sign In",
     "loginSubtitle": "Welcome back! Enter your details to access your account",
