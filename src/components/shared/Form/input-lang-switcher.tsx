@@ -1,5 +1,6 @@
-import { locales } from "@/i18n.config";
 import type { FormLangs } from "./CustomFormTypes.types";
+
+const locales = ["ar", "en"];
 
 const styles = {
 	languageButton: {

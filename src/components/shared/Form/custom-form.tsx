@@ -1,5 +1,5 @@
-import PageType from "@/utils/PageType";
-import { GlobalLoading } from "global-loading-state";
+"use client";
+
 import { useTranslations } from "next-intl";
 import React from "react";
 import type {
@@ -24,9 +24,7 @@ export default function CustomForm<T extends FieldValues>({
 	isMasonry,
 }: {
 	errors?: FieldErrors;
-	// biome-ignore lint/suspicious/noExplicitAny: control is typed generic to any in wrapper
 	control: any;
-	// biome-ignore lint/suspicious/noExplicitAny: setValue is typed generic to any in wrapper
 	setValue?: UseFormSetValue<any>;
 	children?: React.ReactNode;
 	onCancelClick?: () => void;
@@ -46,7 +44,6 @@ export default function CustomForm<T extends FieldValues>({
 	isMasonry?: boolean;
 }) {
 	const t = useTranslations();
-	const { id } = PageType();
 	const groupedInputs = inputs.reduce(
 		(acc, input) => {
 			const cardId = input?.cardId ?? "default";
@@ -112,8 +109,8 @@ export default function CustomForm<T extends FieldValues>({
 
 					<div className="pt-6 duration-500 border-t animate-in slide-in-from-bottom-4">
 						<SubmitSection
-							id={id}
-							disabled={GlobalLoading()}
+							id={undefined}
+							disabled={false}
 							btnLabel={btnLabel}
 							cancelLabel={cancelLabel}
 							onCancel={onCancelClick}

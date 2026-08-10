@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+type TFunction = (key: string) => string;
+
 export function selectNotReq() {
 	return z.union([
 		z.string().nullable().optional(),
@@ -10,19 +12,13 @@ export function selectNotReq() {
 
 export function SelectReq(t: TFunction) {
 	return z.union([
-		z
-			.string({
-				required_error: t(`Validations.required`),
-				invalid_type_error: t(`Validations.invalidType`),
-			})
-			.nonempty(t("Validations.required")),
-
-		z.number().min(0, t("Validations.required")),
+		z.string().min(1, { message: t("Validations.required") }),
+		z.number().min(0, { message: t("Validations.required") }),
 	]);
 }
 
 export function MultiSelectReqWithMax(
-	t: (key: string) => string,
+	t: TFunction,
 	max?: number,
 ) {
 	return z
@@ -34,13 +30,6 @@ export function BooleanReq(t: TFunction) {
 	return z.union([
 		z.string().startsWith("false"),
 		z.string().startsWith("true"),
-		z
-			.boolean({
-				required_error: t(`Validations.required`),
-				invalid_type_error: t(`Validations.invalidType`),
-			})
-			.refine((val) => val !== undefined, {
-				message: t(`Validations.required`),
-			}),
+		z.boolean(),
 	]);
 }

@@ -1,46 +1,43 @@
+"use client";
+
 import { useTranslations } from "next-intl";
-import { useTheme } from "next-themes";
-import Select, { type MultiValue } from "react-select";
 import type { Option } from "../Form/CustomFormTypes.types";
-import { customStyles } from "./select.config";
 
 interface CustomSelectProps {
-	options: Option[];
-	placeholder?: string;
-	name?: string;
-	onChange?: (selectedOptions: (string | number | boolean)[]) => void;
-	value?: (string | number | boolean)[];
+  options: Option[];
+  placeholder?: string;
+  name?: string;
+  onChange?: (selectedOptions: (string | number | boolean)[]) => void;
+  value?: (string | number | boolean)[];
 }
 
 export default function MultiSelectInput({
-	options,
-	placeholder,
-	name,
-	onChange,
-	value = [],
+  options,
+  placeholder,
+  name,
+  onChange,
+  value = [],
 }: CustomSelectProps) {
-	const { theme } = useTheme();
+  const t = useTranslations();
 
-	const t = useTranslations();
-	return (
-		<>
-			<Select
-				isMulti={true}
-				value={options.filter((option) => value.includes(option.value))}
-				onChange={(selectedOptions: MultiValue<Option>) => {
-					const data = selectedOptions.map((item) => item.value);
-					onChange?.(data);
-				}}
-				options={options}
-				styles={customStyles(theme === "dark")}
-				menuPortalTarget={
-					typeof document !== "undefined" ? document.body : null
-				}
-				menuPosition="fixed"
-				isClearable={true}
-				placeholder={placeholder ? placeholder : t("select")}
-				name={name}
-			/>
-		</>
-	);
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selected = Array.from(e.target.selectedOptions, (option) => option.value);
+    onChange?.(selected);
+  };
+
+  return (
+    <select
+      multiple
+      name={name}
+      value={value.map(String)}
+      onChange={handleChange}
+      className="w-full min-h-[80px] p-2 text-sm rounded-xl border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+    >
+      {options.map((opt) => (
+        <option key={String(opt.value)} value={String(opt.value)}>
+          {t(opt.label)}
+        </option>
+      ))}
+    </select>
+  );
 }

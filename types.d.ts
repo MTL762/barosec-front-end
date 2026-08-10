@@ -1,0 +1,1 @@
+type TFunction = (key: string) => string;

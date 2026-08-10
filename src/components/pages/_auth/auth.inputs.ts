@@ -5,7 +5,7 @@ export const LoginInputs = (): FormInput[] => {
     {
       name: "email",
       type: "email",
-      label: "Auth.email",
+      width:6,
       placeholder: "Auth.emailPlaceholder",
       required: true,
       cardId: "default",
@@ -13,7 +13,7 @@ export const LoginInputs = (): FormInput[] => {
     {
       name: "password",
       type: "password",
-      label: "Auth.password",
+      width:6,
       placeholder: "Auth.passwordPlaceholder",
       required: true,
       cardId: "default",
@@ -26,7 +26,7 @@ export const RegisterInputs = (): FormInput[] => {
     {
       name: "name",
       type: "text",
-      label: "Auth.name",
+      width:6,
       placeholder: "Auth.namePlaceholder",
       required: true,
       cardId: "default",
@@ -34,7 +34,7 @@ export const RegisterInputs = (): FormInput[] => {
     {
       name: "email",
       type: "email",
-      label: "Auth.email",
+      width:6,
       placeholder: "Auth.emailPlaceholder",
       required: true,
       cardId: "default",
@@ -42,7 +42,7 @@ export const RegisterInputs = (): FormInput[] => {
     {
       name: "password",
       type: "password",
-      label: "Auth.password",
+      width:6,
       placeholder: "Auth.passwordPlaceholder",
       required: true,
       cardId: "default",
@@ -50,7 +50,7 @@ export const RegisterInputs = (): FormInput[] => {
     {
       name: "password_confirmation",
       type: "password",
-      label: "Auth.passwordConfirm",
+      width:6,
       placeholder: "Auth.passwordConfirmPlaceholder",
       required: true,
       cardId: "default",

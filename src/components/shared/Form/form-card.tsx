@@ -1,5 +1,4 @@
 import { Checkbox } from "@/components/ui/checkbox";
-import { locales } from "@/i18n.config";
 import { useTranslations } from "next-intl";
 import React from "react";
 import {
@@ -16,6 +15,8 @@ import FormCardTitle from "./FormCardTitle.layout";
 import FormInputContainer from "./FormInputContainer";
 import { renderInputComponent } from "./inputs-render";
 
+const locales = ["ar", "en"];
+
 interface FormCardProps {
 	animationIndex: number;
 	cardId: string | number;
@@ -28,9 +29,8 @@ interface FormCardProps {
 		icon?: React.ReactNode;
 		showSelectAll?: boolean;
 	}[];
-	control: Control;
+	control: Control<any>;
 	setValue?: UseFormSetValue<FieldValues>;
-	// errors: FieldErrors;
 	changeLang?: FormLangs;
 }
 
@@ -41,13 +41,11 @@ export default function FormCard<T extends FieldValues>({
 	cardConfig,
 	control,
 	setValue,
-}: // changeLang,
-// errors,
-FormCardProps) {
+}: FormCardProps) {
 	const t = useTranslations();
 	const cardWidthObj = cardConfig?.find((cw) => cw.id === cardId);
 	const colSpan = cardWidthObj ? cardWidthObj.width : 6;
-	let cardTitle;
+	let cardTitle: any = null;
 	if (cardConfig) {
 		cardTitle = cardConfig.find((item) => item.id === cardId) || null;
 	}
@@ -90,10 +88,10 @@ FormCardProps) {
 			return currentValues.length > 0;
 		});
 
-	const selectAllState: boolean | "indeterminate" = areAllOptionsSelected
+	const selectAllState = areAllOptionsSelected
 		? true
 		: hasAnySelection
-			? "indeterminate"
+			? false
 			: false;
 
 	const handleSelectAll = (checked: boolean) => {
@@ -111,6 +109,7 @@ FormCardProps) {
 			});
 		});
 	};
+
 	return (
 		<FormCardContainer
 			width={cardWidthObj?.width ?? colSpan}
@@ -129,7 +128,7 @@ FormCardProps) {
 									onCheckedChange={(checked) =>
 										handleSelectAll(checked === true)
 									}
-									className="mt-0 border-slate-300 data-[state=checked]:border-slate-900 data-[state=checked]:bg-slate-900 data-[state=indeterminate]:border-slate-900 data-[state=indeterminate]:bg-slate-900"
+									className="mt-0 border-slate-300 data-[state=checked]:border-slate-900 data-[state=checked]:bg-slate-900"
 								/>
 								<label
 									htmlFor={`${String(cardId)}-select-all`}
@@ -153,13 +152,13 @@ FormCardProps) {
 								<div className="flex items-baseline gap-2 text-black" />
 								{isMultiLang ? (
 									<>
-										{locales.map((lang) => (
+										{locales.map((lang: string) => (
 											<div key={`${item.name}${lang}`}>
 												<div>
 													<Controller
 														name={`${item.name}${lang}` as Path<T>}
 														control={control}
-														render={({ field, formState: { errors } }) => {
+														render={({ field, formState: { errors } }: any) => {
 															return renderInputComponent({
 																errors: errors,
 																item: {
@@ -178,7 +177,7 @@ FormCardProps) {
 									<Controller
 										name={item.name as Path<T>}
 										control={control}
-										render={({ field, formState: { errors } }) =>
+										render={({ field, formState: { errors } }: any) =>
 											renderInputComponent({
 												errors: errors,
 												item,

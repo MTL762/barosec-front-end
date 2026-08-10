@@ -1,5 +1,5 @@
 export const customStyles = (isDarkMode: boolean) => ({
-	control: (base, state) => ({
+	control: (base: Record<string, any>, state: { isFocused?: boolean }) => ({
 		...base,
 		pointerEvents: "auto",
 		backgroundColor: isDarkMode ? "transparent" : "#ffffff",
@@ -17,19 +17,19 @@ export const customStyles = (isDarkMode: boolean) => ({
 					: "#d1d5db",
 		},
 	}),
-	menu: (base) => ({
+	menu: (base: Record<string, any>) => ({
 		...base,
 		zIndex: 99999,
 		backgroundColor: isDarkMode ? "#111827" : "#ffffff",
 		border: isDarkMode ? "1px solid #374151" : "1px solid #d1d5db",
 		pointerEvents: "auto",
 	}),
-	menuPortal: (base) => ({
+	menuPortal: (base: Record<string, any>) => ({
 		...base,
 		zIndex: 99999,
 		pointerEvents: "auto",
 	}),
-	option: (base, state) => ({
+	option: (base: Record<string, any>, state: { isFocused?: boolean }) => ({
 		...base,
 		backgroundColor: state.isFocused
 			? isDarkMode
@@ -38,19 +38,19 @@ export const customStyles = (isDarkMode: boolean) => ({
 			: "transparent",
 		color: isDarkMode ? "#ffffff" : "#000000",
 	}),
-	singleValue: (base) => ({
+	singleValue: (base: Record<string, any>) => ({
 		...base,
 		color: isDarkMode ? "#ffffff" : "#000000",
 	}),
-	input: (base) => ({
+	input: (base: Record<string, any>) => ({
 		...base,
 		color: isDarkMode ? "#ffffff" : "#000000",
 	}),
-	multiValue: (base) => ({
+	multiValue: (base: Record<string, any>) => ({
 		...base,
 		color: "#9ca3af",
 	}),
-	placeholder: (base) => ({
+	placeholder: (base: Record<string, any>) => ({
 		...base,
 		color: isDarkMode ? "#9ca3af" : "#6b7280", // Placeholder text color
 	}),

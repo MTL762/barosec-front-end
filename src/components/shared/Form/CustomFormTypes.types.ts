@@ -87,7 +87,7 @@ type OtherInputs = FormInputBase & {
 export type FormInput = SelectPaginatedInput | OtherInputs;
 
 export type FormLangs =
-	| locales
+	| string
 	| "Ar"
 	| "En"
 	| "default"

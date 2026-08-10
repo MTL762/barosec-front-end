@@ -1,10 +1,10 @@
 import { z } from "zod";
+
+type TFunction = (key: string) => string;
+
 export function StringReq(t: TFunction, min = 2, max = 7000) {
 	return z
-		.string({
-			required_error: t(`Validations.required`),
-			invalid_type_error: t(`Validations.invalidType`),
-		})
+		.string()
 		.min(min, { message: `${t(`Validations.min`)} ${min}` })
 		.refine((val) => val.length >= min, {
 			message: `${t(`Validations.min`)} ${min}`,
@@ -17,13 +17,11 @@ export function StringReq(t: TFunction, min = 2, max = 7000) {
 
 export function PhoneReq(t: TFunction) {
 	return z
-		.string({
-			required_error: t(`Validations.required`),
-			invalid_type_error: t(`Validations.invalidType`),
-		})
+		.string()
 		.startsWith("+", { message: t(`Validations.startsWithPlus`) })
 		.refine((val) => val !== "", { message: t(`Validations.required`) });
 }
+
 export function PasswordSchema(t: TFunction) {
 	return z
 		.string()
@@ -31,6 +29,7 @@ export function PasswordSchema(t: TFunction) {
 		.refine((val) => val.length >= 8, { message: t(`Validations.min8`) })
 		.refine((val) => val !== "", { message: t(`Validations.required`) });
 }
+
 export function StringNotReq() {
 	return z.union([
 		z.string().nullable().optional(),
@@ -41,10 +40,7 @@ export function StringNotReq() {
 
 export function EmailReq(t: TFunction) {
 	return z
-		.string({
-			required_error: t(`Validations.required`),
-			invalid_type_error: t(`Validations.invalidType`),
-		})
+		.string()
 		.email({
 			message: t(`Validations.invalidEmail`),
 		})
@@ -58,10 +54,7 @@ export function noSchema() {
 
 export function LinkSchema(t: TFunction) {
 	return z
-		.string({
-			required_error: t(`Validations.required`),
-			invalid_type_error: t(`Validations.invalidType`),
-		})
+		.string()
 		.url({ message: t(`Validations.invalidUrl`) })
 		.refine((val) => val.length >= 3, { message: t(`Validations.min3`) })
 		.refine((val) => val !== "", { message: t(`Validations.required`) });

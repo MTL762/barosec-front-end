@@ -1,11 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Cloud, X } from "lucide-react"; // Add FilePdf
+import { Cloud, FileText, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useCallback, useRef, useState } from "react";
-import { BsFilePdf } from "react-icons/bs";
 
 export default function FilesUploadInput({
 	name,
@@ -37,7 +36,9 @@ export default function FilesUploadInput({
 		e.stopPropagation();
 		setDragActive(false);
 	}, []);
+
 	const t = useTranslations();
+
 	const onDrop = useCallback((e: React.DragEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -48,17 +49,11 @@ export default function FilesUploadInput({
 	}, []);
 
 	const handleFiles = (newFiles: File[]) => {
-		const validFiles = newFiles.filter(() => {
-			// const isValidType = ['image/jpeg', 'image/png'].includes(file.type)
-			const isValidType = true;
-			// const isValidSize = file.size <= 1024 * 1024 // 1MB
-			const isValidSize = true;
-			return isValidType && isValidSize;
-		});
+		const validFiles = newFiles;
 		onChange?.([...files, ...validFiles]);
-		setFiles((prev) => {
+		setFiles((prev: any) => {
 			const newFileList = [...prev, ...validFiles];
-			return newFileList.slice(0, 24); // Maximum 24 files
+			return newFileList.slice(0, 24);
 		});
 	};
 
@@ -66,13 +61,11 @@ export default function FilesUploadInput({
 		if (e.target.files && e.target.files.length > 0) {
 			const selectedFiles = Array.from(e.target.files);
 			handleFiles(selectedFiles);
-			// Reset input value so the same file can be selected again
-			// e.target.value = ''
 		}
 	};
 
 	const removeFile = (index: number) => {
-		setFiles((prev) => {
+		setFiles((prev: any[]) => {
 			const updatedFiles = prev.filter((_, i) => i !== index);
 			onChange?.(updatedFiles);
 			return updatedFiles;
@@ -87,6 +80,7 @@ export default function FilesUploadInput({
 	const openFileDialog = () => {
 		inputRef.current?.click();
 	};
+
 	return (
 		<div className="w-full space-y-4">
 			<div
@@ -124,7 +118,6 @@ export default function FilesUploadInput({
 					<div className="h-full min-h-[200px] flex flex-col items-center justify-center gap-4">
 						<div className="relative">
 							<Cloud className="w-16 h-16 transition-colors duration-300 text-muted-foreground/50 group-hover:text-primary/70" />
-							<div className="absolute inset-0 transition-opacity duration-300 rounded-full opacity-0 bg-primary/10 blur-xl group-hover:opacity-100" />
 						</div>
 						<div className="space-y-2 text-center">
 							<p className="text-lg font-medium transition-colors duration-300 text-foreground group-hover:text-primary">
@@ -133,27 +126,12 @@ export default function FilesUploadInput({
 							<p className="text-sm text-muted-foreground">
 								Support for images and PDF files
 							</p>
-							<p className="text-xs text-muted-foreground">
-								Maximum {maxSelections || 24} files
-							</p>
 						</div>
 					</div>
 				) : (
 					<div className="space-y-4">
-						<div className="flex items-center justify-between">
-							<h4 className="text-sm font-medium text-foreground">
-								Uploaded Files ({files.length})
-							</h4>
-							<button
-								type="button"
-								onClick={openFileDialog}
-								className="text-sm transition-colors duration-200 text-primary hover:text-primary/80 hover:underline"
-							>
-								Add more
-							</button>
-						</div>
 						<div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-							{files.map((file, index) => {
+							{files.map((file: any, index: number) => {
 								const isFile = file instanceof File;
 								const isPdf = isFile
 									? file.type === "application/pdf"
@@ -169,11 +147,9 @@ export default function FilesUploadInput({
 										className="relative overflow-hidden transition-all duration-200 border rounded-lg group aspect-square border-border/50 hover:border-primary/50 hover:shadow-md"
 									>
 										{isPdf ? (
-											<div className="flex flex-col items-center justify-center w-full h-full bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20">
-												<BsFilePdf className="w-8 h-8 text-red-500" />
-												<span className="mt-1 text-xs text-red-600 dark:text-red-400">
-													PDF
-												</span>
+											<div className="flex flex-col items-center justify-center w-full h-full bg-red-500/10">
+												<FileText className="w-8 h-8 text-red-500" />
+												<span className="mt-1 text-xs text-red-500">PDF</span>
 											</div>
 										) : (
 											<Image
@@ -190,30 +166,13 @@ export default function FilesUploadInput({
 												e.stopPropagation();
 												removeFile(index);
 											}}
-											className="absolute z-10 p-1 transition-all duration-200 rounded-full shadow-lg opacity-0 top-1 end-1 bg-destructive text-destructive-foreground group-hover:opacity-100 hover:scale-110"
+											className="absolute z-10 p-1 transition-all duration-200 rounded-full shadow-lg opacity-0 top-1 end-1 bg-destructive text-destructive-foreground group-hover:opacity-100"
 										>
 											<X className="w-3 h-3" />
 										</button>
-										<div className="absolute bottom-0 left-0 right-0 p-2 transition-opacity duration-200 opacity-0 bg-black/50 backdrop-blur-sm group-hover:opacity-100">
-											<p className="text-xs text-white truncate">
-												{isFile ? file.name : file.url.split("/").pop()}
-											</p>
-										</div>
 									</div>
 								);
 							})}
-							{files.length < (maxSelections || 24) && (
-								<button
-									onClick={openFileDialog}
-									type="button"
-									className="flex flex-col items-center justify-center transition-all duration-200 border-2 border-dashed rounded-lg aspect-square border-border/50 hover:border-primary/50 hover:bg-primary/5 group"
-								>
-									<Cloud className="w-6 h-6 transition-colors duration-200 text-muted-foreground group-hover:text-primary" />
-									<span className="mt-1 text-xs text-muted-foreground">
-										Add more
-									</span>
-								</button>
-							)}
 						</div>
 					</div>
 				)}

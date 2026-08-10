@@ -64,3 +64,4 @@ export const tags = {
 } as const;
 
 export type Tags = keyof typeof tags;
+export type routesKey = string
