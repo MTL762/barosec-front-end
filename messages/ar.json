@@ -656,10 +656,14 @@
       "invoicesTitle": "سجل الفواتير",
       "noInvoices": "لا توجد فواتير سابقة في سجل الحساب.",
       "paid": "مدفوعة",
+      "unpaid": "غير مدفوعة",
+      "pending": "قيد الانتظار",
       "downloadInvoice": "تحميل الفاتورة",
       "subscribeSuccess": "تم الاشتراك في الباقة بنجاح!",
       "subscribeFailed": "فشل الاشتراك: {error}",
-      "loadFailed": "حدث خطأ أثناء تحميل بيانات الفواتير والاشتراكات"
+      "loadFailed": "حدث خطأ أثناء تحميل بيانات الفواتير والاشتراكات",
+      "planFallback": "الباقة رقم #{id}",
+      "apiError": "خطأ في الاتصال بالنظام"
     },
     "Overview": {
       "welcomeUser": "مرحباً، {name} 👋",

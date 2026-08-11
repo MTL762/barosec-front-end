@@ -656,10 +656,14 @@
       "invoicesTitle": "Invoices History",
       "noInvoices": "No past invoices found in account history.",
       "paid": "Paid",
+      "unpaid": "Unpaid",
+      "pending": "Pending",
       "downloadInvoice": "Download Invoice",
       "subscribeSuccess": "Subscribed to plan successfully!",
       "subscribeFailed": "Subscription failed: {error}",
-      "loadFailed": "An error occurred while loading billing and subscription data."
+      "loadFailed": "An error occurred while loading billing and subscription data.",
+      "planFallback": "Plan #{id}",
+      "apiError": "API Communication Error"
     },
     "Overview": {
       "welcomeUser": "Welcome back, {name} 👋",

@@ -98,7 +98,7 @@ export default function BillingDashboardPage() {
       setNotice(t("subscribeSuccess"));
       await fetchBillingData();
     } else {
-      setErrorNotice(t("subscribeFailed", { error: error || "API Error" }));
+      setErrorNotice(t("subscribeFailed", { error: error || t("apiError") }));
     }
     setSubscribeLoading(null);
   };
@@ -198,7 +198,7 @@ export default function BillingDashboardPage() {
                         subscription.plan?.name ||
                           (subscription as any).plan_name ||
                           (subscription as any).name ||
-                          `Plan #${subscription.plan_id || subscription.id}`
+                          t("planFallback", { id: String(subscription.plan_id || subscription.id) })
                       )
                     : t("noActiveSub")}
                 </h2>
@@ -330,7 +330,14 @@ export default function BillingDashboardPage() {
                   const invDate = typeof inv.date === "string" ? inv.date : typeof inv.created_at === "string" ? inv.created_at : "—";
                   const invAmount = typeof inv.amount === "number" ? `$${inv.amount}` : typeof inv.amount === "string" ? inv.amount : "—";
                   const rawStatus = typeof inv.status === "string" ? inv.status : "paid";
-                  const invStatus = rawStatus === "paid" || rawStatus === "مدفوعة" ? t("paid") : rawStatus;
+                  const invStatus =
+                    rawStatus === "paid" || rawStatus === "مدفوعة"
+                      ? t("paid")
+                      : rawStatus === "unpaid" || rawStatus === "غير مدفوع"
+                      ? t("unpaid")
+                      : rawStatus === "pending" || rawStatus === "معلقة"
+                      ? t("pending")
+                      : rawStatus;
 
                   return (
                     <div
