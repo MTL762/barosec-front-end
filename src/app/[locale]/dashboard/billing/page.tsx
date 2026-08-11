@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { CheckCircle2, FileText, Zap, Loader2, Download, AlertCircle, RefreshCw } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -15,6 +16,8 @@ import {
 } from "@/lib/api";
 
 export default function BillingDashboardPage() {
+  const t = useTranslations("Dashboard.Billing");
+
   const [plans, setPlans] = useState<PlanApiItem[]>([]);
   const [subscription, setSubscription] = useState<SubscriptionApiItem | null>(null);
   const [invoices, setInvoices] = useState<InvoiceApiItem[]>([]);
@@ -73,7 +76,7 @@ export default function BillingDashboardPage() {
       setInvoices(fetchedInvoices as InvoiceApiItem[]);
     } catch (err: any) {
       console.error("[fetchBillingData] Error:", err);
-      setErrorNotice(err?.message || "حدث خطأ أثناء تحميل بيانات الفواتير والاشتراكات");
+      setErrorNotice(err?.message || t("loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -92,10 +95,10 @@ export default function BillingDashboardPage() {
     });
 
     if (data || !error) {
-      setNotice("تم الاشتراك في الباقة بنجاح!");
+      setNotice(t("subscribeSuccess"));
       await fetchBillingData();
     } else {
-      setErrorNotice(`فشل الاشتراك: ${error || "حدث خطأ أثناء تنفيذ الطلب"}`);
+      setErrorNotice(t("subscribeFailed", { error: error || "API Error" }));
     }
     setSubscribeLoading(null);
   };
@@ -126,10 +129,8 @@ export default function BillingDashboardPage() {
       {/* Page Header */}
       <div className="bg-background border border-border rounded-2xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">الاشتراكات والفواتير (Billing & Subscription)</h1>
-          <p className="text-xs text-muted-foreground mt-1">
-            إدارة اشتراك باروسك والتخزين السحابي، وعرض الفواتير السابقة عبر API.
-          </p>
+          <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
+          <p className="text-xs text-muted-foreground mt-1">{t("description")}</p>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -138,7 +139,7 @@ export default function BillingDashboardPage() {
             className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-xl text-xs gap-1.5 font-bold")}
           >
             <RefreshCw className={cn("size-3.5", loading && "animate-spin")} />
-            <span>تحديث البيانات</span>
+            <span>{t("refresh")}</span>
           </button>
         </div>
       </div>
@@ -160,7 +161,7 @@ export default function BillingDashboardPage() {
       {loading ? (
         <div className="p-16 bg-background border border-border rounded-2xl flex flex-col items-center justify-center gap-3 text-muted-foreground shadow-sm">
           <Loader2 className="size-8 animate-spin text-primary" />
-          <span className="text-sm font-bold">جاري تحميل بيانات الفواتير والاشتراكات من API...</span>
+          <span className="text-sm font-bold">{t("loading")}</span>
         </div>
       ) : (
         <>
@@ -178,11 +179,15 @@ export default function BillingDashboardPage() {
                     )}
                   >
                     <CheckCircle2 className="size-3.5" />
-                    {subscription ? String(subscription.status || "نشط") : "غير مشترك"}
+                    {subscription
+                      ? subscription.status === "active" || subscription.status === "نشط"
+                        ? t("statusActive")
+                        : String(subscription.status)
+                      : t("notSubscribed")}
                   </span>
                   {subscription && (subscription.ends_at || (subscription as any).next_billing) && (
                     <span className="text-xs font-mono text-muted-foreground">
-                      التجديد القادم: {String(subscription.ends_at || (subscription as any).next_billing)}
+                      {t("nextRenewal", { date: String(subscription.ends_at || (subscription as any).next_billing) })}
                     </span>
                   )}
                 </div>
@@ -193,14 +198,12 @@ export default function BillingDashboardPage() {
                         subscription.plan?.name ||
                           (subscription as any).plan_name ||
                           (subscription as any).name ||
-                          `الباقة #${subscription.plan_id || subscription.id}`
+                          `Plan #${subscription.plan_id || subscription.id}`
                       )
-                    : "لا يوجد اشتراك نشط"}
+                    : t("noActiveSub")}
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  {subscription
-                    ? "تتيح لك حفظ التسجيلات السحابية ومراقبة الكاميرات واستخدام الذكاء الاصطناعي لرصد الحركة."
-                    : "قم باختيار إحدى الباقات المتاحة أدناه للاشتراك والاستفادة من التخزين السحابي وخدمات الطوارئ."}
+                  {subscription ? t("activeSubDesc") : t("noActiveSubDesc")}
                 </p>
               </div>
 
@@ -208,7 +211,7 @@ export default function BillingDashboardPage() {
                 <div className="text-start sm:text-end shrink-0">
                   <div className="text-2xl font-bold text-foreground font-mono">
                     {subscription.plan?.price
-                      ? `$${subscription.plan.price} / ${subscription.plan.billing_cycle || "شهرياً"}`
+                      ? `$${subscription.plan.price} / ${subscription.plan.billing_cycle || t("monthly")}`
                       : typeof (subscription as any).price === "string" || typeof (subscription as any).price === "number"
                       ? String((subscription as any).price)
                       : "—"}
@@ -221,7 +224,7 @@ export default function BillingDashboardPage() {
                     {subscribeLoading === (subscription.plan_id || subscription.id) && (
                       <Loader2 className="size-3.5 animate-spin" />
                     )}
-                    <span>تجديد الاشتراك</span>
+                    <span>{t("renewSubscription")}</span>
                   </button>
                 </div>
               )}
@@ -232,13 +235,13 @@ export default function BillingDashboardPage() {
           <div className="space-y-4">
             <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
               <Zap className="size-5 text-primary" />
-              <span>ترقية باقة الاشتراك (Available Plans)</span>
+              <span>{t("availablePlansTitle")}</span>
             </h2>
 
             {plans.length === 0 ? (
               <div className="bg-background border border-border rounded-2xl p-8 text-center text-xs text-muted-foreground space-y-2">
                 <AlertCircle className="size-8 mx-auto text-muted-foreground/50" />
-                <p>لا توجد باقات متاحة حالياً من API.</p>
+                <p>{t("noPlansAvailable")}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -261,7 +264,7 @@ export default function BillingDashboardPage() {
                           <h3 className="text-base font-bold text-foreground">{String(plan.name)}</h3>
                           {isCurrent && (
                             <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
-                              باقتك الحالية
+                              {t("currentPlanBadge")}
                             </span>
                           )}
                         </div>
@@ -269,7 +272,7 @@ export default function BillingDashboardPage() {
                         <div className="text-2xl font-bold font-mono text-foreground">
                           ${formatPlanPrice(plan.price)}{" "}
                           <span className="text-xs font-normal text-muted-foreground">
-                            /{plan.billing_cycle || "شهر"}
+                            /{plan.billing_cycle || t("month")}
                           </span>
                         </div>
 
@@ -296,9 +299,9 @@ export default function BillingDashboardPage() {
                         {subscribeLoading === plan.id ? (
                           <Loader2 className="size-4 animate-spin" />
                         ) : isCurrent ? (
-                          "تجديد الباقة"
+                          t("renewPlan")
                         ) : (
-                          "الاشتراك في الباقة"
+                          t("subscribePlan")
                         )}
                       </button>
                     </div>
@@ -312,13 +315,13 @@ export default function BillingDashboardPage() {
           <div className="bg-background border border-border rounded-2xl p-6 shadow-sm space-y-4">
             <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
               <FileText className="size-5 text-primary" />
-              <span>سجل الفواتير (Invoices History)</span>
+              <span>{t("invoicesTitle")}</span>
             </h2>
 
             {invoices.length === 0 ? (
               <div className="p-8 text-center text-xs text-muted-foreground space-y-1">
                 <FileText className="size-8 mx-auto text-muted-foreground/40 mb-2" />
-                <p>لا توجد فواتير سابقة في سجل الحساب.</p>
+                <p>{t("noInvoices")}</p>
               </div>
             ) : (
               <div className="divide-y divide-border rounded-xl border border-border overflow-hidden">
@@ -326,7 +329,8 @@ export default function BillingDashboardPage() {
                   const invId = String(inv.invoice_number || inv.id || `INV-${i + 1}`);
                   const invDate = typeof inv.date === "string" ? inv.date : typeof inv.created_at === "string" ? inv.created_at : "—";
                   const invAmount = typeof inv.amount === "number" ? `$${inv.amount}` : typeof inv.amount === "string" ? inv.amount : "—";
-                  const invStatus = typeof inv.status === "string" ? inv.status : "مدفوعة";
+                  const rawStatus = typeof inv.status === "string" ? inv.status : "paid";
+                  const invStatus = rawStatus === "paid" || rawStatus === "مدفوعة" ? t("paid") : rawStatus;
 
                   return (
                     <div
@@ -346,7 +350,7 @@ export default function BillingDashboardPage() {
                         <span
                           className={cn(
                             "px-2 py-0.5 rounded-full font-bold text-[10px]",
-                            invStatus === "paid" || invStatus === "مدفوعة"
+                            rawStatus === "paid" || rawStatus === "مدفوعة"
                               ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                               : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
                           )}
@@ -359,7 +363,7 @@ export default function BillingDashboardPage() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-1 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground"
-                            title="تحميل الفاتورة"
+                            title={t("downloadInvoice")}
                           >
                             <Download className="size-3.5" />
                           </a>

@@ -21,6 +21,7 @@ import {
   Sparkles,
   Lock,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   listRolesApi,
   createRoleApi,
@@ -98,66 +99,49 @@ export const ALL_PERMISSIONS: PermissionDefinition[] = [
   { id: 46, name: "invoices.view", group: "Invoices" },
   { id: 47, name: "invoices.download", group: "Invoices" },
   // Marketing
-  { id: 48, name: "marketing.list", group: "Marketing" },
-  { id: 49, name: "marketing.store", group: "Marketing" },
-  { id: 50, name: "marketing.view", group: "Marketing" },
-  { id: 51, name: "marketing.update", group: "Marketing" },
-  { id: 52, name: "marketing.destroy", group: "Marketing" },
-  { id: 53, name: "marketing.send_campaign", group: "Marketing" },
-  // Support Tickets
-  { id: 54, name: "support_tickets.list", group: "Support Tickets" },
-  { id: 55, name: "support_tickets.store", group: "Support Tickets" },
-  { id: 56, name: "support_tickets.view", group: "Support Tickets" },
-  { id: 57, name: "support_tickets.update", group: "Support Tickets" },
-  { id: 58, name: "support_tickets.destroy", group: "Support Tickets" },
-  { id: 59, name: "support_tickets.reply", group: "Support Tickets" },
-  { id: 60, name: "support_tickets.close", group: "Support Tickets" },
-  // Articles
-  { id: 61, name: "articles.list", group: "Articles" },
-  { id: 62, name: "articles.store", group: "Articles" },
-  { id: 63, name: "articles.view", group: "Articles" },
-  { id: 64, name: "articles.update", group: "Articles" },
-  { id: 65, name: "articles.destroy", group: "Articles" },
-  // FAQs
-  { id: 66, name: "faqs.list", group: "FAQs" },
-  { id: 67, name: "faqs.store", group: "FAQs" },
-  { id: 68, name: "faqs.view", group: "FAQs" },
-  { id: 69, name: "faqs.update", group: "FAQs" },
-  { id: 70, name: "faqs.destroy", group: "FAQs" },
+  { id: 48, name: "marketing.list", group: "Marketing & Campaigns" },
+  { id: 49, name: "marketing.store", group: "Marketing & Campaigns" },
+  { id: 50, name: "marketing.view", group: "Marketing & Campaigns" },
+  { id: 51, name: "marketing.send_campaign", group: "Marketing & Campaigns" },
+  // Support
+  { id: 52, name: "support.list_tickets", group: "Support Center" },
+  { id: 53, name: "support.reply_ticket", group: "Support Center" },
+  { id: 54, name: "support.view_articles", group: "Support Center" },
+  { id: 55, name: "support.view_faqs", group: "Support Center" },
 ];
 
 export default function AdminRolesPage() {
+  const t = useTranslations("Dashboard.Roles");
+
   const [roles, setRoles] = useState<RoleApiItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [paginationMeta, setPaginationMeta] = useState<PaginationMeta | null>(null);
 
-  // Form State for Create / Edit
+  // Modal / Drawer State
   const [modalOpen, setModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<RoleApiItem | null>(null);
   const [roleName, setRoleName] = useState("");
   const [selectedPermissionIds, setSelectedPermissionIds] = useState<number[]>([]);
-  const [permSearch, setPermSearch] = useState("");
+  const [actionLoading, setActionLoading] = useState(false);
 
-  // Card expansion state
+  // Collapsible role details
   const [expandedRoleIds, setExpandedRoleIds] = useState<Record<string | number, boolean>>({});
+
+  // Filter permissions inside modal
+  const [permSearch, setPermSearch] = useState("");
 
   const fetchRoles = async (page = 1) => {
     setLoading(true);
     const res = await listRolesApi(page);
-    if (res.data) {
-      const rolesArray = Array.isArray(res.data)
-        ? (res.data as RoleApiItem[])
-        : (res.result?.data as RoleApiItem[]) || [];
-      setRoles(rolesArray);
-
-      if (res.meta) {
-        setPaginationMeta(res.meta as PaginationMeta);
-      } else if (res.result?.meta) {
-        setPaginationMeta(res.result.meta as PaginationMeta);
-      }
+    const data = res.data;
+    const meta = res.meta;
+    if (data && Array.isArray(data)) {
+      setRoles(data);
+    }
+    if (meta) {
+      setPaginationMeta(meta);
     }
     setLoading(false);
   };
@@ -166,47 +150,56 @@ export default function AdminRolesPage() {
     fetchRoles(currentPage);
   }, [currentPage]);
 
-  // Open modal for Create
+  // Group catalog permissions by module
+  const groupedPermissions = useMemo(() => {
+    const map: Record<string, PermissionDefinition[]> = {};
+    ALL_PERMISSIONS.forEach((perm) => {
+      if (
+        permSearch.trim() &&
+        !perm.name.toLowerCase().includes(permSearch.toLowerCase()) &&
+        !perm.group.toLowerCase().includes(permSearch.toLowerCase())
+      ) {
+        return;
+      }
+      if (!map[perm.group]) {
+        map[perm.group] = [];
+      }
+      map[perm.group].push(perm);
+    });
+    return map;
+  }, [permSearch]);
+
   const handleOpenCreate = () => {
     setEditingRole(null);
     setRoleName("");
     setSelectedPermissionIds([]);
-    setPermSearch("");
     setModalOpen(true);
   };
 
-  // Open modal for Edit
   const handleOpenEdit = (role: RoleApiItem) => {
     setEditingRole(role);
     setRoleName(role.name || "");
-    setPermSearch("");
 
-    let permIds: number[] = [];
+    let existingIds: number[] = [];
     if (Array.isArray(role.permissions)) {
-      permIds = role.permissions
-        .map((p) => (typeof p === "object" && p !== null ? (p as PermissionApiItem).id : Number(p)))
-        .filter((n) => !isNaN(n));
-    } else if (typeof role.permission_ids === "string") {
-      permIds = role.permission_ids
-        .split(",")
-        .map((id) => Number(id.trim()))
-        .filter((n) => !isNaN(n) && n > 0);
+      existingIds = role.permissions
+        .map((p) => (typeof p === "object" && p ? p.id : Number(p)))
+        .filter((id) => !isNaN(id));
     } else if (Array.isArray(role.permission_ids)) {
-      permIds = role.permission_ids.map((id) => Number(id)).filter((n) => !isNaN(n) && n > 0);
+      existingIds = role.permission_ids.map(Number).filter((id) => !isNaN(id));
     }
-
-    setSelectedPermissionIds(permIds);
+    setSelectedPermissionIds(existingIds);
     setModalOpen(true);
   };
 
   const handleTogglePermission = (id: number) => {
     setSelectedPermissionIds((prev) =>
-      prev.includes(id) ? prev.filter((pId) => pId !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
 
-  const handleToggleGroup = (groupPermissions: PermissionDefinition[]) => {
-    const groupIds = groupPermissions.map((p) => p.id);
+  const handleToggleGroup = (groupPerms: PermissionDefinition[]) => {
+    const groupIds = groupPerms.map((p) => p.id);
     const allSelected = groupIds.every((id) => selectedPermissionIds.includes(id));
 
     if (allSelected) {
@@ -227,7 +220,7 @@ export default function AdminRolesPage() {
   const handleSubmitRole = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!roleName.trim()) {
-      toast.error("يرجى إدخال اسم الدور");
+      toast.error(t("enterRoleNameError"));
       return;
     }
 
@@ -239,9 +232,9 @@ export default function AdminRolesPage() {
       });
 
       if (error) {
-        toast.error(error || "حدث خطأ أثناء تحديث الدور");
+        toast.error(error || t("updateError"));
       } else {
-        toast.success("تم تحديث الدور بنجاح!");
+        toast.success(t("updateSuccess"));
         setModalOpen(false);
         fetchRoles(currentPage);
       }
@@ -252,9 +245,9 @@ export default function AdminRolesPage() {
       });
 
       if (error) {
-        toast.error(error || "حدث خطأ أثناء إنشاء الدور");
+        toast.error(error || t("createError"));
       } else {
-        toast.success("تم إنشاء الدور بنجاح!");
+        toast.success(t("createSuccess"));
         setModalOpen(false);
         fetchRoles(currentPage);
       }
@@ -263,13 +256,13 @@ export default function AdminRolesPage() {
   };
 
   const handleDeleteRole = async (role: RoleApiItem) => {
-    if (!confirm(`هل أنت تأكد من رغبتك في حذف الدور "${role.name}"؟`)) return;
+    if (!confirm(t("deleteConfirm", { name: role.name }))) return;
 
     const { error } = await deleteRoleApi(role.id);
     if (error) {
-      toast.error(error || "فشل حذف الدور");
+      toast.error(error || t("deleteError"));
     } else {
-      toast.success("تم حذف الدور بنجاح");
+      toast.success(t("deleteSuccess"));
       fetchRoles(currentPage);
     }
   };
@@ -278,33 +271,16 @@ export default function AdminRolesPage() {
     setExpandedRoleIds((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Grouped permissions catalog
-  const groupedPermissions = useMemo(() => {
-    const map: Record<string, PermissionDefinition[]> = {};
-    ALL_PERMISSIONS.forEach((p) => {
-      if (
-        permSearch.trim() === "" ||
-        p.name.toLowerCase().includes(permSearch.toLowerCase()) ||
-        p.group.toLowerCase().includes(permSearch.toLowerCase())
-      ) {
-        if (!map[p.group]) map[p.group] = [];
-        map[p.group].push(p);
-      }
-    });
-    return map;
-  }, [permSearch]);
-
-  // Filtered Roles
   const filteredRoles = useMemo(() => {
-    return roles.filter((role) => {
-      if (!searchQuery.trim()) return true;
-      const q = searchQuery.toLowerCase();
-      const matchName = role.name.toLowerCase().includes(q);
-      const matchPerms = role.permissions?.some((p) =>
-        typeof p === "object" && p !== null
-          ? (p as PermissionApiItem).name?.toLowerCase().includes(q)
-          : String(p).toLowerCase().includes(q)
-      );
+    if (!searchQuery.trim()) return roles;
+    const q = searchQuery.toLowerCase();
+    return roles.filter((r) => {
+      const matchName = r.name?.toLowerCase().includes(q);
+      const matchPerms = Array.isArray(r.permissions)
+        ? r.permissions.some((p) =>
+            typeof p === "object" && p ? p.name?.toLowerCase().includes(q) : String(p).includes(q)
+          )
+        : false;
       return matchName || matchPerms;
     });
   }, [roles, searchQuery]);
@@ -316,13 +292,13 @@ export default function AdminRolesPage() {
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">
             <ShieldCheck className="size-4" />
-            <span>نظام إدارة الصلاحيات والأدوار</span>
+            <span>{t("systemBadge")}</span>
           </div>
           <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
-            الأدوار والصلاحيات (Roles & Permissions)
+            {t("title")}
           </h1>
           <p className="text-xs text-muted-foreground max-w-2xl">
-            إدارة الأدوار الوظيفية في النظام وتخصيص صلاحيات الوصول بدقة على مستوى النماذج والإجراءات.
+            {t("subtitle")}
           </p>
         </div>
 
@@ -330,7 +306,7 @@ export default function AdminRolesPage() {
           <button
             onClick={() => fetchRoles(currentPage)}
             className="p-2.5 rounded-xl border border-input hover:bg-accent text-foreground transition-colors shrink-0"
-            title="تحديث البيانات"
+            title={t("refresh")}
           >
             <RefreshCw className={`size-4 ${loading ? "animate-spin text-primary" : ""}`} />
           </button>
@@ -339,7 +315,7 @@ export default function AdminRolesPage() {
             className="w-full md:w-auto px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-xs hover:bg-primary/90 transition-all shadow-md shadow-primary/20 flex items-center justify-center gap-2 shrink-0 cursor-pointer"
           >
             <Plus className="size-4" />
-            <span>إنشاء دور جديد</span>
+            <span>{t("createNewRole")}</span>
           </button>
         </div>
       </div>
@@ -354,7 +330,7 @@ export default function AdminRolesPage() {
             <div className="text-2xl font-black text-foreground">
               {paginationMeta?.total ?? roles.length}
             </div>
-            <div className="text-xs text-muted-foreground font-medium">إجمالي الأدوار المعرفة</div>
+            <div className="text-xs text-muted-foreground font-medium">{t("totalRoles")}</div>
           </div>
         </div>
 
@@ -364,7 +340,7 @@ export default function AdminRolesPage() {
           </div>
           <div>
             <div className="text-2xl font-black text-foreground">{ALL_PERMISSIONS.length}</div>
-            <div className="text-xs text-muted-foreground font-medium">إجمالي الصلاحيات المتاحة</div>
+            <div className="text-xs text-muted-foreground font-medium">{t("totalPermissions")}</div>
           </div>
         </div>
 
@@ -376,7 +352,7 @@ export default function AdminRolesPage() {
             <div className="text-2xl font-black text-foreground">
               {Object.keys(groupedPermissions).length}
             </div>
-            <div className="text-xs text-muted-foreground font-medium">الوحدات والوحدات الفرعية</div>
+            <div className="text-xs text-muted-foreground font-medium">{t("totalModules")}</div>
           </div>
         </div>
       </div>
@@ -387,7 +363,7 @@ export default function AdminRolesPage() {
           <Search className="size-4 absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
-            placeholder="بحث باسم الدور أو الصلاحية (مثال: admin, users.list, cameras)..."
+            placeholder={t("searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pr-10 pl-4 py-2 rounded-xl border border-input bg-background text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -407,13 +383,13 @@ export default function AdminRolesPage() {
       {loading ? (
         <div className="bg-background border border-border rounded-2xl p-12 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-3">
           <Loader2 className="size-8 animate-spin text-primary" />
-          <span className="font-semibold">جاري تحميل الأدوار والصلاحيات...</span>
+          <span className="font-semibold">{t("loading")}</span>
         </div>
       ) : filteredRoles.length === 0 ? (
         <div className="bg-background border border-border rounded-2xl p-12 text-center text-xs text-muted-foreground flex flex-col items-center justify-center gap-2">
           <Lock className="size-8 text-muted-foreground opacity-50" />
-          <p className="font-bold text-sm text-foreground">لم يتم العثور على أدوار مطابقة</p>
-          <p className="text-xs">جرب تغيير كلمة البحث أو قم بإنشاء دور جديد.</p>
+          <p className="font-bold text-sm text-foreground">{t("noRolesTitle")}</p>
+          <p className="text-xs">{t("noRolesDesc")}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -458,11 +434,11 @@ export default function AdminRolesPage() {
                         </h3>
                         {isFullAdmin ? (
                           <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-[10px]">
-                            صلاحية كاملة (Full Access)
+                            {t("fullAccess")}
                           </span>
                         ) : (
                           <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold text-[10px]">
-                            {totalPermCount} صلاحية
+                            {t("permissionsCount", { count: totalPermCount })}
                           </span>
                         )}
                       </div>
@@ -477,20 +453,20 @@ export default function AdminRolesPage() {
                       onClick={() => toggleExpand(role.id)}
                       className="px-3 py-1.5 rounded-xl border border-input text-xs font-semibold hover:bg-accent text-foreground transition-colors flex items-center gap-1.5"
                     >
-                      <span>{isExpanded ? "إخفاء التفاصيل" : "عرض الصلاحيات"}</span>
+                      <span>{isExpanded ? t("hideDetails") : t("showDetails")}</span>
                       {isExpanded ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
                     </button>
                     <button
                       onClick={() => handleOpenEdit(role)}
                       className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl transition-colors"
-                      title="تعديل الدور"
+                      title={t("editRole")}
                     >
                       <Edit3 className="size-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteRole(role)}
                       className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
-                      title="حذف الدور"
+                      title={t("deleteRole")}
                     >
                       <Trash2 className="size-4" />
                     </button>
@@ -502,14 +478,14 @@ export default function AdminRolesPage() {
                   <div className="px-5 pb-5 pt-2 border-t border-border bg-accent/30 space-y-4">
                     <div className="text-xs font-bold text-foreground flex items-center gap-2">
                       <Sparkles className="size-4 text-primary" />
-                      <span>قائمة الصلاحيات المخصصة لـ ({role.name}):</span>
+                      <span>{t("customPermissionsFor", { name: role.name })}</span>
                     </div>
 
                     {Object.keys(groupedRolePerms).length === 0 ? (
                       <div className="text-xs text-muted-foreground italic font-mono bg-background p-3 rounded-xl border border-border">
                         {Array.isArray(role.permissions) && role.permissions.length > 0
                           ? JSON.stringify(role.permissions)
-                          : "لا توجد صلاحيات مخصصة لهدا الدور."}
+                          : t("noCustomPermissions")}
                       </div>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -545,8 +521,11 @@ export default function AdminRolesPage() {
       {paginationMeta && paginationMeta.last_page > 1 && (
         <div className="bg-background border border-border rounded-2xl p-4 flex items-center justify-between text-xs shadow-sm">
           <div className="text-muted-foreground">
-            عرض الصفحة <span className="font-bold text-foreground">{paginationMeta.current_page}</span> من{" "}
-            <span className="font-bold text-foreground">{paginationMeta.last_page}</span> ({paginationMeta.total} دور)
+            {t("pageOf", {
+              current: paginationMeta.current_page,
+              last: paginationMeta.last_page,
+              total: paginationMeta.total,
+            })}
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -554,14 +533,14 @@ export default function AdminRolesPage() {
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               className="px-3 py-1.5 rounded-xl border border-input text-xs font-bold disabled:opacity-50 hover:bg-accent"
             >
-              السابق
+              {t("prev")}
             </button>
             <button
               disabled={currentPage >= paginationMeta.last_page}
               onClick={() => setCurrentPage((p) => Math.min(paginationMeta.last_page, p + 1))}
               className="px-3 py-1.5 rounded-xl border border-input text-xs font-bold disabled:opacity-50 hover:bg-accent"
             >
-              التالي
+              {t("next")}
             </button>
           </div>
         </div>
@@ -579,10 +558,10 @@ export default function AdminRolesPage() {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-foreground">
-                    {editingRole ? `تعديل الدور: ${editingRole.name}` : "إنشاء دور جديد"}
+                    {editingRole ? t("editTitle", { name: editingRole.name }) : t("createTitle")}
                   </h2>
                   <p className="text-xs text-muted-foreground">
-                    قم بإدخال اسم الدور وتحديد الصلاحيات المخصصة له.
+                    {t("modalSubtitle")}
                   </p>
                 </div>
               </div>
@@ -599,7 +578,7 @@ export default function AdminRolesPage() {
               {/* Role Name */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-foreground">
-                  اسم الدور <span className="text-red-500">*</span>
+                  {t("roleNameLabel")} <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -617,7 +596,7 @@ export default function AdminRolesPage() {
                   <div>
                     <label className="text-xs font-bold text-foreground flex items-center gap-2">
                       <Key className="size-4 text-primary" />
-                      <span>تحديد الصلاحيات ({selectedPermissionIds.length} صلاحية مختارة)</span>
+                      <span>{t("selectedPermissions", { count: selectedPermissionIds.length })}</span>
                     </label>
                   </div>
                   <div className="flex items-center gap-2">
@@ -627,7 +606,7 @@ export default function AdminRolesPage() {
                       className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-xs font-bold hover:bg-primary/20 transition-colors flex items-center gap-1"
                     >
                       <CheckSquare className="size-3.5" />
-                      <span>تحديد الكل</span>
+                      <span>{t("selectAll")}</span>
                     </button>
                     <button
                       type="button"
@@ -635,7 +614,7 @@ export default function AdminRolesPage() {
                       className="px-2.5 py-1 rounded-lg border border-input text-muted-foreground text-xs font-bold hover:bg-accent transition-colors flex items-center gap-1"
                     >
                       <Square className="size-3.5" />
-                      <span>إلغاء الكل</span>
+                      <span>{t("deselectAll")}</span>
                     </button>
                   </div>
                 </div>
@@ -645,7 +624,7 @@ export default function AdminRolesPage() {
                   <Search className="size-3.5 absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="تصفية قائمة الصلاحيات..."
+                    placeholder={t("filterPermissions")}
                     value={permSearch}
                     onChange={(e) => setPermSearch(e.target.value)}
                     className="w-full pr-9 pl-3 py-1.5 rounded-xl border border-input bg-background text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
@@ -656,14 +635,11 @@ export default function AdminRolesPage() {
                 <div className="space-y-4 max-h-[360px] overflow-y-auto pr-1">
                   {Object.keys(groupedPermissions).length === 0 ? (
                     <div className="text-xs text-center py-6 text-muted-foreground">
-                      لا توجد صلاحيات تطابق البحث.
+                      {t("noMatchingPerms")}
                     </div>
                   ) : (
                     Object.entries(groupedPermissions).map(([groupName, groupPerms]) => {
                       const allGroupSelected = groupPerms.every((p) =>
-                        selectedPermissionIds.includes(p.id)
-                      );
-                      const someGroupSelected = groupPerms.some((p) =>
                         selectedPermissionIds.includes(p.id)
                       );
 
@@ -686,7 +662,7 @@ export default function AdminRolesPage() {
                               onClick={() => handleToggleGroup(groupPerms)}
                               className="text-xs font-bold text-primary hover:underline cursor-pointer"
                             >
-                              {allGroupSelected ? "إلغاء تحديد المجموعة" : "تحديد المجموعة"}
+                              {allGroupSelected ? t("deselectGroup") : t("selectGroup")}
                             </button>
                           </div>
 
@@ -733,7 +709,7 @@ export default function AdminRolesPage() {
                   onClick={() => setModalOpen(false)}
                   className="px-5 py-2.5 rounded-xl border border-input text-xs font-bold hover:bg-accent transition-colors"
                 >
-                  إلغاء
+                  {t("cancel")}
                 </button>
                 <button
                   type="submit"
@@ -743,12 +719,12 @@ export default function AdminRolesPage() {
                   {actionLoading ? (
                     <>
                       <Loader2 className="size-4 animate-spin" />
-                      <span>جاري الحفظ...</span>
+                      <span>{t("saving")}</span>
                     </>
                   ) : editingRole ? (
-                    "حفظ التغييرات"
+                    t("saveChanges")
                   ) : (
-                    "إنشاء الدور"
+                    t("createSubmit")
                   )}
                 </button>
               </div>

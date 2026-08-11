@@ -113,9 +113,9 @@ export default function AuthFormPage() {
             </div>
 
             <div className="pt-2 border-t border-border/50 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-              <span>هل أنت أدمن بالنظام؟</span>
+              <span>{t("areYouAdmin")}</span>
               <Link href="/admin/login" className="font-bold text-primary hover:underline">
-                تسجيل دخول المسؤولين (Admin Portal)
+                {t("adminPortalLogin")}
               </Link>
             </div>
           </div>

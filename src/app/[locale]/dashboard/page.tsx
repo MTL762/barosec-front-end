@@ -14,6 +14,7 @@ import {
   Video,
   Wifi,
 } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
 import {
   listCamerasApi,
   listRecordingsApi,
@@ -50,36 +51,6 @@ const colorMap = {
   },
 };
 
-const severityMap = {
-  high: {
-    bg: "bg-red-500/10",
-    text: "text-red-600 dark:text-red-400",
-    dot: "bg-red-500",
-    label: "تنبيه",
-  },
-  medium: {
-    bg: "bg-amber-500/10",
-    text: "text-amber-600 dark:text-amber-400",
-    dot: "bg-amber-500",
-    label: "حركة",
-  },
-  low: {
-    bg: "bg-emerald-500/10",
-    text: "text-emerald-600 dark:text-emerald-400",
-    dot: "bg-emerald-500",
-    label: "عادي",
-  },
-};
-
-function LiveBadge() {
-  return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-bold">
-      <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
-      مباشر
-    </span>
-  );
-}
-
 function SignalBar({ value }: { value: number }) {
   const bars = [value >= 25, value >= 50, value >= 75, value >= 90];
   return (
@@ -99,6 +70,10 @@ function SignalBar({ value }: { value: number }) {
 }
 
 export default function DashboardOverviewPage() {
+  const t = useTranslations("Dashboard.Overview");
+  const locale = useLocale();
+  const timeLocale = locale === "ar" ? "ar-SA" : "en-US";
+
   const { user } = useAuth();
   const [time, setTime] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -107,15 +82,36 @@ export default function DashboardOverviewPage() {
   const [subscription, setSubscription] = useState<SubscriptionApiItem | null>(null);
   const [emergencyLogs, setEmergencyLogs] = useState<EmergencyLogApiItem[]>([]);
 
+  const severityMap = {
+    high: {
+      bg: "bg-red-500/10",
+      text: "text-red-600 dark:text-red-400",
+      dot: "bg-red-500",
+      label: t("alert"),
+    },
+    medium: {
+      bg: "bg-amber-500/10",
+      text: "text-amber-600 dark:text-amber-400",
+      dot: "bg-amber-500",
+      label: t("motion"),
+    },
+    low: {
+      bg: "bg-emerald-500/10",
+      text: "text-emerald-600 dark:text-emerald-400",
+      dot: "bg-emerald-500",
+      label: t("normal"),
+    },
+  };
+
   useEffect(() => {
     const tick = () =>
       setTime(
-        new Date().toLocaleTimeString("ar-SA", { hour: "2-digit", minute: "2-digit" })
+        new Date().toLocaleTimeString(timeLocale, { hour: "2-digit", minute: "2-digit" })
       );
     tick();
     const id = setInterval(tick, 60000);
     return () => clearInterval(id);
-  }, []);
+  }, [timeLocale]);
 
   useEffect(() => {
     let isMounted = true;
@@ -168,7 +164,7 @@ export default function DashboardOverviewPage() {
   const activeCamerasCount = cameras.filter((c) => !c.is_locked).length;
   const latestRecording = recordings[0];
   const latestRecordingTime = latestRecording?.created_at
-    ? new Date(String(latestRecording.created_at)).toLocaleTimeString("ar-SA", {
+    ? new Date(String(latestRecording.created_at)).toLocaleTimeString(timeLocale, {
         hour: "2-digit",
         minute: "2-digit",
       })
@@ -176,40 +172,44 @@ export default function DashboardOverviewPage() {
 
   const dynamicStatCards = [
     {
-      label: "كاميرات متصلة",
+      label: t("connectedCameras"),
       value: String(cameras.length),
-      sub: cameras.length > 0 ? `منها ${activeCamerasCount} نشطة` : "لا توجد كاميرات",
+      sub: cameras.length > 0 ? t("activeCamerasCount", { count: activeCamerasCount }) : t("noCameras"),
       icon: Camera,
       color: "emerald",
       trend: cameras.length > 0 ? `+${cameras.length}` : null,
     },
     {
-      label: "تسجيلات اليوم",
+      label: t("todayRecordings"),
       value: String(recordings.length),
-      sub: recordings.length > 0 ? `${recordings.length} مقطع محفوظ` : "لا توجد تسجيلات",
+      sub: recordings.length > 0 ? t("savedClipsCount", { count: recordings.length }) : t("noRecordings"),
       icon: Video,
       color: "blue",
       trend: recordings.length > 0 ? `+${recordings.length}` : null,
     },
     {
-      label: "آخر حدث",
-      value: String(latestRecordingTime || time || "الآن"),
-      sub: String(latestRecording
-        ? (latestRecording.title || latestRecording.name || "رصد حركة")
-        : emergencyLogs.length > 0
-        ? "سجل طوارئ"
-        : "مراقبة مستمرة"),
+      label: t("lastEvent"),
+      value: String(latestRecordingTime || time || t("now")),
+      sub: String(
+        latestRecording
+          ? latestRecording.title || latestRecording.name || t("motionDetected")
+          : emergencyLogs.length > 0
+          ? t("emergencyLog")
+          : t("continuousMonitoring")
+      ),
       icon: Activity,
       color: "amber",
       trend: null,
     },
     {
-      label: "الاشتراك والتخزين",
+      label: t("subscriptionAndStorage"),
       value: String(
         subscription?.plan?.name ||
-          (subscription?.status === "active" ? "اشتراك نشط" : "باقة اساسية")
+          (subscription?.status === "active" ? t("activeSubscription") : t("basicPlan"))
       ),
-      sub: `${recordings.length * 0.5 < 1 ? "أقل من 1" : (recordings.length * 0.5).toFixed(1)} GB مستخدمة`,
+      sub: t("gbUsed", {
+        gb: recordings.length * 0.5 < 1 ? t("lessThanOne") : (recordings.length * 0.5).toFixed(1),
+      }),
       icon: HardDrive,
       color: "violet",
       trend: null,
@@ -228,16 +228,14 @@ export default function DashboardOverviewPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h2 className="text-xl font-bold text-foreground">
-            مرحباً، {user?.name || user?.email || "العميل"} 👋
+            {t("welcomeUser", { name: user?.name || user?.email || t("defaultUser") })}
           </h2>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            نظرة عامة على حالة الكاميرات، التسجيلات، والأنشطة الأخيرة مباشرة من الخادم
-          </p>
+          <p className="text-sm text-muted-foreground mt-0.5">{t("subtitle")}</p>
         </div>
         <div className="flex items-center gap-2 text-sm font-mono text-muted-foreground">
           {loading && <Loader2 className="size-3.5 animate-spin text-primary" />}
           <Clock className="size-3.5" />
-          <span>{time} — تحديث مباشر</span>
+          <span>{t("liveUpdate", { time })}</span>
         </div>
       </div>
 
@@ -271,36 +269,36 @@ export default function DashboardOverviewPage() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         <div className="xl:col-span-7 db-card overflow-hidden flex flex-col">
           <div className="flex items-center justify-between px-5 py-4 border-b border-[--db-border]">
-            <h3 className="text-sm font-bold text-foreground">بث مباشر للكاميرات</h3>
+            <h3 className="text-sm font-bold text-foreground">{t("liveStreamTitle")}</h3>
             <a href="/dashboard/cameras" className="text-xs font-bold text-primary hover:underline">
-              عرض الكل
+              {t("viewAll")}
             </a>
           </div>
 
           {loading ? (
             <div className="p-12 flex flex-col items-center justify-center gap-2 text-muted-foreground">
               <Loader2 className="size-6 animate-spin text-primary" />
-              <span className="text-xs">جاري تحميل بيانات الكاميرات...</span>
+              <span className="text-xs">{t("loadingCameras")}</span>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-[--db-border] flex-1">
               {cameras.map((cam) => {
                 const isPrivacy = Boolean(cam.is_locked);
                 const signal = (cam.wifi_signal as number) || (cam.signal as number) || 90;
-                const camName = String(cam.name || `كاميرا #${cam.id}`);
+                const camName = String(cam.name || `Camera #${cam.id}`);
                 const camModel = cam.mode
-                  ? `وضع: ${cam.mode}`
+                  ? `Mode: ${cam.mode}`
                   : cam.serial_number
                   ? `S/N: ${cam.serial_number}`
-                  : "باروسك 4K";
+                  : "Barosic 4K";
                 const lastEvent = isPrivacy
-                  ? "وضع الخصوصية"
+                  ? t("privacyMode")
                   : cam.updated_at
-                  ? new Date(String(cam.updated_at)).toLocaleTimeString("ar-SA", {
+                  ? new Date(String(cam.updated_at)).toLocaleTimeString(timeLocale, {
                       hour: "2-digit",
                       minute: "2-digit",
                     })
-                  : "متصلة الآن";
+                  : t("connectedNow");
 
                 return (
                   <div
@@ -318,10 +316,13 @@ export default function DashboardOverviewPage() {
 
                     <div className="relative flex items-center justify-between z-10">
                       {!isPrivacy ? (
-                        <LiveBadge />
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 text-[10px] font-bold">
+                          <span className="size-1.5 rounded-full bg-red-500 animate-pulse" />
+                          {t("live")}
+                        </span>
                       ) : (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold">
-                          🔒 خصوصية
+                          {t("privacyTag")}
                         </span>
                       )}
                       <div className="flex items-center gap-1.5">
@@ -366,7 +367,7 @@ export default function DashboardOverviewPage() {
                   <Camera className="size-4" />
                 </div>
                 <span className="text-xs font-bold text-muted-foreground group-hover:text-primary transition-colors">
-                  {cameras.length === 0 ? "لا توجد كاميرات مضافة — اضغط لإضافة كاميرا جديدة" : "إضافة كاميرا"}
+                  {cameras.length === 0 ? t("noCamerasAddPrompt") : t("addCamera")}
                 </span>
               </a>
             </div>
@@ -375,9 +376,9 @@ export default function DashboardOverviewPage() {
 
         <div className="xl:col-span-5 db-card flex flex-col">
           <div className="flex items-center justify-between px-5 py-4 border-b border-[--db-border] shrink-0">
-            <h3 className="text-sm font-bold text-foreground">سجل الأحداث والتسجيلات</h3>
+            <h3 className="text-sm font-bold text-foreground">{t("eventsArchiveTitle")}</h3>
             <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
-              {recordings.length} حدث
+              {t("eventsCount", { count: recordings.length })}
             </span>
           </div>
 
@@ -385,11 +386,11 @@ export default function DashboardOverviewPage() {
             {loading ? (
               <div className="p-8 flex flex-col items-center justify-center gap-2 text-muted-foreground">
                 <Loader2 className="size-5 animate-spin text-primary" />
-                <span className="text-xs">جاري تحميل سجل الأحداث...</span>
+                <span className="text-xs">{t("loadingEvents")}</span>
               </div>
             ) : recordings.length === 0 ? (
               <div className="p-8 text-center text-xs text-muted-foreground">
-                لا توجد أحداث أو تسجيلات حالية
+                {t("noEvents")}
               </div>
             ) : (
               recordings.map((event, i) => {
@@ -408,22 +409,22 @@ export default function DashboardOverviewPage() {
                   event.title ||
                     event.name ||
                     (recType === "motion"
-                      ? "رصد حركة أمام الكاميرا"
+                      ? t("motionDetected")
                       : recType === "sos"
-                      ? "تنبيه طوارئ SOS"
-                      : "تسجيل فيديو جديد")
+                      ? t("sosAlert")
+                      : t("newVideoRec"))
                 );
 
                 const formattedTime = event.created_at
-                  ? new Date(String(event.created_at)).toLocaleTimeString("ar-SA", {
+                  ? new Date(String(event.created_at)).toLocaleTimeString(timeLocale, {
                       hour: "2-digit",
                       minute: "2-digit",
                     })
-                  : "الآن";
+                  : t("now");
 
                 const camName = String(
                   event.camera_name ||
-                    (event.camera_id ? `كاميرا #${event.camera_id}` : "كاميرا عامة")
+                    (event.camera_id ? `Camera #${event.camera_id}` : t("generalCam"))
                 );
 
                 return (
@@ -475,25 +476,25 @@ export default function DashboardOverviewPage() {
       </div>
 
       <div className="db-card px-5 py-4">
-        <h3 className="text-sm font-bold text-foreground mb-4">صحة النظام والاتصال</h3>
+        <h3 className="text-sm font-bold text-foreground mb-4">{t("systemHealthTitle")}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             {
-              label: "اتصال الكاميرات",
+              label: t("cameraConnectivity"),
               value: connectivityPercentage,
               icon: Wifi,
               color: "emerald",
               unit: "%",
             },
             {
-              label: "استهلاك التخزين",
+              label: t("storageUsage"),
               value: storageUsagePercentage,
               icon: Cloud,
               color: "blue",
               unit: "%",
             },
             {
-              label: "جاهزية الاستجابة",
+              label: t("responseReadiness"),
               value: 100,
               icon: ShieldCheck,
               color: "emerald",
@@ -532,10 +533,10 @@ export default function DashboardOverviewPage() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "إدارة الكاميرات", icon: "📷", href: "/dashboard/cameras", sub: "عرض التحكم وضبط الأوضاع" },
-          { label: "مراجعة التسجيلات", icon: "📹", href: "/dashboard/cameras", sub: "عرض الوسائط المحفوظة" },
-          { label: "حالة الطوارئ SOS", icon: "🚨", href: "/dashboard/emergency", sub: "سجل الطوارئ والبلاغات" },
-          { label: "إدارة الاشتراك", icon: "💳", href: "/dashboard/billing", sub: "تفاصيل الباقة والفواتير" },
+          { label: t("manageCameras"), icon: "📷", href: "/dashboard/cameras", sub: t("manageCamerasSub") },
+          { label: t("reviewRecordings"), icon: "📹", href: "/dashboard/cameras", sub: t("reviewRecordingsSub") },
+          { label: t("emergencyStatus"), icon: "🚨", href: "/dashboard/emergency", sub: t("emergencyStatusSub") },
+          { label: t("manageSubscription"), icon: "💳", href: "/dashboard/billing", sub: t("manageSubscriptionSub") },
         ].map((action) => (
           <a
             key={action.label}

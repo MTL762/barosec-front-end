@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Send, MessageSquare, CheckCircle2, AlertCircle, Loader2, BookOpen, HelpCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { getPublicArticlesApi, getPublicFaqsApi, createSupportTicketApi, listSupportTicketsApi } from "@/lib/api";
 
 export function SupportTicketsSection({
@@ -11,10 +12,12 @@ export function SupportTicketsSection({
   initialArticles?: any[];
   initialFaqs?: any[];
 }) {
+  const t = useTranslations("Dashboard.Support");
+
   const [articles, setArticles] = useState<any[]>(initialArticles);
   const [faqs, setFaqs] = useState<any[]>(initialFaqs);
   const [tickets, setTickets] = useState<any[]>([]);
-  
+
   // Ticket Form
   const [subject, setSubject] = useState("Cannot connect camera to Wi-Fi");
   const [message, setMessage] = useState("My camera fails to pair during setup.");
@@ -55,10 +58,10 @@ export function SupportTicketsSection({
     });
 
     if (res.data) {
-      setSuccess("تم إنشاء تذكرة الدعم بنجاح عبر API! (POST /support/tickets)");
+      setSuccess(t("ticketSuccess"));
       fetchSupportData();
     } else {
-      setError(res.error || "فشل إرسال التذكرة");
+      setError(res.error || t("ticketError"));
     }
     setLoading(false);
   };
@@ -70,10 +73,10 @@ export function SupportTicketsSection({
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
           <h3 className="text-base font-bold text-ink flex items-center gap-2">
             <BookOpen className="size-5 text-primary" />
-            <span>مقالات الدعم (GET /support/articles)</span>
+            <span>{t("articlesTitle")}</span>
           </h3>
           {articles.length === 0 ? (
-            <p className="text-xs text-muted-foreground">لا توجد مقالات محملة من API حالياً.</p>
+            <p className="text-xs text-muted-foreground">{t("noArticles")}</p>
           ) : (
             <div className="space-y-2">
               {articles.map((art, idx) => (
@@ -88,10 +91,10 @@ export function SupportTicketsSection({
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4 shadow-sm">
           <h3 className="text-base font-bold text-ink flex items-center gap-2">
             <HelpCircle className="size-5 text-primary" />
-            <span>الأسئلة الشائعة (GET /support/faqs)</span>
+            <span>{t("faqsTitle")}</span>
           </h3>
           {faqs.length === 0 ? (
-            <p className="text-xs text-muted-foreground">لا توجد أسئلة شائعة محملة من API حالياً.</p>
+            <p className="text-xs text-muted-foreground">{t("noFaqs")}</p>
           ) : (
             <div className="space-y-2">
               {faqs.map((faq, idx) => (
@@ -105,16 +108,14 @@ export function SupportTicketsSection({
         </div>
       </div>
 
-      {/* Ticket Submission Form (POST /support/tickets) */}
+      {/* Ticket Submission Form */}
       <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
         <div className="space-y-1">
           <h3 className="text-lg font-bold text-ink flex items-center gap-2">
             <MessageSquare className="size-5 text-primary" />
-            <span>تقديم تذكرة دعم فني جديدة (POST /support/tickets)</span>
+            <span>{t("newTicketTitle")}</span>
           </h3>
-          <p className="text-xs text-muted-foreground">
-            إرسال طلب مباشر لفريق الدعم الفني لحل أي مشكلة تقنية بالكاميرا.
-          </p>
+          <p className="text-xs text-muted-foreground">{t("newTicketDesc")}</p>
         </div>
 
         {success && (
@@ -134,7 +135,7 @@ export function SupportTicketsSection({
         <form onSubmit={handleCreateTicket} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-bold text-ink">موضوع التذكرة (subject)</label>
+              <label className="text-xs font-bold text-ink">{t("subject")}</label>
               <input
                 type="text"
                 required
@@ -144,21 +145,21 @@ export function SupportTicketsSection({
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-bold text-ink">الأولوية (priority)</label>
+              <label className="text-xs font-bold text-ink">{t("priority")}</label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-xl border border-input bg-background text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                <option value="high">عالية (high)</option>
-                <option value="medium">متوسطة (medium)</option>
-                <option value="low">منخفضة (low)</option>
+                <option value="high">{t("priorityHigh")}</option>
+                <option value="medium">{t("priorityMedium")}</option>
+                <option value="low">{t("priorityLow")}</option>
               </select>
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-bold text-ink">تفاصيل المشكلة (message)</label>
+            <label className="text-xs font-bold text-ink">{t("message")}</label>
             <textarea
               required
               rows={3}
@@ -173,23 +174,23 @@ export function SupportTicketsSection({
             disabled={loading}
             className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/90 transition-colors shadow-md shadow-primary/20 flex items-center justify-center gap-2"
           >
-            {loading ? <Loader2 className="size-4 animate-spin" /> : <><Send className="size-4" /> إرسال التذكرة الآن</>}
+            {loading ? <Loader2 className="size-4 animate-spin" /> : <><Send className="size-4" /> {t("sendTicket")}</>}
           </button>
         </form>
 
-        {/* Existing Tickets List (GET /support/tickets) */}
+        {/* Existing Tickets List */}
         {tickets.length > 0 && (
           <div className="pt-6 border-t border-border space-y-3">
-            <h4 className="text-sm font-bold text-ink">التذاكر الحالية (GET /support/tickets):</h4>
+            <h4 className="text-sm font-bold text-ink">{t("currentTickets")}</h4>
             <div className="space-y-2">
-              {tickets.map((t, idx) => (
+              {tickets.map((tItem, idx) => (
                 <div key={idx} className="p-3 rounded-xl border border-border bg-muted/20 flex items-center justify-between text-xs">
                   <div>
-                    <div className="font-bold text-ink">{t.subject}</div>
-                    <div className="text-[10px] text-muted-foreground">{t.message}</div>
+                    <div className="font-bold text-ink">{tItem.subject}</div>
+                    <div className="text-[10px] text-muted-foreground">{tItem.message}</div>
                   </div>
                   <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold text-[10px]">
-                    {t.status || "مفتوحة"}
+                    {tItem.status || t("statusOpen")}
                   </span>
                 </div>
               ))}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { MessageSquare, Headset, Mail, Phone, Clock, Send, CheckCircle2, HelpCircle } from "lucide-react";
+import { MessageSquare, Headset, Mail, Phone, Clock, Send, CheckCircle2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -11,7 +11,7 @@ export function SupportSection() {
   const [ticketSubmitted, setTicketSubmitted] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([
-    { sender: "agent", text: "مرحباً بك في مركز دعم باروسك! كيف يمكننا مساعدتك اليوم؟ 🛡️" }
+    { sender: "agent", text: t("agentWelcome") }
   ]);
   const [inputMessage, setInputMessage] = useState("");
 
@@ -26,7 +26,7 @@ export function SupportSection() {
     setTimeout(() => {
       setChatMessages((prev) => [
         ...prev,
-        { sender: "agent", text: "شكراً لرسالتك! يقوم أحد مهندسي الدعم الفني بمراجعة استفسارك الآن وسيتم الرد عليك في غضون لحظات." }
+        { sender: "agent", text: t("agentReply") }
       ]);
     }, 1000);
   };
@@ -42,7 +42,7 @@ export function SupportSection() {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 rounded-full bg-indigo-500/10 px-3.5 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 mb-3">
             <Headset className="size-3.5" />
-            <span>الدعم الفني المباشر</span>
+            <span>{t("liveSupportBadge")}</span>
           </div>
           <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl text-foreground">
             {t("title")}
@@ -67,7 +67,7 @@ export function SupportSection() {
                     <Phone className="size-4" />
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground">الرقم المجاني المباشر</div>
+                    <div className="text-xs text-muted-foreground">{t("tollFreeLabel")}</div>
                     <div className="font-bold text-foreground">800-BAROSIC (800-2276742)</div>
                   </div>
                 </div>
@@ -77,7 +77,7 @@ export function SupportSection() {
                     <Mail className="size-4" />
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground">البريد الإلكتروني للدعم</div>
+                    <div className="text-xs text-muted-foreground">{t("supportEmailLabel")}</div>
                     <div className="font-bold text-foreground">support@barosic.com</div>
                   </div>
                 </div>
@@ -87,8 +87,8 @@ export function SupportSection() {
                     <Clock className="size-4" />
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground">ساعات العمل والخدمة</div>
-                    <div className="font-bold text-foreground">24/7 طوال أيام الأسبوع</div>
+                    <div className="text-xs text-muted-foreground">{t("workingHoursLabel")}</div>
+                    <div className="font-bold text-foreground">{t("workingHoursValue")}</div>
                   </div>
                 </div>
               </div>
@@ -106,14 +106,14 @@ export function SupportSection() {
                 </div>
               </div>
               <p className="text-xs text-blue-100 leading-relaxed">
-                هل لديك استفسار سريع أو تحتاج لمساعدة في ربط الكاميرات؟ مهندسو باروسك متواجدون الآن عبر الدردشة الفورية.
+                {t("quickQueryDesc")}
               </p>
               <button
                 onClick={() => setChatOpen(!chatOpen)}
                 className="w-full py-2.5 px-4 rounded-xl bg-white text-blue-700 font-bold text-sm hover:bg-blue-50 transition-colors shadow-md flex items-center justify-center gap-2"
               >
                 <MessageSquare className="size-4" />
-                <span>{chatOpen ? "إغلاق المحادثة المباشرة" : "بدء المحادثة المباشرة الآن"}</span>
+                <span>{chatOpen ? t("closeChat") : t("openChat")}</span>
               </button>
             </div>
           </div>
@@ -129,8 +129,8 @@ export function SupportSection() {
                       <div className="size-3 bg-emerald-400 rounded-full" />
                     </div>
                     <div>
-                      <div className="font-bold text-sm">محادثة باروسك المباشرة 🛡️</div>
-                      <div className="text-xs opacity-90">مهندس دعم فني نشط باللغة العربية</div>
+                      <div className="font-bold text-sm">{t("chatHeader")}</div>
+                      <div className="text-xs opacity-90">{t("chatHeaderSub")}</div>
                     </div>
                   </div>
                 </div>
@@ -156,7 +156,7 @@ export function SupportSection() {
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    placeholder="اكتب رسالتك لمهندس الدعم..."
+                    placeholder={t("chatPlaceholder")}
                     className="flex-1 px-4 py-2.5 rounded-xl border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <button
@@ -164,7 +164,7 @@ export function SupportSection() {
                     className={cn(buttonVariants({ size: "sm" }), "rounded-xl px-4 gap-1.5")}
                   >
                     <Send className="size-4 rtl:rotate-180" />
-                    <span>إرسال</span>
+                    <span>{t("send")}</span>
                   </button>
                 </form>
               </div>
@@ -180,31 +180,31 @@ export function SupportSection() {
                     <div className="inline-flex size-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
                       <CheckCircle2 className="size-6" />
                     </div>
-                    <h4 className="text-lg font-bold text-foreground">تم إرسال تذكرة الدعم بنجاح!</h4>
+                    <h4 className="text-lg font-bold text-foreground">{t("ticketSuccessTitle")}</h4>
                     <p className="text-xs text-muted-foreground max-w-md mx-auto">
-                      رقم التذكرة الخاص بك هو <span className="font-mono font-bold text-primary">#BRS-94821</span>. تم إرسال تفاصيل التذكرة إلى بريدك الإلكتروني وسيتم التواصل معك خلال 15 دقيقة.
+                      {t("ticketSuccessDesc")}
                     </p>
                     <button
                       onClick={() => setTicketSubmitted(false)}
                       className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-xl mt-2")}
                     >
-                      إرسال تذكرة أخرى
+                      {t("sendAnotherTicket")}
                     </button>
                   </div>
                 ) : (
                   <form onSubmit={handleTicketSubmit} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-foreground">الاسم الكامل</label>
+                        <label className="text-xs font-bold text-foreground">{t("fullName")}</label>
                         <input
                           type="text"
                           required
-                          placeholder="محمود أحمد"
+                          placeholder="Mahmoud Ahmed"
                           className="w-full px-4 py-2.5 rounded-xl border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                         />
                       </div>
                       <div className="space-y-1.5">
-                        <label className="text-xs font-bold text-foreground">البريد الإلكتروني</label>
+                        <label className="text-xs font-bold text-foreground">{t("email")}</label>
                         <input
                           type="email"
                           required
@@ -215,7 +215,7 @@ export function SupportSection() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-foreground">رقم الهاتف / الحساب</label>
+                      <label className="text-xs font-bold text-foreground">{t("phoneOrAccount")}</label>
                       <input
                         type="tel"
                         placeholder="+966 50 000 0000"
@@ -224,21 +224,21 @@ export function SupportSection() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-foreground">نوع الاستفسار أو المشكلة</label>
+                      <label className="text-xs font-bold text-foreground">{t("inquiryType")}</label>
                       <select className="w-full px-4 py-2.5 rounded-xl border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary">
-                        <option>استفسار عن الكاميرات والأنواع</option>
-                        <option>مساعدة في ربط شبكة Wi-Fi</option>
-                        <option>دعم الاشتراكات والفواتير</option>
-                        <option>استفسار حول قسم الطوارئ</option>
+                        <option>{t("inquiryOption1")}</option>
+                        <option>{t("inquiryOption2")}</option>
+                        <option>{t("inquiryOption3")}</option>
+                        <option>{t("inquiryOption4")}</option>
                       </select>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-foreground">تفاصيل الرسالة</label>
+                      <label className="text-xs font-bold text-foreground">{t("messageDetails")}</label>
                       <textarea
                         rows={4}
                         required
-                        placeholder="اكتب تفاصيل مشكلتك أو استفسارك هنا..."
+                        placeholder={t("messagePlaceholder")}
                         className="w-full px-4 py-2.5 rounded-xl border border-input bg-background text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>

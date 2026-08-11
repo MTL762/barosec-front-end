@@ -13,10 +13,13 @@ import {
   Eye,
   AlertTriangle,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { listRecordingsApi, deleteRecordingApi, RecordingApiItem } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 export default function ClientRecordingsPage() {
+  const t = useTranslations("Dashboard.Recordings");
+
   const [recordings, setRecordings] = useState<RecordingApiItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,7 +49,7 @@ export default function ClientRecordingsPage() {
   }, [filterType]);
 
   const handleDelete = async (id: number | string) => {
-    if (!confirm("هل أنت تأكد من رغبتك في حذف هذا التسجيل؟")) return;
+    if (!confirm(t("deleteConfirm"))) return;
     await deleteRecordingApi(id);
     fetchRecordings();
     if (activeMedia?.id === id) setActiveMedia(null);
@@ -65,15 +68,13 @@ export default function ClientRecordingsPage() {
         <div>
           <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
             <Film className="size-6 text-primary" />
-            <span>سجل التسجيلات والوسائط المحفوظة (Media Recordings)</span>
+            <span>{t("title")}</span>
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            عرض وتصفية وتسغيل المقاطع المسجلة بواسطة الكاميرات
-          </p>
+          <p className="text-xs text-muted-foreground mt-0.5">{t("subtitle")}</p>
         </div>
         <div className="flex items-center gap-2 text-xs font-mono bg-primary/10 text-primary px-3 py-1.5 rounded-xl font-bold">
           <HardDrive className="size-4" />
-          <span>{recordings.length} تسجيل محفوظ</span>
+          <span>{t("savedCount", { count: recordings.length })}</span>
         </div>
       </div>
 
@@ -83,7 +84,7 @@ export default function ClientRecordingsPage() {
           <Search className="absolute start-3.5 top-3 size-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="بحث باسم التسجيل أو الكاميرا..."
+            placeholder={t("searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full ps-10 pe-4 py-2.5 rounded-xl border border-input text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary"
@@ -97,10 +98,10 @@ export default function ClientRecordingsPage() {
             onChange={(e) => setFilterType(e.target.value)}
             className="px-4 py-2.5 rounded-xl border border-input text-xs bg-background font-semibold cursor-pointer"
           >
-            <option value="all">جميع الأنواع (All Types)</option>
-            <option value="motion">رصد حركة (Motion)</option>
-            <option value="continuous">تسجيل مستمر (Continuous)</option>
-            <option value="sos">إنذار طوارئ (SOS Alert)</option>
+            <option value="all">{t("allTypes")}</option>
+            <option value="motion">{t("motion")}</option>
+            <option value="continuous">{t("continuous")}</option>
+            <option value="sos">{t("sos")}</option>
           </select>
         </div>
       </div>
@@ -112,14 +113,14 @@ export default function ClientRecordingsPage() {
             <div className="flex items-center gap-2">
               <span className="size-2.5 rounded-full bg-red-500 animate-pulse" />
               <h3 className="text-sm font-bold truncate">
-                {String(activeMedia.title || activeMedia.name || `تسجيل #${activeMedia.id}`)}
+                {String(activeMedia.title || activeMedia.name || `Recording #${activeMedia.id}`)}
               </h3>
             </div>
             <button
               onClick={() => setActiveMedia(null)}
               className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800"
             >
-              إغلاق
+              {t("close")}
             </button>
           </div>
 
@@ -127,13 +128,13 @@ export default function ClientRecordingsPage() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,oklch(0.4_0.12_200_/_0.2)_0%,transparent_70%)]" />
             <Play className="size-16 text-primary/80 animate-pulse z-10" />
             <span className="text-xs text-slate-400 mt-2 font-mono z-10">
-              معاينة تشغيل الفيديو (Playback Stream Simulation)
+              {t("streamPreview")}
             </span>
           </div>
 
           <div className="flex items-center justify-between text-xs text-slate-400 pt-1 font-mono">
-            <span>الكاميرا: {String(activeMedia.camera_name || `كاميرا #${activeMedia.camera_id || 1}`)}</span>
-            <span>التاريخ: {String(activeMedia.created_at || "الآن")}</span>
+            <span>{t("cameraLabel", { name: String(activeMedia.camera_name || `Camera #${activeMedia.camera_id || 1}`) })}</span>
+            <span>{t("dateLabel", { date: String(activeMedia.created_at || "Now") })}</span>
           </div>
         </div>
       )}
@@ -142,14 +143,14 @@ export default function ClientRecordingsPage() {
       {loading ? (
         <div className="p-16 db-card flex flex-col items-center justify-center gap-2 text-muted-foreground">
           <Loader2 className="size-6 animate-spin text-primary" />
-          <span className="text-xs">جاري تحميل التسجيلات...</span>
+          <span className="text-xs">{t("loading")}</span>
         </div>
       ) : filtered.length === 0 ? (
         <div className="p-16 db-card text-center space-y-2">
           <AlertTriangle className="size-8 text-amber-500 mx-auto" />
-          <div className="text-sm font-bold text-foreground">لا توجد تسجيلات مطابقة</div>
+          <div className="text-sm font-bold text-foreground">{t("noMatchingRecordings")}</div>
           <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-            تأكد من اختيار نوع التصفية المناسب أو التحقق من اتصال الكاميرات
+            {t("noMatchingSub")}
           </p>
         </div>
       ) : (
@@ -173,17 +174,17 @@ export default function ClientRecordingsPage() {
                         : "bg-primary/20 text-primary border border-primary/30"
                     )}
                   >
-                    {item.recording_type || "مقطع حر"}
+                    {item.recording_type || "Media"}
                   </span>
                 </div>
 
                 <div>
                   <h4 className="text-xs font-bold text-foreground truncate">
-                    {String(item.title || item.name || `تسجيل #${item.id}`)}
+                    {String(item.title || item.name || `Recording #${item.id}`)}
                   </h4>
                   <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-1 font-mono">
                     <Calendar className="size-3" />
-                    <span>{String(item.created_at || "الآن")}</span>
+                    <span>{String(item.created_at || "Now")}</span>
                   </div>
                 </div>
 
@@ -193,13 +194,13 @@ export default function ClientRecordingsPage() {
                     className="flex items-center gap-1 text-xs font-bold text-primary hover:underline"
                   >
                     <Eye className="size-3.5" />
-                    <span>تشغيل</span>
+                    <span>{t("play")}</span>
                   </button>
 
                   <button
                     onClick={() => handleDelete(item.id)}
                     className="p-1.5 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                    title="حذف التسجيل"
+                    title={t("deleteTooltip")}
                   >
                     <Trash2 className="size-3.5" />
                   </button>

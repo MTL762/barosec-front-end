@@ -2,11 +2,13 @@
 
 import React, { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import { useRouter } from "@/i18n/navigation";
-import { Link } from "@/i18n/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { Shield, Lock, Mail, AlertCircle, Loader2, ArrowRight } from "lucide-react";
 
 export default function AdminLoginPage() {
+  const t = useTranslations();
+  const tAuth = useTranslations("Auth");
   const { login } = useAuth();
   const router = useRouter();
 
@@ -24,7 +26,7 @@ export default function AdminLoginPage() {
     if (res.success) {
       router.push("/dashboard/admin");
     } else {
-      setError(res.error || "خطأ في تسجيل الدخول كمسؤول. تحقق من بيانات الاعتماد.");
+      setError(res.error || tAuth("loginFailed"));
     }
     setLoading(false);
   };
@@ -40,13 +42,13 @@ export default function AdminLoginPage() {
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/30 text-primary text-xs font-bold font-mono">
             <Shield className="size-4" />
-            <span>بوابة التحكم والإدارة (Admin Security Portal)</span>
+            <span>{t("Admin Security Portal")}</span>
           </div>
           <h1 className="text-3xl font-extrabold text-white tracking-tight">
-            تسجيل دخول المسؤول
+            {t("Sign In as Administrator")}
           </h1>
           <p className="text-xs text-slate-400 max-w-xs mx-auto">
-            منطقة محمية خاصة بأدمن النظام ومطوري الـ APIs
+            {t("Protected area for system administrators and API developers")}
           </p>
         </div>
 
@@ -61,7 +63,7 @@ export default function AdminLoginPage() {
 
           <form onSubmit={handleAdminLogin} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300">البريد الإلكتروني للأدمن</label>
+              <label className="text-xs font-bold text-slate-300">{t("Admin Email")}</label>
               <div className="relative">
                 <Mail className="absolute start-3.5 top-3 size-4 text-slate-400" />
                 <input
@@ -76,7 +78,7 @@ export default function AdminLoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300">كلمة المرور</label>
+              <label className="text-xs font-bold text-slate-300">{t("Password")}</label>
               <div className="relative">
                 <Lock className="absolute start-3.5 top-3 size-4 text-slate-400" />
                 <input
@@ -100,7 +102,7 @@ export default function AdminLoginPage() {
               ) : (
                 <>
                   <Shield className="size-4" />
-                  <span>دخول لوحة التحكم (Admin Dashboard)</span>
+                  <span>{t("Sign In to Admin Dashboard")}</span>
                 </>
               )}
             </button>
@@ -108,9 +110,9 @@ export default function AdminLoginPage() {
 
           {/* Switch to Client Login */}
           <div className="pt-4 border-t border-slate-800 text-center text-xs text-slate-400">
-            أنت عميل وليس مسؤول؟{" "}
+            {t("Are you a client?")}{" "}
             <Link href="/login" className="text-primary font-bold hover:underline">
-              تسجيل دخول العملاء
+              {t("Client Login")}
             </Link>
           </div>
         </div>
@@ -122,7 +124,7 @@ export default function AdminLoginPage() {
             className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
           >
             <ArrowRight className="size-3.5 rtl:rotate-180" />
-            <span>العودة للرئيسية</span>
+            <span>{tAuth("backToHome")}</span>
           </Link>
         </div>
       </div>
