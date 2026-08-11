@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CreditCard, CheckCircle2, FileText, ArrowUpRight, Zap, Shield, Loader2 } from "lucide-react";
+import { CheckCircle2, FileText, Zap, Loader2, Download, AlertCircle, RefreshCw } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -9,31 +9,20 @@ import {
   getActiveSubscriptionApi,
   subscribeToPlanApi,
   listInvoicesApi,
+  PlanApiItem,
+  SubscriptionApiItem,
+  InvoiceApiItem,
 } from "@/lib/api";
 
 export default function BillingDashboardPage() {
-  const [plans, setPlans] = useState([
-    { id: 1, name: "الباقة الأساسية Basic", price: "29", features: ["1 كاميرا 1080p", "7 أيام تخزين"] },
-    { id: 2, name: "الباقة الاحترافية Pro", price: "79", features: ["حتى 5 كاميرات 4K", "30 يوم تخزين سحابي", "دعم طوارئ SOS"] },
-    { id: 3, name: "باقة الأعمال Enterprise", price: "199", features: ["كاميرات لا محدودة", "90 يوم تخزين", "مراقب مباشر 24/7"] },
-  ]);
+  const [plans, setPlans] = useState<PlanApiItem[]>([]);
+  const [subscription, setSubscription] = useState<SubscriptionApiItem | null>(null);
+  const [invoices, setInvoices] = useState<InvoiceApiItem[]>([]);
 
-  const [subscription, setSubscription] = useState<any>({
-    plan_name: "الباقة الاحترافية Pro (السنوية)",
-    status: "active",
-    price: "$79 / شهرياً",
-    next_billing: "2027-07-30",
-  });
-
-  const [invoices, setInvoices] = useState([
-    { id: "INV-2026-001", date: "2026-07-01", amount: "$79.00", status: "paid" },
-    { id: "INV-2026-002", date: "2026-06-01", amount: "$79.00", status: "paid" },
-    { id: "INV-2026-003", date: "2026-05-01", amount: "$79.00", status: "paid" },
-  ]);
-
-  const [loading, setLoading] = useState(false);
-  const [subscribeLoading, setSubscribeLoading] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [subscribeLoading, setSubscribeLoading] = useState<number | string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [errorNotice, setErrorNotice] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBillingData();
@@ -41,41 +30,95 @@ export default function BillingDashboardPage() {
 
   const fetchBillingData = async () => {
     setLoading(true);
-    const [pRes, sRes, iRes] = await Promise.all([
-      getSubscriptionPlansApi(),
-      getActiveSubscriptionApi(),
-      listInvoicesApi(),
-    ]);
+    setErrorNotice(null);
 
-    if (pRes.data && Array.isArray(pRes.data) && pRes.data.length > 0) {
-      setPlans(pRes.data);
+    try {
+      const [pRes, sRes, iRes] = await Promise.all([
+        getSubscriptionPlansApi(),
+        getActiveSubscriptionApi(),
+        listInvoicesApi(),
+      ]);
+
+      // Unpack plans
+      const fetchedPlans = Array.isArray(pRes.data)
+        ? pRes.data
+        : Array.isArray((pRes.data as any)?.data)
+        ? (pRes.data as any).data
+        : Array.isArray((pRes.result as any)?.data)
+        ? (pRes.result as any).data
+        : [];
+      setPlans(fetchedPlans as PlanApiItem[]);
+
+      // Unpack subscription
+      const subData = sRes.data?.data || sRes.data || (sRes.result as any)?.data || sRes.result || null;
+      if (
+        subData &&
+        typeof subData === "object" &&
+        !Array.isArray(subData) &&
+        (subData.id || subData.plan_id || subData.plan_name || subData.status)
+      ) {
+        setSubscription(subData as SubscriptionApiItem);
+      } else {
+        setSubscription(null);
+      }
+
+      // Unpack invoices
+      const fetchedInvoices = Array.isArray(iRes.data)
+        ? iRes.data
+        : Array.isArray((iRes.data as any)?.data)
+        ? (iRes.data as any).data
+        : Array.isArray((iRes.result as any)?.data)
+        ? (iRes.result as any).data
+        : [];
+      setInvoices(fetchedInvoices as InvoiceApiItem[]);
+    } catch (err: any) {
+      console.error("[fetchBillingData] Error:", err);
+      setErrorNotice(err?.message || "حدث خطأ أثناء تحميل بيانات الفواتير والاشتراكات");
+    } finally {
+      setLoading(false);
     }
-    if (sRes.data) {
-      setSubscription(sRes.data);
-    }
-    if (iRes.data && Array.isArray(iRes.data) && iRes.data.length > 0) {
-      setInvoices(iRes.data);
-    }
-    setNotice("متصل بـ APIs الاشتراكات والبريد (GET /plans, /billing/subscription, /billing/invoices)");
-    setLoading(false);
   };
 
-  const handleSubscribe = async (planId: number) => {
+  const handleSubscribe = async (planId: number | string) => {
     setSubscribeLoading(planId);
+    setNotice(null);
+    setErrorNotice(null);
 
-    // Call API POST /billing/subscribe
+    const numericPlanId = typeof planId === "number" ? planId : parseInt(String(planId), 10) || 1;
+
     const { data, error } = await subscribeToPlanApi({
-      plan_id: planId,
+      plan_id: numericPlanId,
       payment_method: "credit_card",
     });
 
-    if (data) {
-      setNotice(`تم الاشتراك في الباقة بنجاح عبر API! (POST /billing/subscribe)`);
-      fetchBillingData();
-    } else if (error) {
-      setNotice(`فشل الاشتراك: ${error}`);
+    if (data || !error) {
+      setNotice("تم الاشتراك في الباقة بنجاح!");
+      await fetchBillingData();
+    } else {
+      setErrorNotice(`فشل الاشتراك: ${error || "حدث خطأ أثناء تنفيذ الطلب"}`);
     }
     setSubscribeLoading(null);
+  };
+
+  // Helper to format price
+  const formatPlanPrice = (price?: number | string) => {
+    if (price === undefined || price === null || price === "") return "0";
+    if (typeof price === "number") return price.toString();
+    return String(price).replace(/[^0-9.]/g, "") || String(price);
+  };
+
+  // Helper to parse features list
+  const parseFeatures = (features?: any): string[] => {
+    if (Array.isArray(features)) return features.map(String);
+    if (typeof features === "string") {
+      try {
+        const parsed = JSON.parse(features);
+        if (Array.isArray(parsed)) return parsed.map(String);
+      } catch {
+        return features.split(",").map((s) => s.trim());
+      }
+    }
+    return [];
   };
 
   return (
@@ -88,117 +131,248 @@ export default function BillingDashboardPage() {
             إدارة اشتراك باروسك والتخزين السحابي، وعرض الفواتير السابقة عبر API.
           </p>
         </div>
-        {notice && (
-          <div className="px-3 py-1.5 rounded-xl bg-primary/10 text-primary text-xs font-mono font-bold">
-            {notice}
-          </div>
-        )}
-      </div>
-
-      {/* Current Active Subscription */}
-      <div className="bg-gradient-to-br from-primary/10 via-background to-background border border-primary/20 rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center gap-1">
-                <CheckCircle2 className="size-3.5" />
-                نشط (GET /billing/subscription)
-              </span>
-              <span className="text-xs font-mono text-muted-foreground">التجديد القادم: {subscription.next_billing || "2027-07-30"}</span>
-            </div>
-            <h2 className="text-xl font-bold text-foreground">{subscription.plan_name || "الباقة الاحترافية Pro"}</h2>
-            <p className="text-xs text-muted-foreground">
-              تتيح لك حفظ التسجيلات السحابية لمدة 30 يوماً واستخدام الذكاء الاصطناعي لرصد الحركة.
-            </p>
-          </div>
-
-          <div className="text-start sm:text-end shrink-0">
-            <div className="text-2xl font-bold text-foreground font-mono">{subscription.price || "$79 / شهرياً"}</div>
-            <button
-              onClick={() => handleSubscribe(2)}
-              className={cn(buttonVariants({ size: "sm" }), "mt-2 rounded-xl font-bold")}
-            >
-              تجديد الاشتراك
-            </button>
-          </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={fetchBillingData}
+            disabled={loading}
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-xl text-xs gap-1.5 font-bold")}
+          >
+            <RefreshCw className={cn("size-3.5", loading && "animate-spin")} />
+            <span>تحديث البيانات</span>
+          </button>
         </div>
       </div>
 
-      {/* Available Plans (GET /plans) */}
-      <div className="space-y-4">
-        <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-          <Zap className="size-5 text-primary" />
-          <span>ترقية باقة الاشتراك (GET /plans & POST /billing/subscribe)</span>
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {plans.map((plan) => (
-            <div
-              key={plan.id}
-              className="bg-background border border-border rounded-2xl p-6 flex flex-col justify-between space-y-6 hover:border-primary/40 transition-colors"
-            >
-              <div className="space-y-3">
-                <h3 className="text-base font-bold text-foreground">{plan.name}</h3>
-                <div className="text-2xl font-bold font-mono text-foreground">${plan.price} <span className="text-xs font-normal text-muted-foreground">/شهر</span></div>
-                {plan.features && (
-                  <ul className="space-y-2 text-xs text-muted-foreground pt-2">
-                    {plan.features.map((f: string, idx: number) => (
-                      <li key={idx} className="flex items-center gap-2">
-                        <CheckCircle2 className="size-3.5 text-primary shrink-0" />
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <button
-                onClick={() => handleSubscribe(Number(plan.id))}
-                disabled={subscribeLoading === Number(plan.id)}
-                className={cn(
-                  buttonVariants({ variant: plan.id === 2 ? "default" : "outline" }),
-                  "w-full rounded-xl font-bold flex items-center justify-center gap-2"
-                )}
-              >
-                {subscribeLoading === Number(plan.id) ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
-                  `الاشتراك في الباقة #${plan.id}`
-                )}
-              </button>
-            </div>
-          ))}
+      {notice && (
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center gap-2">
+          <CheckCircle2 className="size-4 shrink-0" />
+          <span>{notice}</span>
         </div>
-      </div>
+      )}
 
-      {/* Invoices List (GET /billing/invoices) */}
-      <div className="bg-background border border-border rounded-2xl p-6 shadow-sm space-y-4">
-        <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-          <FileText className="size-5 text-primary" />
-          <span>سجل الفواتير (GET /billing/invoices)</span>
-        </h2>
+      {errorNotice && (
+        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs font-bold flex items-center gap-2">
+          <AlertCircle className="size-4 shrink-0" />
+          <span>{errorNotice}</span>
+        </div>
+      )}
 
-        <div className="divide-y divide-border rounded-xl border border-border overflow-hidden">
-          {invoices.map((inv, i) => (
-            <div key={i} className="p-4 flex items-center justify-between gap-4 hover:bg-muted/20 transition-colors text-xs">
-              <div className="flex items-center gap-3">
-                <FileText className="size-4 text-muted-foreground" />
-                <div>
-                  <div className="font-bold text-foreground font-mono">{inv.id || `INV-${(inv as any).invoice_number || i + 1}`}</div>
-                  <div className="text-[10px] text-muted-foreground">{inv.date || "2026-07-01"}</div>
+      {loading ? (
+        <div className="p-16 bg-background border border-border rounded-2xl flex flex-col items-center justify-center gap-3 text-muted-foreground shadow-sm">
+          <Loader2 className="size-8 animate-spin text-primary" />
+          <span className="text-sm font-bold">جاري تحميل بيانات الفواتير والاشتراكات من API...</span>
+        </div>
+      ) : (
+        <>
+          {/* Current Active Subscription */}
+          <div className="bg-gradient-to-br from-primary/10 via-background to-background border border-primary/20 rounded-2xl p-6 sm:p-8 shadow-sm relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={cn(
+                      "px-2.5 py-0.5 rounded-full text-xs font-bold flex items-center gap-1",
+                      subscription && (subscription.status === "active" || subscription.status === "نشط" || !subscription.status)
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                        : "bg-muted text-muted-foreground"
+                    )}
+                  >
+                    <CheckCircle2 className="size-3.5" />
+                    {subscription ? String(subscription.status || "نشط") : "غير مشترك"}
+                  </span>
+                  {subscription && (subscription.ends_at || (subscription as any).next_billing) && (
+                    <span className="text-xs font-mono text-muted-foreground">
+                      التجديد القادم: {String(subscription.ends_at || (subscription as any).next_billing)}
+                    </span>
+                  )}
                 </div>
+
+                <h2 className="text-xl font-bold text-foreground">
+                  {subscription
+                    ? String(
+                        subscription.plan?.name ||
+                          (subscription as any).plan_name ||
+                          (subscription as any).name ||
+                          `الباقة #${subscription.plan_id || subscription.id}`
+                      )
+                    : "لا يوجد اشتراك نشط"}
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  {subscription
+                    ? "تتيح لك حفظ التسجيلات السحابية ومراقبة الكاميرات واستخدام الذكاء الاصطناعي لرصد الحركة."
+                    : "قم باختيار إحدى الباقات المتاحة أدناه للاشتراك والاستفادة من التخزين السحابي وخدمات الطوارئ."}
+                </p>
               </div>
 
-              <div className="flex items-center gap-4">
-                <span className="font-mono font-bold text-foreground">{inv.amount}</span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-[10px]">
-                  {inv.status || "مدفوعة"}
-                </span>
-              </div>
+              {subscription && (
+                <div className="text-start sm:text-end shrink-0">
+                  <div className="text-2xl font-bold text-foreground font-mono">
+                    {subscription.plan?.price
+                      ? `$${subscription.plan.price} / ${subscription.plan.billing_cycle || "شهرياً"}`
+                      : typeof (subscription as any).price === "string" || typeof (subscription as any).price === "number"
+                      ? String((subscription as any).price)
+                      : "—"}
+                  </div>
+                  <button
+                    onClick={() => handleSubscribe(subscription.plan_id || subscription.id)}
+                    disabled={subscribeLoading === (subscription.plan_id || subscription.id)}
+                    className={cn(buttonVariants({ size: "sm" }), "mt-2 rounded-xl font-bold flex items-center gap-1.5")}
+                  >
+                    {subscribeLoading === (subscription.plan_id || subscription.id) && (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    )}
+                    <span>تجديد الاشتراك</span>
+                  </button>
+                </div>
+              )}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+
+          {/* Available Plans (GET /plans) */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <Zap className="size-5 text-primary" />
+              <span>ترقية باقة الاشتراك (Available Plans)</span>
+            </h2>
+
+            {plans.length === 0 ? (
+              <div className="bg-background border border-border rounded-2xl p-8 text-center text-xs text-muted-foreground space-y-2">
+                <AlertCircle className="size-8 mx-auto text-muted-foreground/50" />
+                <p>لا توجد باقات متاحة حالياً من API.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {plans.map((plan) => {
+                  const feats = parseFeatures(plan.features);
+                  const isCurrent =
+                    subscription &&
+                    (String(subscription.plan_id) === String(plan.id) ||
+                      (subscription.plan && String(subscription.plan.id) === String(plan.id)));
+                  return (
+                    <div
+                      key={plan.id}
+                      className={cn(
+                        "bg-background border rounded-2xl p-6 flex flex-col justify-between space-y-6 transition-colors shadow-sm",
+                        isCurrent ? "border-primary ring-1 ring-primary/20" : "border-border hover:border-primary/40"
+                      )}
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <h3 className="text-base font-bold text-foreground">{String(plan.name)}</h3>
+                          {isCurrent && (
+                            <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
+                              باقتك الحالية
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="text-2xl font-bold font-mono text-foreground">
+                          ${formatPlanPrice(plan.price)}{" "}
+                          <span className="text-xs font-normal text-muted-foreground">
+                            /{plan.billing_cycle || "شهر"}
+                          </span>
+                        </div>
+
+                        {feats.length > 0 && (
+                          <ul className="space-y-2 text-xs text-muted-foreground pt-2">
+                            {feats.map((f: string, idx: number) => (
+                              <li key={idx} className="flex items-center gap-2">
+                                <CheckCircle2 className="size-3.5 text-primary shrink-0" />
+                                <span>{f}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={() => handleSubscribe(plan.id)}
+                        disabled={subscribeLoading === plan.id}
+                        className={cn(
+                          buttonVariants({ variant: isCurrent ? "outline" : "default" }),
+                          "w-full rounded-xl font-bold flex items-center justify-center gap-2"
+                        )}
+                      >
+                        {subscribeLoading === plan.id ? (
+                          <Loader2 className="size-4 animate-spin" />
+                        ) : isCurrent ? (
+                          "تجديد الباقة"
+                        ) : (
+                          "الاشتراك في الباقة"
+                        )}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Invoices List (GET /billing/invoices) */}
+          <div className="bg-background border border-border rounded-2xl p-6 shadow-sm space-y-4">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <FileText className="size-5 text-primary" />
+              <span>سجل الفواتير (Invoices History)</span>
+            </h2>
+
+            {invoices.length === 0 ? (
+              <div className="p-8 text-center text-xs text-muted-foreground space-y-1">
+                <FileText className="size-8 mx-auto text-muted-foreground/40 mb-2" />
+                <p>لا توجد فواتير سابقة في سجل الحساب.</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border rounded-xl border border-border overflow-hidden">
+                {invoices.map((inv, i) => {
+                  const invId = String(inv.invoice_number || inv.id || `INV-${i + 1}`);
+                  const invDate = typeof inv.date === "string" ? inv.date : typeof inv.created_at === "string" ? inv.created_at : "—";
+                  const invAmount = typeof inv.amount === "number" ? `$${inv.amount}` : typeof inv.amount === "string" ? inv.amount : "—";
+                  const invStatus = typeof inv.status === "string" ? inv.status : "مدفوعة";
+
+                  return (
+                    <div
+                      key={inv.id ? String(inv.id) : i}
+                      className="p-4 flex items-center justify-between gap-4 hover:bg-muted/20 transition-colors text-xs"
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileText className="size-4 text-muted-foreground" />
+                        <div>
+                          <div className="font-bold text-foreground font-mono">{invId}</div>
+                          <div className="text-[10px] text-muted-foreground">{invDate}</div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <span className="font-mono font-bold text-foreground">{invAmount}</span>
+                        <span
+                          className={cn(
+                            "px-2 py-0.5 rounded-full font-bold text-[10px]",
+                            invStatus === "paid" || invStatus === "مدفوعة"
+                              ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                              : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                          )}
+                        >
+                          {invStatus}
+                        </span>
+                        {inv.download_url && typeof inv.download_url === "string" && (
+                          <a
+                            href={inv.download_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground"
+                            title="تحميل الفاتورة"
+                          >
+                            <Download className="size-3.5" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
