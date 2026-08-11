@@ -1,35 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import {
-  Camera,
-  Plus,
-  Lock,
-  Unlock,
-  Wifi,
-  Video,
-  Calendar,
-  Trash2,
-  QrCode,
-  CheckCircle2,
-  X,
-  Play,
-  Volume2,
-  ChevronRight,
-  AlertCircle,
-  Loader2,
-} from "lucide-react";
+  CameraApiItem,
+  deleteCameraApi,
+  listCamerasApi,
+  listRecordingsApi,
+  RecordingApiItem,
+  updateCameraSettingsApi,
+} from "@/lib/api";
 import { cn } from "@/lib/utils";
 import {
-  listCamerasApi,
-  pairAddCameraApi,
-  updateCameraSettingsApi,
-  deleteCameraApi,
-  listRecordingsApi,
-  CameraApiItem,
-  RecordingApiItem,
-} from "@/lib/api";
+  AlertCircle,
+  Calendar,
+  Camera,
+  ChevronRight,
+  Loader2,
+  Lock,
+  Pencil,
+  Play,
+  Plus,
+  Trash2,
+  Unlock,
+  Video,
+  Volume2,
+  Wifi,
+} from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface CameraItem {
   id: string;
@@ -73,25 +72,16 @@ function SignalBars({ value }: { value: number }) {
 export default function CamerasDashboardPage() {
   const t = useTranslations("Dashboard.Cameras");
   const locale = useLocale();
+  const searchParams = useSearchParams();
+  const selectedIdFromUrl = searchParams.get("selected");
 
   const [cameras, setCameras] = useState<CameraItem[]>([]);
   const [recordings, setRecordings] = useState<RecordingItem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const [addModalOpen, setAddModalOpen] = useState(false);
   const [selectedCamera, setSelectedCamera] = useState<CameraItem | null>(null);
   const [filterDate, setFilterDate] = useState<string>("");
   const [filterType, setFilterType] = useState("all");
-
-  // New camera form fields
-  const [newCamName, setNewCamName] = useState("");
-  const [newCamModelId, setNewCamModelId] = useState(1);
-  const [newCamSerial, setNewCamSerial] = useState("");
-  const [newCamMac, setNewCamMac] = useState("");
-  const [newCamMode, setNewCamMode] = useState("security");
-  const [newCamWifi, setNewCamWifi] = useState("Home_WiFi_5G");
-  const [qrScanned, setQrScanned] = useState(false);
-  const [submittingAdd, setSubmittingAdd] = useState(false);
 
   const timeLocale = locale === "ar" ? "ar-SA" : "en-US";
 
@@ -143,6 +133,10 @@ export default function CamerasDashboardPage() {
 
     if (fetchedCameras.length > 0) {
       setSelectedCamera((prev) => {
+        if (selectedIdFromUrl) {
+          const matched = fetchedCameras.find((c) => c.id === selectedIdFromUrl);
+          if (matched) return matched;
+        }
         if (!prev) return fetchedCameras[0];
         const exists = fetchedCameras.find((c) => c.id === prev.id);
         return exists || fetchedCameras[0];
@@ -219,43 +213,6 @@ export default function CamerasDashboardPage() {
     }
   };
 
-  const handleAddCamera = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCamName.trim()) return;
-    setSubmittingAdd(true);
-
-    const res = await pairAddCameraApi({
-      camera_model_id: newCamModelId,
-      name: newCamName,
-      serial_number: newCamSerial || `CAM-${Date.now()}`,
-      mac_address: newCamMac || "00:1B:44:11:3A:B7",
-      mode: newCamMode,
-    });
-
-    const addedData: any = res.data?.data || res.data;
-
-    const newCam: CameraItem = {
-      id: addedData?.id ? String(addedData.id) : `cam-${Date.now()}`,
-      name: newCamName,
-      location: t("mainLocation"),
-      status: "live",
-      isLocked: false,
-      wifiName: newCamWifi,
-      wifiSignal: 90,
-      model: t("model", { modelId: newCamModelId }),
-      lastEvent: t("connectedNow"),
-    };
-
-    setCameras((prev) => [...prev, newCam]);
-    setSelectedCamera(newCam);
-    setNewCamName("");
-    setNewCamSerial("");
-    setNewCamMac("");
-    setQrScanned(false);
-    setAddModalOpen(false);
-    setSubmittingAdd(false);
-  };
-
   const filtered = recordings.filter(
     (r) => filterType === "all" || r.type === filterType
   );
@@ -272,13 +229,13 @@ export default function CamerasDashboardPage() {
               {t("activeCamerasCount", { count: cameras.length })}
             </p>
           </div>
-          <button
-            onClick={() => setAddModalOpen(true)}
+          <Link
+            href="/dashboard/cameras/add"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90 transition-colors shadow-sm shadow-primary/20"
           >
             <Plus className="size-3.5" />
             <span>{t("add")}</span>
-          </button>
+          </Link>
         </div>
 
         {/* Camera list */}
@@ -291,12 +248,12 @@ export default function CamerasDashboardPage() {
           ) : cameras.length === 0 ? (
             <div className="p-8 text-center text-xs text-muted-foreground space-y-2">
               <p>{t("noCameras")}</p>
-              <button
-                onClick={() => setAddModalOpen(true)}
-                className="text-primary font-bold hover:underline text-xs"
+              <Link
+                href="/dashboard/cameras/add"
+                className="text-primary font-bold hover:underline text-xs inline-block"
               >
                 {t("addNewCamera")}
-              </button>
+              </Link>
             </div>
           ) : (
             cameras.map((cam) => {
@@ -383,6 +340,13 @@ export default function CamerasDashboardPage() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
+                <Link
+                  href={`/dashboard/cameras/${selectedCamera.id}/edit`}
+                  title={t("editCamera")}
+                  className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                >
+                  <Pencil className="size-4" />
+                </Link>
                 <button
                   onClick={() => toggleLock(selectedCamera.id)}
                   className={cn(
@@ -539,117 +503,6 @@ export default function CamerasDashboardPage() {
           </div>
         )}
       </div>
-
-      {/* ── Add Camera Modal ────────────────────────── */}
-      {addModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[--db-sidebar] border border-[--db-border] rounded-2xl max-w-sm w-full shadow-2xl">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[--db-border]">
-              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                <QrCode className="size-4 text-primary" />
-                {t("pairAndAddCamera")}
-              </h3>
-              <button
-                onClick={() => setAddModalOpen(false)}
-                className="p-1 rounded-lg text-muted-foreground hover:bg-accent"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddCamera} className="px-6 py-5 space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground">{t("cameraName")}</label>
-                <input
-                  type="text"
-                  required
-                  placeholder={t("cameraNamePlaceholder")}
-                  value={newCamName}
-                  onChange={(e) => setNewCamName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[--db-border] bg-[--db-card] text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-foreground">{t("serialNumber")}</label>
-                  <input
-                    type="text"
-                    placeholder="CAM-123456"
-                    value={newCamSerial}
-                    onChange={(e) => setNewCamSerial(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-lg border border-[--db-border] bg-[--db-card] text-xs font-mono text-foreground"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-foreground">{t("macAddress")}</label>
-                  <input
-                    type="text"
-                    placeholder="00:1B:44:11:3A:B7"
-                    value={newCamMac}
-                    onChange={(e) => setNewCamMac(e.target.value)}
-                    className="w-full px-3 py-1.5 rounded-lg border border-[--db-border] bg-[--db-card] text-xs font-mono text-foreground"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-foreground">{t("wifiNetwork")}</label>
-                <select
-                  value={newCamWifi}
-                  onChange={(e) => setNewCamWifi(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-[--db-border] bg-[--db-card] text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                >
-                  <option value="Home_WiFi_5G">Home_WiFi_5G (5GHz)</option>
-                  <option value="Home_WiFi_2.4G">Home_WiFi_2.4G (2.4GHz)</option>
-                  <option value="Barosic_Security_Net">Barosic_Security_Net</option>
-                </select>
-              </div>
-
-              <div className="border border-dashed border-[--db-border] rounded-xl p-5 text-center space-y-3">
-                {qrScanned ? (
-                  <div className="space-y-1 text-emerald-600 dark:text-emerald-400">
-                    <CheckCircle2 className="size-8 mx-auto" />
-                    <div className="text-xs font-bold">{t("qrScannedSuccess")}</div>
-                    <div className="text-[10px] text-muted-foreground">{t("readyToAdd")}</div>
-                  </div>
-                ) : (
-                  <>
-                    <QrCode className="size-10 mx-auto text-primary" />
-                    <div className="text-xs font-bold text-foreground">{t("scanQrPrompt")}</div>
-                    <button
-                      type="button"
-                      onClick={() => setQrScanned(true)}
-                      className="px-4 py-1.5 bg-primary text-primary-foreground text-xs font-bold rounded-xl"
-                    >
-                      {t("simulateQrScan")}
-                    </button>
-                  </>
-                )}
-              </div>
-
-              <div className="flex gap-3 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setAddModalOpen(false)}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-[--db-border] text-sm font-bold text-foreground hover:bg-accent transition-colors"
-                >
-                  {t("cancel")}
-                </button>
-                <button
-                  type="submit"
-                  disabled={submittingAdd || !qrScanned || !newCamName.trim()}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold disabled:opacity-40 hover:bg-primary/90 transition-colors flex items-center justify-center gap-1"
-                >
-                  {submittingAdd ? <Loader2 className="size-4 animate-spin" /> : t("addCameraSubmit")}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
-
-
