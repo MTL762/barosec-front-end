@@ -581,7 +581,21 @@
       "mainLocation": "الموقع الرئيسي",
       "barosicCamera": "كاميرا باروسك",
       "model": "موديل #{modelId}",
-      "modeLabel": "وضع: {mode}"
+      "modeLabel": "وضع: {mode}",
+      "editCamera": "تعديل الكاميرا",
+      "editCameraTitle": "إعدادات تعديل الكاميرا",
+      "editCameraSubtitle": "تحديث معلومات الجهاز ووضع التشغيل وإعدادات الخصوصية.",
+      "addCameraTitle": "إضافة كاميرا جديدة",
+      "addCameraSubtitle": "إقران كاميرا أمان جديدة بحسابك.",
+      "backToCameras": "العودة للكاميرات",
+      "saveChanges": "حفظ التغييرات",
+      "saving": "جاري الحفظ...",
+      "cameraNotFound": "لم يتم العثور على الكاميرا",
+      "loadingCameraDetails": "جاري تحميل تفاصيل الكاميرا...",
+      "mode": "وضع التشغيل",
+      "modeSecurity": "الأمان (مراقبة نشطة)",
+      "modeSleep": "خمول / وضع الاستعداد",
+      "modePrivacy": "وضع الخصوصية"
     }
   },
   "Profile": {

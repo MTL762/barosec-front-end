@@ -581,7 +581,21 @@
       "mainLocation": "Main Location",
       "barosicCamera": "Barosic Camera",
       "model": "Model #{modelId}",
-      "modeLabel": "Mode: {mode}"
+      "modeLabel": "Mode: {mode}",
+      "editCamera": "Edit Camera",
+      "editCameraTitle": "Edit Camera Settings",
+      "editCameraSubtitle": "Update device parameters, mode, and privacy configuration.",
+      "addCameraTitle": "Add New Camera",
+      "addCameraSubtitle": "Pair a new security camera to your account.",
+      "backToCameras": "Back to Cameras",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "cameraNotFound": "Camera not found",
+      "loadingCameraDetails": "Loading camera details...",
+      "mode": "Operational Mode",
+      "modeSecurity": "Security (Active Surveillance)",
+      "modeSleep": "Sleep / Standby",
+      "modePrivacy": "Privacy Mode"
     }
   },
   "Profile": {
