@@ -758,7 +758,21 @@
       "currentTickets": "Current Tickets",
       "statusOpen": "Open",
       "ticketSuccess": "Support ticket created successfully!",
-      "ticketError": "Failed to submit ticket"
+      "ticketError": "Failed to submit ticket",
+      "ticketsTab": "Current Tickets",
+      "newTicketTab": "New Support Ticket",
+      "faqTab": "FAQs & Articles",
+      "searchFaqsPlaceholder": "Search FAQs and support articles...",
+      "noTickets": "No active support tickets",
+      "noTicketsDesc": "If you experience any technical camera issues, create a new ticket and technicians will follow up.",
+      "openNewTicket": "Create New Ticket",
+      "contactSupportTitle": "24/7 Direct Support",
+      "contactSupportDesc": "Our technical team is available 24/7 for instant help.",
+      "phoneSupport": "Toll-Free: 800-BAROSIC",
+      "emailSupport": "Email: support@barosic.com",
+      "openModalDesc": "Please fill out the form to register your technical support ticket.",
+      "cancel": "Cancel",
+      "submitting": "Submitting..."
     },
     "Roles": {
       "title": "Roles & Permissions",

@@ -23,23 +23,24 @@ export default function ClientSupportDashboardPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="db-card p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      {/* Page Header */}
+      <div className="bg-background border border-border rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <HelpCircle className="size-6 text-primary" />
             <span>{t("title")}</span>
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">{t("subtitle")}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t("subtitle")}</p>
         </div>
       </div>
 
       {loading ? (
-        <div className="p-16 db-card flex flex-col items-center justify-center gap-2 text-muted-foreground">
-          <Loader2 className="size-6 animate-spin text-primary" />
-          <span className="text-xs">{t("loading")}</span>
+        <div className="p-16 bg-background border border-border rounded-2xl flex flex-col items-center justify-center gap-3 text-muted-foreground shadow-sm">
+          <Loader2 className="size-8 animate-spin text-primary" />
+          <span className="text-sm font-bold">{t("loading")}</span>
         </div>
       ) : (
-        <div className="db-card p-4 sm:p-6 overflow-hidden">
+        <div className="bg-background border border-border rounded-2xl p-6 shadow-sm">
           <SupportTicketsSection initialArticles={articles} initialFaqs={faqs} />
         </div>
       )}

@@ -758,7 +758,21 @@
       "currentTickets": "التذاكر الحالية",
       "statusOpen": "مفتوحة",
       "ticketSuccess": "تم إنشاء تذكرة الدعم بنجاح!",
-      "ticketError": "فشل إرسال التذكرة"
+      "ticketError": "فشل إرسال التذكرة",
+      "ticketsTab": "التذاكر الحالية",
+      "newTicketTab": "إنشاء تذكرة جديدة",
+      "faqTab": "الأسئلة الشائعة والمقالات",
+      "searchFaqsPlaceholder": "ابحث في الأسئلة الشائعة ومقالات الدعم...",
+      "noTickets": "لا توجد تذاكر دعم حالية",
+      "noTicketsDesc": "إذا كنت تواجه أي إشكال تقني بالكاميرات، يمكنك إنشاء تذكرة جديدة وسيتابعك الفنيون فوراً.",
+      "openNewTicket": "إنشاء تذكرة جديدة",
+      "contactSupportTitle": "الدعم المباشر 24/7",
+      "contactSupportDesc": "فريق الفنيين متواجد طوال أيام الأسبوع للمساعدة السريعة.",
+      "phoneSupport": "الرقم المجاني: 800-BAROSIC",
+      "emailSupport": "البريد: support@barosic.com",
+      "openModalDesc": "يرجى تعبئة النموذج لتسجيل طلب الدعم الفني لمتابعة الكاميرا والأجهزة.",
+      "cancel": "إلغاء",
+      "submitting": "جاري الإرسال..."
     },
     "Roles": {
       "title": "الأدوار والصلاحيات",
