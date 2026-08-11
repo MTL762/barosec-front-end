@@ -1,4 +1,3 @@
-import assert from "node:assert";
 import * as api from "./index";
 
 export function verifyAllEndpoints(): boolean {

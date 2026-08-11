@@ -534,7 +534,7 @@ export default function DashboardOverviewPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: t("manageCameras"), icon: "📷", href: "/dashboard/cameras", sub: t("manageCamerasSub") },
-          { label: t("reviewRecordings"), icon: "📹", href: "/dashboard/cameras", sub: t("reviewRecordingsSub") },
+          { label: t("reviewRecordings"), icon: "📹", href: "/dashboard/recordings", sub: t("reviewRecordingsSub") },
           { label: t("emergencyStatus"), icon: "🚨", href: "/dashboard/emergency", sub: t("emergencyStatusSub") },
           { label: t("manageSubscription"), icon: "💳", href: "/dashboard/billing", sub: t("manageSubscriptionSub") },
         ].map((action) => (

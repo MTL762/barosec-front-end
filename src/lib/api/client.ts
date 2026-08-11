@@ -43,9 +43,9 @@ export async function apiFetch<T = unknown>(
   data: T | null;
   error: string | null;
   status: number;
-  meta?: any;
-  links?: any;
-  result?: any;
+  meta?: unknown;
+  links?: unknown;
+  result?: unknown;
 }> {
   const res = await fetchHelper<T>({
     endPoint: endpoint,

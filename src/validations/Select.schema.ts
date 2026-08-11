@@ -26,7 +26,7 @@ export function MultiSelectReqWithMax(
 		.max(max ?? 500000, `${t(`Validations.max`)} ${max}`);
 }
 
-export function BooleanReq(t: TFunction) {
+export function BooleanReq(_t?: TFunction) {
 	return z.union([
 		z.string().startsWith("false"),
 		z.string().startsWith("true"),

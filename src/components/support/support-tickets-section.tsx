@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Send,
   MessageSquare,
@@ -59,11 +59,7 @@ export function SupportTicketsSection({
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchSupportData();
-  }, []);
-
-  const fetchSupportData = async () => {
+  const fetchSupportData = useCallback(async () => {
     const [aRes, fRes, tRes] = await Promise.all([
       articles.length === 0 ? getPublicArticlesApi() : Promise.resolve({ data: null }),
       faqs.length === 0 ? getPublicFaqsApi() : Promise.resolve({ data: null }),
@@ -73,7 +69,11 @@ export function SupportTicketsSection({
     if (aRes.data && Array.isArray(aRes.data)) setArticles(aRes.data);
     if (fRes.data && Array.isArray(fRes.data)) setFaqs(fRes.data);
     if (tRes.data && Array.isArray(tRes.data)) setTickets(tRes.data);
-  };
+  }, [articles.length, faqs.length]);
+
+  useEffect(() => {
+    fetchSupportData();
+  }, [fetchSupportData]);
 
   const handleCreateTicket = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -51,13 +51,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const savedToken = getStoredToken();
-    if (savedToken) {
-      setToken(savedToken);
-      fetchProfile();
-    } else {
-      setIsLoading(false);
-    }
+    let isMounted = true;
+    const initAuth = async () => {
+      const savedToken = getStoredToken();
+      if (savedToken) {
+        if (isMounted) setToken(savedToken);
+        await fetchProfile();
+      } else {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+    initAuth();
+    return () => {
+      isMounted = false;
+    };
   }, [fetchProfile]);
 
   const login = async (data: LoginParams) => {

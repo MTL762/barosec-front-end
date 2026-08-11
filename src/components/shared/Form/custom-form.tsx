@@ -44,22 +44,29 @@ export default function CustomForm<T extends FieldValues>({
 	isMasonry?: boolean;
 }) {
 	const t = useTranslations();
+	const safeTranslate = (key?: string) => {
+		if (!key) return "";
+		try {
+			if (t.has(key as any)) return t(key as any);
+		} catch {}
+		return key;
+	};
+
 	const groupedInputs = inputs.reduce(
 		(acc, input) => {
 			const cardId = input?.cardId ?? "default";
 			if (!acc[cardId]) {
 				acc[cardId] = [];
 			}
+			const resolvedLabel = input?.label ? safeTranslate(input.label) : safeTranslate(input?.name);
 			acc[cardId].push({
 				...input,
-				label: input?.label ? t(`${input?.label}`) : t(`${input?.name}`),
+				label: resolvedLabel,
 				id: input?.name,
-				defaultValue: input?.defaultValue ?? t(`${input?.name}`),
+				defaultValue: input?.defaultValue ?? safeTranslate(input?.name),
 				placeholder: input?.placeholder
-					? t(`${input?.placeholder}`)
-					: input?.label
-						? t(`${input?.label}`)
-						: t(`${input?.name}`),
+					? safeTranslate(input.placeholder)
+					: resolvedLabel,
 			});
 			return acc;
 		},

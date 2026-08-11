@@ -140,8 +140,8 @@ export default function AdminRolesPage() {
     if (data && Array.isArray(data)) {
       setRoles(data);
     }
-    if (meta) {
-      setPaginationMeta(meta);
+    if (meta && typeof meta === "object" && "total" in meta) {
+      setPaginationMeta(meta as PaginationMeta);
     }
     setLoading(false);
   };

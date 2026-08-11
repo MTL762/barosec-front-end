@@ -16,6 +16,22 @@ export default function SubmitSection({
 	onCancel?: () => void;
 }) {
 	const t = useTranslations();
+	const safeTranslate = (key?: string, fallbackDefault?: string) => {
+		if (key) {
+			try {
+				if (t.has(key as any)) return t(key as any);
+			} catch {}
+			return key;
+		}
+		if (fallbackDefault) {
+			try {
+				if (t.has(fallbackDefault as any)) return t(fallbackDefault as any);
+			} catch {}
+			return fallbackDefault;
+		}
+		return "";
+	};
+
 	return (
 		<div className="flex flex-col items-center justify-end gap-3 sm:flex-row">
 			<Button
@@ -28,14 +44,14 @@ export default function SubmitSection({
 				}}
 				className="order-2 w-full hover:text-red-600 sm:w-auto sm:order-1"
 			>
-				{cancelLabel ? t(cancelLabel) : t("cancel")}
+				{safeTranslate(cancelLabel, "cancel")}
 			</Button>
 			<Button
 				type="submit"
 				disabled={disabled}
 				className="order-1 w-full sm:w-auto sm:order-2 bg-primary hover:bg-primary/90 text-primary-foreground"
 			>
-				{btnLabel ? t(btnLabel) : id ? t("update") : t("submit")}
+				{safeTranslate(btnLabel, id ? "update" : "submit")}
 			</Button>
 		</div>
 	);
