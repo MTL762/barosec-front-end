@@ -292,8 +292,8 @@ export function Sidebar({
       {/* Brand Header */}
       <div
         className={cn(
-          "flex items-center justify-between px-4 py-5 border-b border-[--db-border] shrink-0",
-          collapsed && !mobile && "justify-center px-2"
+          "flex items-center justify-between px-3.5 py-4 border-b border-[--db-border] shrink-0 min-h-[64px]",
+          collapsed && !mobile && "flex-col justify-center px-2 py-3 gap-2"
         )}
       >
         <div className="flex items-center gap-2.5 overflow-hidden">
@@ -317,6 +317,38 @@ export function Sidebar({
             </div>
           )}
         </div>
+
+        {/* Collapse Toggle in Header */}
+        {!mobile && setCollapsed && (
+          <button
+            onClick={() => setCollapsed((v) => !v)}
+            title={
+              collapsed
+                ? locale === "en"
+                  ? "Expand Sidebar"
+                  : "توسيع القائمة"
+                : locale === "en"
+                ? "Collapse Sidebar"
+                : "طَي القائمة"
+            }
+            aria-label={
+              collapsed
+                ? locale === "en"
+                  ? "Expand sidebar"
+                  : "توسيع القائمة"
+                : locale === "en"
+                ? "Collapse sidebar"
+                : "طَي القائمة"
+            }
+            className="p-1.5 rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200 shrink-0"
+          >
+            {collapsed ? (
+              <ChevronRight className="size-4 shrink-0 transition-transform duration-200 hover:scale-110 rtl:rotate-180" />
+            ) : (
+              <ChevronLeft className="size-4 shrink-0 transition-transform duration-200 hover:scale-110 rtl:rotate-180" />
+            )}
+          </button>
+        )}
 
         {mobile && onCloseMobile && (
           <button
@@ -440,21 +472,6 @@ export function Sidebar({
           >
             <LogOut className="size-4 shrink-0" />
             {(!collapsed || mobile) && <span>تسجيل الخروج</span>}
-          </button>
-        )}
-
-        {/* Collapse Toggle */}
-        {!mobile && setCollapsed && (
-          <button
-            onClick={() => setCollapsed((v) => !v)}
-            className="w-full flex items-center justify-center h-8 rounded-xl text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-            aria-label="Toggle sidebar"
-          >
-            {collapsed ? (
-              <ChevronLeft className="size-4 rtl:rotate-180" />
-            ) : (
-              <ChevronRight className="size-4 rtl:rotate-180" />
-            )}
           </button>
         )}
       </div>
