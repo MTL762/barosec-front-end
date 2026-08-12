@@ -1,10 +1,10 @@
 "use client";
 
-import { Bell, Sun, Moon, Menu, LogOut, Globe } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { useAuth } from "@/lib/auth-context";
+import { cn } from "@/lib/utils";
+import { Globe, LogOut, Menu, Moon, Sun } from "lucide-react";
 import { useLocale } from "next-intl";
-import { useRouter, usePathname } from "@/i18n/navigation";
 
 interface DashboardHeaderProps {
   title: { ar: string; en: string };
@@ -83,13 +83,13 @@ export function DashboardHeader({
         </button>
 
         {/* Notifications */}
-        <button
+        {/* <button
           className="relative p-2 rounded-xl text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
           aria-label="Notifications"
         >
           <Bell className="size-4" />
           <span className="absolute top-1.5 end-1.5 size-1.5 rounded-full bg-red-500" />
-        </button>
+        </button> */}
 
         {/* Theme Toggle */}
         <button
