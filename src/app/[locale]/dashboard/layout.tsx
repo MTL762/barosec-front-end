@@ -2,7 +2,7 @@
 
 import { useRouter } from "@/i18n/navigation";
 import { DashboardHeader } from "@/components/dashboard/header";
-import { CLIENT_NAV_ITEMS, NavLink, Sidebar } from "@/components/dashboard/sidebar";
+import { CLIENT_NAV_ITEMS, ADMIN_NAV_ITEMS, checkIsAdmin, NavLink, Sidebar } from "@/components/dashboard/sidebar";
 import { listCamerasApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
@@ -29,7 +29,8 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { token, isAuthenticated, isLoading } = useAuth();
+  const { token, isAuthenticated, isLoading, user } = useAuth();
+  const isAdmin = checkIsAdmin(user);
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -128,7 +129,7 @@ export default function DashboardLayout({
 
       {/* ── Mobile bottom nav ───────────────────────────── */}
       <nav className="lg:hidden fixed inset-x-0 bottom-0 z-30 flex items-center justify-around bg-[--db-sidebar] border-t border-[--db-border] px-2 py-1.5 safe-area-bottom">
-        {CLIENT_NAV_ITEMS.map((item) => (
+        {(isAdmin ? ADMIN_NAV_ITEMS : CLIENT_NAV_ITEMS).map((item) => (
           <NavLink key={item.href} item={item} collapsed={false} mobile />
         ))}
       </nav>

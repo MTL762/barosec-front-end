@@ -330,28 +330,8 @@ export function Sidebar({
 
       {/* Navigation items */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-4">
-        {/* Client Section */}
-        <div>
-          {(!collapsed || mobile) && (
-            <div className="px-3 pb-1.5 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
-              {locale === "en" ? "Client Portal" : "بوابة العميل"}
-            </div>
-          )}
-          <div className="space-y-1">
-            {CLIENT_NAV_ITEMS.map((item) => (
-              <NavLink
-                key={item.href}
-                item={item}
-                collapsed={mobile ? false : collapsed}
-                onClick={mobile ? onCloseMobile : undefined}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Admin Section (Only rendered if user is Admin) */}
-        {isAdmin && (
-          <div className="pt-2 border-t border-[--db-border]">
+        {isAdmin ? (
+          <div>
             {(!collapsed || mobile) && (
               <div className="px-3 pb-1.5 text-[10px] font-bold tracking-wider text-primary uppercase flex items-center justify-between">
                 <span>{locale === "en" ? "Admin Console" : "بوابة الأدمن"}</span>
@@ -359,6 +339,24 @@ export function Sidebar({
             )}
             <div className="space-y-1">
               {ADMIN_NAV_ITEMS.map((item) => (
+                <NavLink
+                  key={item.href}
+                  item={item}
+                  collapsed={mobile ? false : collapsed}
+                  onClick={mobile ? onCloseMobile : undefined}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div>
+            {(!collapsed || mobile) && (
+              <div className="px-3 pb-1.5 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
+                {locale === "en" ? "Client Portal" : "بوابة العميل"}
+              </div>
+            )}
+            <div className="space-y-1">
+              {CLIENT_NAV_ITEMS.map((item) => (
                 <NavLink
                   key={item.href}
                   item={item}
