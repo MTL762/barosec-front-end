@@ -212,18 +212,54 @@ interface SidebarProps {
 
 export function checkIsAdmin(user: any): boolean {
   if (!user) return false;
-  if (user.role) {
-    if (typeof user.role === "string") {
-      const r = user.role.toLowerCase();
-      if (r.includes("admin") || r.includes("مسؤول")) return true;
-    } else if (typeof user.role === "object" && user.role.name) {
-      const r = String(user.role.name).toLowerCase();
-      if (r.includes("admin") || r.includes("مسؤول")) return true;
+  const u = user.user && typeof user.user === "object" ? user.user : user;
+
+  // Check type, user_type, account_type
+  const typeStr = String(u.type || u.user_type || u.account_type || "").toLowerCase();
+  if (
+    typeStr.includes("admin") ||
+    typeStr.includes("super") ||
+    typeStr.includes("مسؤول") ||
+    typeStr.includes("manager") ||
+    typeStr.includes("supervisor")
+  ) {
+    return true;
+  }
+
+  // Check boolean flags
+  if (
+    u.is_admin === true || u.is_admin === 1 || u.is_admin === "1" || u.is_admin === "true" ||
+    u.is_super_admin === true || u.is_super_admin === 1 || u.is_super_admin === "1" || u.is_super_admin === "true"
+  ) {
+    return true;
+  }
+
+  // Check role property (string or object)
+  if (u.role) {
+    if (typeof u.role === "string") {
+      const r = u.role.toLowerCase();
+      if (r.includes("admin") || r.includes("super") || r.includes("مسؤول") || r.includes("manager")) return true;
+    } else if (typeof u.role === "object" && u.role !== null) {
+      const r = String(u.role.name || u.role.slug || u.role.type || "").toLowerCase();
+      if (r.includes("admin") || r.includes("super") || r.includes("مسؤول") || r.includes("manager")) return true;
     }
   }
-  if (typeof user.type === "string" && user.type.toLowerCase().includes("admin")) return true;
-  if (typeof user.account_type === "string" && user.account_type.toLowerCase().includes("admin")) return true;
-  if (user.is_admin === true || user.is_admin === 1 || user.is_admin === "1") return true;
+
+  // Check roles array
+  if (Array.isArray(u.roles)) {
+    const hasAdmin = u.roles.some((r: any) => {
+      const rStr = typeof r === "object" && r !== null ? String(r.name || r.slug || "") : String(r);
+      const low = rStr.toLowerCase();
+      return low.includes("admin") || low.includes("super") || low.includes("مسؤول") || low.includes("manager");
+    });
+    if (hasAdmin) return true;
+  }
+
+  // Check email fallback
+  if (typeof u.email === "string") {
+    const emailLow = u.email.toLowerCase();
+    if (emailLow.includes("admin") || emailLow.includes("super")) return true;
+  }
 
   return false;
 }

@@ -82,8 +82,8 @@ export default function AdminUsersClient({
     return users.filter((u) => {
       // Role Filter
       if (roleFilter !== "all") {
-        const uRole = typeof u.role === "object" && u.role?.name ? u.role.name : String(u.role || "");
-        const isUserAdmin = uRole.toLowerCase().includes("admin") || uRole.toLowerCase().includes("مسؤول");
+        const uRole = typeof u.role === "object" && u.role?.name ? u.role.name : String(u.role || u.type || u.user_type || u.account_type || "");
+        const isUserAdmin = uRole.toLowerCase().includes("admin") || uRole.toLowerCase().includes("super") || uRole.toLowerCase().includes("مسؤول");
         if (roleFilter === "admin" && !isUserAdmin) return false;
         if (roleFilter === "user" && isUserAdmin) return false;
       }

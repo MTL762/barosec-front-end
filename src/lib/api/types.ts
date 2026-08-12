@@ -268,12 +268,14 @@ export interface AdminUserApiItem {
 
 export interface CreateRoleParams {
   name: string;
-  permission_ids: number[];
+  permission_ids?: number[];
+  permissions?: (number | string)[];
 }
 
 export interface UpdateRoleParams {
   name?: string;
   permission_ids?: number[];
+  permissions?: (number | string)[];
 }
 
 export interface PermissionApiItem {

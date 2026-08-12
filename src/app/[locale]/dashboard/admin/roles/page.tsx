@@ -132,6 +132,73 @@ export default function AdminRolesPage() {
   // Filter permissions inside modal
   const [permSearch, setPermSearch] = useState("");
 
+  const getRolePermissionObjects = (role: RoleApiItem): PermissionApiItem[] => {
+    const result: PermissionApiItem[] = [];
+    const seenIds = new Set<number>();
+
+    // 1. Process role.permissions array if available
+    if (Array.isArray(role.permissions)) {
+      role.permissions.forEach((p, idx) => {
+        if (typeof p === "object" && p !== null && p.name) {
+          const pId = typeof p.id === "number" ? p.id : Number(p.id) || idx + 1;
+          if (!seenIds.has(pId)) {
+            seenIds.add(pId);
+            result.push({ id: pId, name: String(p.name) });
+          }
+        } else if (typeof p === "string") {
+          const num = Number(p);
+          if (!isNaN(num)) {
+            const match = ALL_PERMISSIONS.find((ap) => ap.id === num);
+            if (match && !seenIds.has(match.id)) {
+              seenIds.add(match.id);
+              result.push({ id: match.id, name: match.name });
+            }
+          } else {
+            const match = ALL_PERMISSIONS.find((ap) => ap.name === p);
+            const pId = match ? match.id : idx + 1000;
+            if (!seenIds.has(pId)) {
+              seenIds.add(pId);
+              result.push({ id: pId, name: String(p) });
+            }
+          }
+        } else if (typeof p === "number") {
+          const match = ALL_PERMISSIONS.find((ap) => ap.id === p);
+          if (match && !seenIds.has(match.id)) {
+            seenIds.add(match.id);
+            result.push({ id: match.id, name: match.name });
+          }
+        }
+      });
+    }
+
+    // 2. Process role.permission_ids if available (array or string)
+    let rawIds: (number | string)[] = [];
+    if (Array.isArray(role.permission_ids)) {
+      rawIds = role.permission_ids;
+    } else if (typeof role.permission_ids === "string" && role.permission_ids.trim()) {
+      try {
+        const parsed = JSON.parse(role.permission_ids);
+        if (Array.isArray(parsed)) rawIds = parsed;
+        else rawIds = role.permission_ids.split(",");
+      } catch {
+        rawIds = role.permission_ids.split(",");
+      }
+    }
+
+    rawIds.forEach((idVal) => {
+      const num = Number(idVal);
+      if (!isNaN(num)) {
+        const match = ALL_PERMISSIONS.find((ap) => ap.id === num);
+        if (match && !seenIds.has(match.id)) {
+          seenIds.add(match.id);
+          result.push({ id: match.id, name: match.name });
+        }
+      }
+    });
+
+    return result;
+  };
+
   const fetchRoles = async (page = 1) => {
     setLoading(true);
     const res = await listRolesApi(page);
@@ -139,9 +206,13 @@ export default function AdminRolesPage() {
     const meta = res.meta;
     if (data && Array.isArray(data)) {
       setRoles(data);
+    } else if (res.result && Array.isArray((res.result as any).data)) {
+      setRoles((res.result as any).data);
     }
     if (meta && typeof meta === "object" && "total" in meta) {
       setPaginationMeta(meta as PaginationMeta);
+    } else if (res.result && (res.result as any).meta) {
+      setPaginationMeta((res.result as any).meta as PaginationMeta);
     }
     setLoading(false);
   };
@@ -179,16 +250,8 @@ export default function AdminRolesPage() {
   const handleOpenEdit = (role: RoleApiItem) => {
     setEditingRole(role);
     setRoleName(role.name || "");
-
-    let existingIds: number[] = [];
-    if (Array.isArray(role.permissions)) {
-      existingIds = role.permissions
-        .map((p) => (typeof p === "object" && p ? p.id : Number(p)))
-        .filter((id) => !isNaN(id));
-    } else if (Array.isArray(role.permission_ids)) {
-      existingIds = role.permission_ids.map(Number).filter((id) => !isNaN(id));
-    }
-    setSelectedPermissionIds(existingIds);
+    const permObjs = getRolePermissionObjects(role);
+    setSelectedPermissionIds(permObjs.map((p) => p.id));
     setModalOpen(true);
   };
 
@@ -225,27 +288,31 @@ export default function AdminRolesPage() {
     }
 
     setActionLoading(true);
+    const selectedNames = ALL_PERMISSIONS
+      .filter((p) => selectedPermissionIds.includes(p.id))
+      .map((p) => p.name);
+
+    const payload = {
+      name: roleName.trim(),
+      permission_ids: selectedPermissionIds,
+      permissions: selectedNames,
+    };
+
     if (editingRole) {
-      const { error } = await updateRoleApi(editingRole.id, {
-        name: roleName.trim(),
-        permission_ids: selectedPermissionIds,
-      });
+      const { error } = await updateRoleApi(editingRole.id, payload);
 
       if (error) {
-        toast.error(error || t("updateError"));
+        toast.error(typeof error === "string" ? error : t("updateError"));
       } else {
         toast.success(t("updateSuccess"));
         setModalOpen(false);
         fetchRoles(currentPage);
       }
     } else {
-      const { error } = await createRoleApi({
-        name: roleName.trim(),
-        permission_ids: selectedPermissionIds,
-      });
+      const { error } = await createRoleApi(payload);
 
       if (error) {
-        toast.error(error || t("createError"));
+        toast.error(typeof error === "string" ? error : t("createError"));
       } else {
         toast.success(t("createSuccess"));
         setModalOpen(false);
@@ -394,26 +461,21 @@ export default function AdminRolesPage() {
       ) : (
         <div className="space-y-4">
           {filteredRoles.map((role) => {
-            const rolePerms = role.permissions || [];
+            const rolePermObjs = getRolePermissionObjects(role);
             const isExpanded = !!expandedRoleIds[role.id];
 
             // Group permissions of this role for presentation
             const groupedRolePerms: Record<string, PermissionApiItem[]> = {};
-            if (Array.isArray(rolePerms)) {
-              rolePerms.forEach((p) => {
-                if (typeof p === "object" && p !== null) {
-                  const permObj = p as PermissionApiItem;
-                  const [moduleName] = permObj.name.split(".");
-                  const formattedModule = moduleName ? moduleName.replace(/_/g, " ") : "General";
-                  if (!groupedRolePerms[formattedModule]) {
-                    groupedRolePerms[formattedModule] = [];
-                  }
-                  groupedRolePerms[formattedModule].push(permObj);
-                }
-              });
-            }
+            rolePermObjs.forEach((permObj) => {
+              const [moduleName] = permObj.name.split(".");
+              const formattedModule = moduleName ? moduleName.replace(/_/g, " ") : "General";
+              if (!groupedRolePerms[formattedModule]) {
+                groupedRolePerms[formattedModule] = [];
+              }
+              groupedRolePerms[formattedModule].push(permObj);
+            });
 
-            const totalPermCount = Array.isArray(rolePerms) ? rolePerms.length : 0;
+            const totalPermCount = rolePermObjs.length;
             const isFullAdmin = totalPermCount >= ALL_PERMISSIONS.length || role.name === "admin";
 
             return (
@@ -670,10 +732,11 @@ export default function AdminRolesPage() {
                             {groupPerms.map((perm) => {
                               const isChecked = selectedPermissionIds.includes(perm.id);
                               return (
-                                <label
+                                <button
+                                  type="button"
                                   key={perm.id}
                                   onClick={() => handleTogglePermission(perm.id)}
-                                  className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-xs cursor-pointer transition-all select-none ${
+                                  className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-xs cursor-pointer transition-all select-none text-right ${
                                     isChecked
                                       ? "bg-primary/10 border-primary/40 text-foreground font-semibold"
                                       : "bg-background border-border hover:border-border/80 text-muted-foreground"
@@ -691,7 +754,7 @@ export default function AdminRolesPage() {
                                   <span className="font-mono text-[11px] truncate" title={perm.name}>
                                     {perm.name}
                                   </span>
-                                </label>
+                                </button>
                               );
                             })}
                           </div>

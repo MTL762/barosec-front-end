@@ -33,6 +33,21 @@ const AuthContext = createContext<AuthContextType>({
   refreshProfile: async () => {},
 });
 
+function extractUserData(raw: any): UserProfile | null {
+  if (!raw) return null;
+  let root = raw;
+  if (root.data && typeof root.data === "object" && !Array.isArray(root.data)) {
+    root = root.data;
+  }
+  if (root.user && typeof root.user === "object" && !Array.isArray(root.user)) {
+    return root.user as UserProfile;
+  }
+  if (root.id !== undefined || root.email !== undefined || root.name !== undefined || root.type !== undefined) {
+    return root as UserProfile;
+  }
+  return root as UserProfile;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -40,12 +55,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = useCallback(async () => {
     setIsLoading(true);
-    const { data, error } = await getProfileApi();
-    if (data && !error) {
-      const uData = (data as Record<string, unknown>).data || data;
-      setUser(uData as UserProfile);
-    } else {
+    const res = await getProfileApi();
+    if (res.data && !res.error) {
+      const profileUser = extractUserData(res.data) || extractUserData(res.result);
+      if (profileUser) {
+        setUser((prev) => (prev ? { ...prev, ...profileUser } : profileUser));
+      }
+    } else if (res.status === 401) {
       setUser(null);
+      setToken(null);
+      setStoredToken(null);
     }
     setIsLoading(false);
   }, []);
@@ -74,16 +93,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
       return { success: false, error: res.error };
     }
-    const tokenVal = (res.data as Record<string, unknown>)?.token || ((res.data as Record<string, unknown>)?.data as Record<string, unknown>)?.token;
-    const userData = (res.data as Record<string, unknown>)?.data || res.data;
+    const tokenVal =
+      (res.data as Record<string, unknown>)?.token ||
+      ((res.data as Record<string, unknown>)?.data as Record<string, unknown>)?.token ||
+      (res.result as Record<string, unknown>)?.token ||
+      ((res.result as Record<string, unknown>)?.data as Record<string, unknown>)?.token;
+
     if (typeof tokenVal === "string") {
       setToken(tokenVal);
       setStoredToken(tokenVal);
     }
+
+    const userData = extractUserData(res.data) || extractUserData(res.result);
     if (userData) {
-      setUser(userData as UserProfile);
+      setUser(userData);
+    } else {
+      await fetchProfile();
     }
-    await fetchProfile();
     setIsLoading(false);
     return { success: true };
   };
@@ -95,14 +121,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(false);
       return { success: false, error: res.error };
     }
-    const tokenVal = (res.data as Record<string, unknown>)?.token || ((res.data as Record<string, unknown>)?.data as Record<string, unknown>)?.token;
-    const userData = (res.data as Record<string, unknown>)?.data || res.data;
+    const tokenVal =
+      (res.data as Record<string, unknown>)?.token ||
+      ((res.data as Record<string, unknown>)?.data as Record<string, unknown>)?.token ||
+      (res.result as Record<string, unknown>)?.token;
+
     if (typeof tokenVal === "string") {
       setToken(tokenVal);
       setStoredToken(tokenVal);
     }
+
+    const userData = extractUserData(res.data) || extractUserData(res.result);
     if (userData) {
-      setUser(userData as UserProfile);
+      setUser(userData);
     }
     await fetchProfile();
     setIsLoading(false);
